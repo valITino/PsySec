@@ -2,24 +2,15 @@
 //
 // Statt satori nutzen wir fontkit + resvg: satori kann weder WOFF2 noch Variable Fonts.
 // fontkit liest Manrope und Geist Mono direkt aus den Fontsource-Paketen, stellt das Gewicht
-// ein und liefert die Buchstaben als Pfade. So sehen die Bilder aus wie die Website, ohne dass
-// eine zweite Schriftdatei gepflegt werden muss.
+// ein und liefert die Buchstaben als Pfade. Eule und Wortmarke kommen aus dem Logo-Kit
+// (packages/ui/src/brand). So sehen die Bilder aus wie die Website, ohne dass eine zweite
+// Schriftdatei gepflegt werden muss.
 import { Resvg } from '@resvg/resvg-js';
 import * as fontkit from 'fontkit';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import wawoff2 from 'wawoff2';
-import {
-  amberEnds,
-  arcPath,
-  crossPath,
-  shellPoints,
-  sideNodes,
-  signalArcs,
-  stem,
-  whiteNodes,
-} from '../packages/ui/src/lib/psi-net-data.ts';
 
 const WIDTH = 1200;
 const HEIGHT = 630;
@@ -30,6 +21,8 @@ const C = {
   haze: '#cfc8e2',
   space: '#3d1e86',
   nebula: '#b678f7',
+  trace: '#3d2b68',
+  amber: '#f9ad26',
   acid: '#c9fb52',
 };
 
@@ -65,7 +58,7 @@ function textPath(
   weight: number,
   text: string,
   options: { x: number; y: number; size: number; fill: string; tracking?: number },
-): { svg: string; width: number } {
+): string {
   const font = base.getVariation({ wght: weight });
   const scale = options.size / font.unitsPerEm;
   const tracking = (options.tracking ?? 0) * font.unitsPerEm;
@@ -84,37 +77,32 @@ function textPath(
     }
     cursor += position.xAdvance + tracking;
   });
-  return {
-    svg: `<g fill="${options.fill}">${parts.join('')}</g>`,
-    width: (cursor - tracking) * scale,
-  };
+  return `<g fill="${options.fill}">${parts.join('')}</g>`;
 }
 
-/** Psi-Netz aus denselben Daten wie die Astro-Komponente */
-function psiNet(x: number, y: number, scale: number, opacity: number): string {
-  const nodes = whiteNodes
-    .map(([cx, cy]) => `<circle cx="${cx}" cy="${cy}" r="1.3" fill="${C.bone}"/>`)
-    .join('');
-  const sides = sideNodes
-    .map(([cx, cy]) => `<circle cx="${cx}" cy="${cy}" r="0.9" fill="${C.bone}"/>`)
-    .join('');
-  const ends = amberEnds
-    .map(([cx, cy]) => `<circle cx="${cx}" cy="${cy}" r="2.3" fill="${C.acid}"/>`)
-    .join('');
-  const arcs = signalArcs
-    .map(
-      ({ r, opacity: o }) =>
-        `<path d="${arcPath(r)}" fill="none" stroke="${C.acid}" stroke-width="1.1" stroke-linecap="round" opacity="${o}"/>`,
-    )
-    .join('');
-  return `<g transform="translate(${x} ${y}) scale(${scale})" opacity="${opacity}">
-    <path d="${crossPath}" fill="none" stroke="${C.haze}" stroke-width="0.5" opacity="0.45"/>
-    <g fill="none" stroke="${C.haze}" stroke-width="0.95" stroke-linecap="round" stroke-linejoin="round">
-      <polyline points="${shellPoints}"/>
-      <path d="M${stem.x} ${stem.top}V${stem.bottom}M${sideNodes[0]![0]} ${sideNodes[0]![1]}H${sideNodes[1]![0]}"/>
-    </g>
-    ${nodes}${sides}${ends}${arcs}
-  </g>`;
+/**
+ * Bild aus dem Logo-Kit einsetzen: Inhalt der SVG-Datei, auf `height` skaliert, linke obere
+ * Ecke bei (x, y). Die viewBox der Datei gibt Ursprung und Grösse vor.
+ */
+function kitImage(root: string, file: string, x: number, y: number, height: number): string {
+  const source = readFileSync(resolve(root, 'packages/ui/src/brand', file), 'utf8');
+  const box = /viewBox="([\d.\s-]+)"/.exec(source)?.[1]?.split(/\s+/).map(Number);
+  if (!box || box.length !== 4) throw new Error(`viewBox fehlt in ${file}`);
+  const [minX, minY, , boxHeight] = box as [number, number, number, number];
+  const scale = height / boxHeight;
+  const inner = source
+    .replace(/^[\s\S]*?<svg[^>]*>/, '')
+    .replace(/<\/svg>\s*$/, '')
+    .replace(/<title>[^<]*<\/title>/, '');
+  return `<g transform="translate(${(x - minX * scale).toFixed(2)} ${(y - minY * scale).toFixed(2)}) scale(${scale.toFixed(5)})">${inner}</g>`;
+}
+
+/** Leiterbahn mit Lötpunkt am Ende, im Stil des Logo-Kits */
+function trace(d: string, end: [number, number], led = false): string {
+  const [cx, cy] = end;
+  return `<path d="${d}" fill="none" stroke="${C.trace}" stroke-width="3" stroke-linejoin="round"/>
+  <circle cx="${cx}" cy="${cy}" r="8" fill="${C.void}" stroke="${C.trace}" stroke-width="3"/>
+  ${led ? `<circle cx="${cx}" cy="${cy}" r="3.5" fill="${C.amber}"/>` : ''}`;
 }
 
 interface Card {
@@ -125,65 +113,53 @@ interface Card {
   /** Schriftgrösse der Headline */
   size: number;
   footer: string;
+  mood?: 'wach' | 'skeptisch' | 'erwischt';
 }
 
-const PSI_ICON = 'M2 2.2 C2 7 4 9.2 6 9.2 C8 9.2 10 7 10 2.2 M6 0.8 V13.2';
-
-function render(fonts: Fonts, card: Card): Buffer {
+function render(root: string, fonts: Fonts, card: Card): Buffer {
   const left = 72;
 
-  const kicker = textPath(fonts.mono, 500, `// ${card.kicker.toLocaleUpperCase('de-CH')}`, {
-    x: left,
+  const kicker = textPath(fonts.sans, 600, card.kicker.toLocaleUpperCase('de-CH'), {
+    x: left + 34,
     y: 192,
     size: 19,
     fill: C.ash,
     tracking: 0.08,
   });
+  const slashes = textPath(fonts.mono, 500, '//', { x: left, y: 192, size: 19, fill: C.acid });
   // Etwas Luft zwischen den Zeilen: Die Punkte von Ä, Ö, Ü stossen sonst an die Zeile darüber.
   const lineHeight = card.size * 1.0;
   const firstBaseline = 192 + 34 + card.size * 0.74;
   const headline = card.lines
-    .map(
-      (line, index) =>
-        textPath(fonts.sans, 650, line.toLocaleUpperCase('de-CH'), {
-          x: left,
-          y: firstBaseline + index * lineHeight,
-          size: card.size,
-          fill: C.bone,
-          tracking: -0.045,
-        }).svg,
+    .map((line, index) =>
+      textPath(fonts.sans, 650, line.toLocaleUpperCase('de-CH'), {
+        x: left,
+        y: firstBaseline + index * lineHeight,
+        size: card.size,
+        fill: C.bone,
+        tracking: -0.045,
+      }),
     )
     .join('');
-
-  const wordmark = textPath(fonts.sans, 800, 'PSYber', {
-    x: left + 44,
-    y: 100,
-    size: 42,
-    fill: C.bone,
-    tracking: -0.045,
-  });
-  const footer = textPath(fonts.mono, 500, card.footer, {
+  const footer = textPath(fonts.sans, 600, card.footer, {
     x: left,
     y: 560,
-    size: 20,
+    size: 21,
     fill: C.haze,
-    tracking: 0.02,
+    tracking: 0.01,
   });
+  const owl = card.mood && card.mood !== 'wach' ? `owl-${card.mood}.svg` : 'owl.svg';
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
   <defs>
-    <radialGradient id="orb" cx="0.62" cy="0.24" r="0.8">
-      <stop offset="0" stop-color="#3a2180"/>
-      <stop offset="0.45" stop-color="#1c0f45"/>
-      <stop offset="1" stop-color="#0b0719"/>
-    </radialGradient>
     <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="${C.space}" stop-opacity="0.75"/>
+      <stop offset="0" stop-color="${C.space}" stop-opacity="0.9"/>
+      <stop offset="0.55" stop-color="${C.space}" stop-opacity="0.35"/>
       <stop offset="1" stop-color="${C.space}" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0" stop-color="${C.void}" stop-opacity="1"/>
-      <stop offset="0.6" stop-color="${C.void}" stop-opacity="0.72"/>
+      <stop offset="0.62" stop-color="${C.void}" stop-opacity="0.78"/>
       <stop offset="1" stop-color="${C.void}" stop-opacity="0"/>
     </linearGradient>
     <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
@@ -192,16 +168,19 @@ function render(fonts: Fonts, card: Card): Buffer {
   </defs>
   <rect width="${WIDTH}" height="${HEIGHT}" fill="${C.void}"/>
   <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#dots)"/>
-  <circle cx="960" cy="330" r="560" fill="url(#glow)"/>
-  <circle cx="960" cy="330" r="300" fill="url(#orb)" stroke="${C.nebula}" stroke-opacity="0.6" stroke-width="1.5"/>
-  ${psiNet(798, 122, 2.7, 0.95)}
-  <rect width="760" height="${HEIGHT}" fill="url(#fade)"/>
-  <g transform="translate(${left} 60) scale(3)" fill="none" stroke="${C.acid}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="${PSI_ICON}"/></g>
-  ${wordmark.svg}
-  ${kicker.svg}
+  <circle cx="980" cy="330" r="520" fill="url(#glow)"/>
+  ${trace('M690 118H930L984 64H1128', [1128, 64], true)}
+  ${trace('M720 206H800L846 160H1150', [1150, 160])}
+  ${trace('M700 520H842L888 566H1140', [1140, 566], true)}
+  ${trace('M730 446H790', [730, 446])}
+  <rect width="740" height="${HEIGHT}" fill="url(#fade)"/>
+  ${kitImage(root, owl, 790, 128, 400)}
+  ${kitImage(root, 'wordmark.svg', left, 62, 44)}
+  ${slashes}
+  ${kicker}
   ${headline}
   <rect x="${left}" y="516" width="64" height="4" rx="2" fill="${C.acid}"/>
-  ${footer.svg}
+  ${footer}
 </svg>`;
 
   return Buffer.from(new Resvg(svg, { font: { loadSystemFonts: false } }).render().asPng());
@@ -212,30 +191,31 @@ export async function renderOgImages(root: string): Promise<void> {
   const cards: Card[] = [
     {
       out: 'apps/web/public/og/psyber.png',
-      kicker: 'Cyber-Prävention für Familien in Zürich',
+      kicker: 'Cyber-Prävention für Familien',
       lines: ['Ein Klick zu viel?', 'Ein Anruf zu', 'glaubwürdig?'],
-      size: 84,
-      footer: 'Wir patchen Layer 8.  ·  psyber.tech',
+      size: 78,
+      footer: 'Betrüger hassen diesen Blick.  ·  psyber.tech',
     },
     {
       out: 'apps/web/public/og/checkliste.png',
       kicker: 'Checkliste zum Ausdrucken',
-      lines: ['5 Warnsignale', 'für Online-Betrug'],
-      size: 84,
+      lines: ['5 Warnsignale', 'für Online-', 'Betrug'],
+      size: 78,
       footer: 'Pause statt Panik.  ·  psyber.tech/checkliste',
+      mood: 'skeptisch',
     },
     {
       out: 'apps/forms/public/og/umfrage.png',
       kicker: 'Rund 4 Minuten. Anonym. Mit Gratis-Checkliste.',
       lines: ['Wie sicher ist', 'Ihre Familie', 'online?'],
-      size: 84,
+      size: 78,
       footer: 'Umfrage  ·  forms.psyber.tech',
     },
   ];
   for (const card of cards) {
     const target = resolve(root, card.out);
     mkdirSync(resolve(target, '..'), { recursive: true });
-    writeFileSync(target, render(fonts, card));
+    writeFileSync(target, render(root, fonts, card));
     console.log(`OG-Bild → ${card.out}`);
   }
 }

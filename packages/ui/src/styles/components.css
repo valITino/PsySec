@@ -171,16 +171,21 @@
     font-variant-numeric: tabular-nums;
   }
 
-  /* Label: klein, Versalien, gesperrt, in Mono. Als Kicker mit «//» davor. */
+  /* Label: klein, Versalien, gesperrt. Als Kicker mit «//» davor (die Schrägstriche in Mono). */
   .kicker,
   .label-up {
     color: var(--fg-muted);
-    font-family: var(--ff-mono);
-    font-size: var(--fs-micro);
-    font-weight: 500;
+    font-size: var(--fs-meta);
+    font-weight: 600;
     letter-spacing: var(--ls-label);
     line-height: 1.5;
     text-transform: uppercase;
+  }
+
+  .kicker > [aria-hidden='true'] {
+    font-family: var(--ff-mono);
+    font-weight: 500;
+    letter-spacing: 0.04em;
   }
 
   /* Wörter, die auch im Label klein bleiben (Befehle wie «whoami») */
@@ -242,32 +247,39 @@
 
   /* ---------- Marke ---------- */
 
-  /* Wortmarke «PSYber»: Manrope 800, eng gesetzt, nie in Versalien */
-  .wordmark {
-    color: var(--fg-strong);
-    font-weight: 800;
-    letter-spacing: -0.045em;
-    line-height: 1;
-    text-transform: none;
-  }
-
-  /* Psi-Icon plus Wortmarke */
+  /* Logo aus dem Kit: Eule mit Lupe und Wortmarke als ein Bild */
   .logo {
+    --logo-h: 2.75rem;
     display: inline-flex;
+    flex: none;
     align-items: center;
-    gap: 0.5rem;
     min-height: 2.75rem;
-    color: var(--fg-strong);
     text-decoration: none;
   }
 
-  .logo-icon {
+  .logo-img {
+    display: block;
     flex: none;
-    color: var(--acid);
+    width: auto;
+    max-width: none;
+    height: var(--logo-h);
   }
 
-  .logo-word {
-    font-size: 1.5rem;
+  /* Die Eule allein */
+  .owl {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* Sticker aus dem Kit: wie auf einen Laptop geklebt, leicht gedreht */
+  .sticker {
+    display: block;
+    width: var(--sticker-size, 8rem);
+    height: auto;
+    border-radius: 50%;
+    filter: drop-shadow(0 0.5rem 1.25rem rgb(0 0 0 / 0.45));
+    transform: rotate(var(--sticker-tilt, -8deg));
   }
 
   /* ---------- Buttons ---------- */
@@ -366,7 +378,7 @@
     .btn-secondary:hover:not(:disabled, [aria-disabled='true']) {
       --btn-bg: rgb(244 244 239 / 0.1);
       --btn-border: var(--acid);
-      box-shadow: 0 0 20px rgb(201 251 82 / 0.2);
+      box-shadow: 0 0 20px rgb(var(--acid-rgb) / 0.2);
     }
 
     .btn-secondary:hover:not(:disabled, [aria-disabled='true'])::before {
@@ -486,9 +498,8 @@
     border: 1px solid rgb(244 244 239 / 0.3);
     border-radius: var(--r-pill);
     color: var(--fg);
-    font-family: var(--ff-mono);
     font-size: var(--fs-micro);
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: 0.06em;
     line-height: 1.2;
     text-transform: uppercase;
@@ -663,7 +674,7 @@
     height: 0.5rem;
     border-radius: 50%;
     background-color: var(--acid);
-    box-shadow: 0 0 10px rgb(201 251 82 / 0.6);
+    box-shadow: 0 0 10px rgb(var(--acid-rgb) / 0.6);
   }
 
   .dot-off {

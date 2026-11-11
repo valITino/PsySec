@@ -171,7 +171,7 @@ const rest = all.filter((entry) => entry !== featured);
     background-color: var(--carbon);
     background-image: radial-gradient(
       30rem 20rem at 0% 0%,
-      rgb(201 251 82 / 0.06),
+      rgb(var(--acid-rgb) / 0.06),
       transparent 70%
     );
   }
@@ -218,9 +218,8 @@ const rest = all.filter((entry) => entry !== featured);
     gap: 0.5rem;
     margin-bottom: 0.375rem;
     color: var(--ash);
-    font-family: var(--ff-mono);
     font-size: var(--fs-micro);
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: var(--ls-label);
     text-transform: uppercase;
   }

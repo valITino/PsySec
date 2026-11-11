@@ -3,7 +3,8 @@
  * 0x09 Über: Foto-Platzhalter als Punktraster-Karte, daneben Überschrift und Terminal-Karte.
  * Keine erfundenen Angaben.
  */
-import PsiIcon from '@psyber/ui/components/PsiIcon.astro';
+import Owl from '@psyber/ui/components/Owl.astro';
+import stickerUrl from '@psyber/ui/brand/sticker-blick.svg?url';
 import { about } from '../../config/site.ts';
 import SectionHead from '../SectionHead.astro';
 
@@ -22,9 +23,21 @@ const lines = [
         <span class="portrait-corner portrait-corner-tr" aria-hidden="true"></span>
         <span class="portrait-corner portrait-corner-bl" aria-hidden="true"></span>
         <span class="portrait-corner portrait-corner-br" aria-hidden="true"></span>
-        <PsiIcon size={96} class="portrait-psi" />
-        <figcaption class="label-up">{about.foto}</figcaption>
+        <Owl mood="skeptisch" class="portrait-owl" />
+        <figcaption class="portrait-caption">
+          <span class="label-up">{about.foto}</span>
+          <span>Solange hält die Eule die Stellung.</span>
+        </figcaption>
       </div>
+      <img
+        class="sticker portrait-sticker"
+        src={stickerUrl}
+        width="432"
+        height="432"
+        alt="Sticker mit der PSYber-Eule: «Betrüger hassen diesen Blick.»"
+        loading="lazy"
+        decoding="async"
+      />
     </figure>
 
     <div class="about-main">
@@ -103,13 +116,34 @@ const lines = [
       14px 14px;
   }
 
-  .portrait-frame :global(.portrait-psi) {
-    color: var(--acid);
-    filter: drop-shadow(0 0 18px rgb(201 251 82 / 0.45));
+  .portrait {
+    position: relative;
   }
 
-  .portrait figcaption {
+  .portrait-frame :global(.portrait-owl) {
+    width: min(58%, 15rem);
+  }
+
+  .portrait-caption {
+    display: grid;
+    justify-items: center;
+    gap: 0.375rem;
+    color: var(--ash);
+    font-size: var(--fs-small);
+    text-align: center;
+  }
+
+  .portrait-caption .label-up {
     color: var(--bone);
+  }
+
+  /* Der Sticker klebt über der Ecke der Karte */
+  .portrait-sticker {
+    --sticker-size: clamp(6.5rem, 4rem + 9vw, 10.5rem);
+    --sticker-tilt: 11deg;
+    position: absolute;
+    right: -0.5rem;
+    bottom: -1.5rem;
   }
 
   .portrait-corner {

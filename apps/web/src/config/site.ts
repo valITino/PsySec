@@ -131,6 +131,8 @@ export const sources = {
 
 export const meta = {
   name: 'PSYber',
+  /** Slogan zur Eule (Logo-Kit) */
+  slogan: 'Betrüger hassen diesen Blick.',
   claim: 'Wir patchen Layer 8.',
   defaultDescription:
     'PSYber zeigt Familien im Raum Zürich, wie Online-Betrug funktioniert, und sichert das Heimnetz gleich mit ab. Sicherheit, die beim Menschen anfängt.',

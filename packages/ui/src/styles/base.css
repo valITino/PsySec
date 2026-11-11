@@ -109,7 +109,12 @@
   }
 }
 
-/* Reduzierte Bewegung: alles sofort im Endzustand, keine Loops, kein sanftes Scrollen */
+/*
+ * Reduzierte Bewegung: alles sofort im Endzustand, keine Loops, kein sanftes Scrollen.
+ * Übergänge sind ganz aus (0s, nicht die verbreiteten 0.01ms): Auch ein winziger Übergang hält
+ * für ein bis zwei Bilder die alten Werte fest. Ändern sich dabei Schriftgrössen oder Abstände,
+ * steht das Layout kurz falsch, und ein Sprung zu einer Marke landet daneben.
+ */
 @media (prefers-reduced-motion: reduce) {
   *,
   ::before,
@@ -117,7 +122,7 @@
     animation-duration: 0.01ms !important;
     animation-delay: 0s !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
+    transition-duration: 0s !important;
     transition-delay: 0s !important;
     scroll-behavior: auto !important;
   }

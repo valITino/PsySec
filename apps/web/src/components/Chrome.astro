@@ -130,7 +130,7 @@ const { progress = false } = Astro.props;
       height: 9px;
       border-radius: 50%;
       background-color: var(--acid);
-      box-shadow: 0 0 12px rgb(201 251 82 / 0.7);
+      box-shadow: 0 0 12px rgb(var(--acid-rgb) / 0.7);
       transform: translateY(var(--rail-y, 0));
     }
   }
@@ -177,9 +177,8 @@ const { progress = false } = Astro.props;
   .chrome-motion {
     gap: 0.75rem;
     padding-inline: 1.25rem 1.125rem;
-    font-family: var(--ff-mono);
     font-size: var(--fs-micro);
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: var(--ls-label);
     text-transform: uppercase;
   }

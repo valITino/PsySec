@@ -1,8 +1,8 @@
 # PSYber Web-Plattform
 
-PSYber ist Cyber-Prävention für Familien im Raum Zürich: Aufklärung über Manipulation (Phishing, Anlagebetrug, Romance Scam, Cybermobbing) plus Absicherung des Heimnetzes. Dieses Monorepo enthält drei statische Websites (psyber.tech, forms.psyber.tech, surprise.psyber.tech) und einen kleinen Cloudflare Worker als API. Aktuelle Phase: Marktvalidierung mit Umfrage, darum zeigt die Website noch keine Preise.
+PSYber ist Cyber-Prävention für Familien (Start im Raum Zürich, später schweizweit): Aufklärung über Manipulation (Phishing, Anlagebetrug, Romance Scam, Cybermobbing) plus Absicherung des Heimnetzes. Dieses Monorepo enthält drei statische Websites (psyber.tech, forms.psyber.tech, surprise.psyber.tech) und einen kleinen Cloudflare Worker als API. Aktuelle Phase: Marktvalidierung mit Umfrage, darum zeigt die Website noch keine Preise.
 
-**Massgeblich ist `docs/BRIEF.md`** (der vollständige Auftrag, wörtlich). Stand und nächste Schritte: `docs/PROGRESS.md`. Entscheidungen: `docs/DECISIONS.md`. Offene Angaben: `docs/TODO.md`. Design: `docs/DESIGN.md`. Deployment: `docs/DEPLOY.md`.
+**Massgeblich ist `docs/BRIEF.md`** (der vollständige Auftrag, wörtlich). Das Design aus Abschnitt 4 ist seit dem Redesign abgelöst: Dafür gelten `docs/DESIGN.md` und `docs/DECISIONS.md` ab Nummer 100. Stand und nächste Schritte: `docs/PROGRESS.md`. Entscheidungen: `docs/DECISIONS.md`. Offene Angaben: `docs/TODO.md`. Design: `docs/DESIGN.md`. Deployment: `docs/DEPLOY.md`.
 
 ## Struktur
 
@@ -11,7 +11,7 @@ apps/web          psyber.tech            Astro, One-Pager + /checkliste /impress
 apps/forms        forms.psyber.tech      Astro + Preact-Island, Umfrage-Funnel
 apps/surprise     surprise.psyber.tech   Astro, Auflösung des Phishing-Tests («Erwischt!»), keine Eingabefelder
 apps/api          api.psyber.tech        Cloudflare Worker (Hono, D1, Turnstile, Rate Limiting, send_email, Cron)
-packages/ui       Tokens, Schrift, Psi-Icon, Psi-Netz, Wortmarke, Buttons, Karten, Motion-Helfer
+packages/ui       Tokens, Schrift, Logo-Kit (Eule, Wortmarke, Sticker), Buttons, Karten, Motion-Helfer
 packages/survey   Fragen als Daten, Zod-Schemas, Sprunglogik, Tipps (von Client und API genutzt)
 packages/config   tsconfig-/ESLint-Basis, CSP- und Header-Helfer
 scripts/          OG-Bilder/Favicons, Budget-, Header- und Lighthouse-Prüfung, GitHub-Pages-Build,
@@ -52,11 +52,13 @@ Nach jeder Änderung: `pnpm lint && pnpm typecheck && pnpm test && pnpm build`, 
 
 ## Designregeln (Kurzfassung, Details in `docs/DESIGN.md`)
 
-- Farben nur aus den Tokens (`packages/ui/src/styles/tokens.css`): night, aubergine, deep, line, lav, soft, white, violet, violet-dark, amber, paper, ink, muted. Höchstens zwei helle Sektionen pro Seite.
-- Schrift: Recursive (alle Achsen). Display: wght 800–900, CASL 0.6–1. Fliesstext: wght 400. Code/Meta: MONO 1.
-- Keine gesperrten Versalien. Abschnittsnummern in Hex («0x01»), Kicker als Code-Kommentar («// …»).
-- Karten: Radius 16 px, 1 px Rahmen, kein Schatten. Buttons: 48 px hoch, Radius 12 px. Fokus-Ring 3 px amber.
-- Animationen nur die sieben Momente aus Abschnitt 4.5 des Auftrags. `prefers-reduced-motion` überall respektieren.
+- Stil nach der Referenz eezyinn.de, aber selbst gebaut: fast schwarz, violette Bogen, riesige Versal-Überschriften, Pillen, Bühnen mit grossen Radien.
+- Farben nur aus den Tokens (`packages/ui/src/styles/tokens.css`): void, carbon, graphite, pit, hairline, steel, ash, bone, space, nebula, haze, acid, ink, amber. Acid ist die Aktionsfarbe, Amber steht für Warnsignale. Keine hellen Sektionen.
+- Schrift: Manrope (Überschriften 650 in Versalien, Text 400). Geist Mono nur für Code: Hex-Nummern, «//», Terminal, Adressen.
+- Kicker als Code-Kommentar mit Hex-Nummer («0x01 // …»); Labels in gesperrten Versalien. «PSYber» bleibt auch in Versalien exakt so geschrieben (`.brand`).
+- Logo, Eule und Sticker nur aus `packages/ui/src/brand/` (Logo-Kit). Slogan: «Betrüger hassen diesen Blick.» Der frühere Claim «Erst Kopf. Dann Klick.» wird nicht verwendet.
+- Karten: Radius 22 px, 1 px Rahmen, kein Schatten. Buttons: Pille, 52 px hoch. Fokus-Ring 3 px Acid.
+- Bewegung gezielt (Liste in `docs/DESIGN.md`), `prefers-reduced-motion` überall respektieren, Dauerbewegung pausierbar.
 - Keine Inline-`style`-Attribute und keine Inline-Skripte im Markup (strikte CSP mit Hashes).
 - Interne Links immer über den `href()`-Helfer der jeweiligen App (wegen `base` in der GitHub-Pages-Vorschau).
 

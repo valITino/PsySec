@@ -1,30 +1,26 @@
-// Erzeugt die statischen Marken-Assets der drei Websites:
-//   - Favicon-Set aus dem Psi-Icon (favicon.svg, favicon.ico, apple-touch-icon.png, icon-192/512.png)
+// Erzeugt die statischen Marken-Assets der drei Websites aus dem Logo-Kit (packages/ui/src/brand):
+//   - Favicon-Set mit der Eule (favicon.svg, favicon.ico, apple-touch-icon.png, icon-192/512.png)
 //   - site.webmanifest
 //   - OG-Bilder 1200×630 (siehe scripts/og.ts)
 // Aufruf: pnpm assets   (Ergebnisse werden committet; neu ausführen, wenn sich Marke oder Texte ändern)
 import { Resvg } from '@resvg/resvg-js';
-import { mkdirSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { renderOgImages } from './og.ts';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const VOID = '#08080b';
-const ACID = '#c9fb52';
-const PSI_PATH = 'M2 2.2 C2 7 4 9.2 6 9.2 C8 9.2 10 7 10 2.2 M6 0.8 V13.2';
+const kit = (file: string): string =>
+  readFileSync(resolve(root, 'packages/ui/src/brand', file), 'utf8');
 
-/** Psi-Icon auf dunklem Quadrat. `radius` 0 für Apple und maskierbare Icons. */
-function iconSvg(size: number, radius: number, scale = 1.7): string {
-  const unit = size / 32;
-  const width = 12 * scale * unit;
-  const height = 14 * scale * unit;
-  const x = (size - width) / 2;
-  const y = (size - height) / 2;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="${size}" height="${size}" rx="${radius * unit}" fill="${VOID}"/><path d="${PSI_PATH}" transform="translate(${x} ${y}) scale(${scale * unit})" fill="none" stroke="${ACID}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
-}
+/** Kleines Icon mit runden Ecken (Browser-Tab) */
+const FAVICON = kit('favicon.svg');
+/** Volle Fläche ohne runde Ecken: Apple und maskierbare Icons schneiden selbst zu. */
+const AVATAR = kit('avatar.svg');
 
-const png = (svg: string): Buffer => Buffer.from(new Resvg(svg).render().asPng());
+const png = (svg: string, size: number): Buffer =>
+  Buffer.from(new Resvg(svg, { fitTo: { mode: 'width', value: size } }).render().asPng());
 
 /** ICO-Container mit PNG-Bildern (16, 32, 48 px). */
 function ico(images: { size: number; data: Buffer }[]): Buffer {
@@ -51,7 +47,7 @@ function ico(images: { size: number; data: Buffer }[]): Buffer {
 }
 
 const apps = [
-  { dir: 'apps/web', name: 'PSYber', description: 'Cyber-Prävention für Familien in Zürich' },
+  { dir: 'apps/web', name: 'PSYber', description: 'Cyber-Prävention für Familien' },
   { dir: 'apps/forms', name: 'PSYber Umfrage', description: 'Wie sicher ist Ihre Familie online?' },
   { dir: 'apps/surprise', name: 'PSYber', description: 'Erwischt! Zum Glück nur von uns.' },
 ];
@@ -59,14 +55,14 @@ const apps = [
 for (const app of apps) {
   const out = resolve(root, app.dir, 'public');
   mkdirSync(out, { recursive: true });
-  writeFileSync(resolve(out, 'favicon.svg'), `${iconSvg(32, 7)}\n`);
+  writeFileSync(resolve(out, 'favicon.svg'), FAVICON);
   writeFileSync(
     resolve(out, 'favicon.ico'),
-    ico([16, 32, 48].map((size) => ({ size, data: png(iconSvg(size, 7)) }))),
+    ico([16, 32, 48].map((size) => ({ size, data: png(FAVICON, size) }))),
   );
-  writeFileSync(resolve(out, 'apple-touch-icon.png'), png(iconSvg(180, 0, 1.5)));
-  writeFileSync(resolve(out, 'icon-192.png'), png(iconSvg(192, 0, 1.3)));
-  writeFileSync(resolve(out, 'icon-512.png'), png(iconSvg(512, 0, 1.3)));
+  writeFileSync(resolve(out, 'apple-touch-icon.png'), png(AVATAR, 180));
+  writeFileSync(resolve(out, 'icon-192.png'), png(AVATAR, 192));
+  writeFileSync(resolve(out, 'icon-512.png'), png(AVATAR, 512));
   const manifest = {
     name: app.name,
     short_name: 'PSYber',

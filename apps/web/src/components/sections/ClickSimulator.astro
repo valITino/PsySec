@@ -11,6 +11,7 @@
  */
 import Icon from '@psyber/ui/components/Icon.astro';
 import Kicker from '@psyber/ui/components/Kicker.astro';
+import stickerUrl from '@psyber/ui/brand/sticker-netter-versuch.svg?url';
 
 const steps = [
   { step: 1, num: '01', title: 'Psychologie', sub: 'vor dem Klick' },
@@ -150,6 +151,16 @@ const steps = [
         </div>
       </div>
     </div>
+    <!-- Erscheint, sobald der DNS-Filter blockiert hat -->
+    <img
+      class="sticker sim-sticker"
+      src={stickerUrl}
+      width="432"
+      height="432"
+      alt=""
+      loading="lazy"
+      decoding="async"
+    />
   </div>
 
   <div class="sim-controls" data-sim-controls>
@@ -688,6 +699,29 @@ const steps = [
     opacity: 1;
   }
 
+  /* Sticker auf der Ecke des Geräts: klebt sich auf, wenn der Betrug blockiert ist */
+  .sim-phone {
+    position: relative;
+  }
+
+  .sim-sticker {
+    --sticker-size: clamp(5.5rem, 4rem + 4vw, 8rem);
+    --sticker-tilt: 12deg;
+    position: absolute;
+    right: calc(var(--sticker-size) * -0.4);
+    bottom: 3%;
+    opacity: 0;
+    transform: rotate(-14deg) scale(0.5);
+    transition:
+      opacity var(--dur-2) var(--ease),
+      transform var(--dur-3) cubic-bezier(0.2, 1.4, 0.4, 1);
+  }
+
+  .sim.is-note .sim-sticker {
+    opacity: 1;
+    transform: rotate(var(--sticker-tilt)) scale(1);
+  }
+
   /* Statischer Zustand, solange kein Skript übernommen hat: Schritt 1 vollständig */
   @media (scripting: none), (prefers-reduced-motion: reduce) {
     .sim:not([data-ready]) .sim-mark {
@@ -737,6 +771,11 @@ const steps = [
 
     .sim-controls {
       display: none;
+    }
+
+    .sim-sticker {
+      opacity: 1;
+      transform: rotate(var(--sticker-tilt));
     }
   }
 
@@ -791,9 +830,8 @@ const steps = [
   .sim-step-sub {
     display: block;
     margin-top: 0.375rem;
-    font-family: var(--ff-mono);
     font-size: var(--fs-micro);
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: var(--ls-label);
   }
 
@@ -840,9 +878,8 @@ const steps = [
     border-radius: var(--r-pill);
     background-color: var(--carbon);
     color: var(--bone);
-    font-family: var(--ff-mono);
     font-size: 0.6875rem;
-    font-weight: 500;
+    font-weight: 600;
     letter-spacing: var(--ls-label);
     line-height: 1.4;
     pointer-events: none;
@@ -897,7 +934,7 @@ const steps = [
     border: 0;
     border-radius: 50%;
     background-color: var(--acid);
-    box-shadow: 0 0 14px rgb(201 251 82 / 0.6);
+    box-shadow: 0 0 14px rgb(var(--acid-rgb) / 0.6);
     appearance: none;
     -webkit-appearance: none;
   }
@@ -909,7 +946,7 @@ const steps = [
     border: 0;
     border-radius: 50%;
     background-color: var(--acid);
-    box-shadow: 0 0 14px rgb(201 251 82 / 0.6);
+    box-shadow: 0 0 14px rgb(var(--acid-rgb) / 0.6);
   }
 
   /* ---------- Bühne: ab Desktop Text links, Gerät rechts ---------- */

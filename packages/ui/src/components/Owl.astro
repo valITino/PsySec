@@ -1,0 +1,31 @@
+---
+/**
+ * Die Eule aus dem Logo-Kit, in vier Mimiken: wach (Standard), skeptisch, erwischt, genervt.
+ * Ohne `label` ist sie Dekoration.
+ */
+import erwischt from '../brand/owl-erwischt.svg?url';
+import genervt from '../brand/owl-genervt.svg?url';
+import skeptisch from '../brand/owl-skeptisch.svg?url';
+import wach from '../brand/owl.svg?url';
+
+interface Props {
+  mood?: 'wach' | 'skeptisch' | 'erwischt' | 'genervt';
+  class?: string;
+  label?: string;
+  /** Erst laden, wenn das Bild in die Nähe des Bildschirms kommt (Standard) */
+  lazy?: boolean;
+}
+
+const { mood = 'wach', class: className, label = '', lazy = true } = Astro.props;
+const sources = { wach, skeptisch, erwischt, genervt };
+---
+
+<img
+  class:list={['owl', className]}
+  src={sources[mood]}
+  width="455"
+  height="490"
+  alt={label}
+  loading={lazy ? 'lazy' : 'eager'}
+  decoding="async"
+/>

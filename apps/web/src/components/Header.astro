@@ -9,7 +9,7 @@
 import Button from '@psyber/ui/components/Button.astro';
 import Icon from '@psyber/ui/components/Icon.astro';
 import Logo from '@psyber/ui/components/Logo.astro';
-import PsiNet from '@psyber/ui/components/PsiNet.astro';
+import Owl from '@psyber/ui/components/Owl.astro';
 import { contact, href, isTodo, nav, primaryCta, sites } from '../config/site.ts';
 
 interface Props {
@@ -59,8 +59,8 @@ const link = (hash: string) => (home ? hash : href(`/${hash}`));
   </div>
 
   <div class="menu" id="mobile-menu" data-menu hidden>
-    <div class="menu-psi" aria-hidden="true">
-      <PsiNet animated fine />
+    <div class="menu-owl" aria-hidden="true">
+      <Owl mood="skeptisch" />
     </div>
     <div class="wrap menu-inner">
       <nav class="menu-nav" aria-label="Menü">
@@ -287,13 +287,13 @@ const link = (hash: string) => (home ? hash : href(`/${hash}`));
     display: none;
   }
 
+  /* In der Kapsel bleibt vom Logo nur die Eule: Das Bild wird rechts abgeschnitten. */
   .site-header:global(.is-scrolled) :global(.bar-logo) {
-    justify-content: center;
-    width: 2.75rem;
-  }
-
-  .site-header:global(.is-scrolled) :global(.bar-logo .logo-word) {
-    display: none;
+    --logo-h: 2.25rem;
+    justify-content: flex-start;
+    width: calc(var(--logo-h) * 0.93);
+    margin-inline: 0.375rem 0.25rem;
+    overflow: hidden;
   }
 
   .site-header:global(.is-scrolled) .bar-actions {
@@ -334,20 +334,11 @@ const link = (hash: string) => (home ? hash : href(`/${hash}`));
       radial-gradient(40rem 30rem at 0% 100%, rgb(61 30 134 / 0.5), transparent 70%);
   }
 
-  /* Key Visual «Psi-Netz», gross und leise hinter dem Menü */
-  .menu-psi {
+  /* Die Eule schaut im Menü zu (nur wo Platz ist) */
+  .menu-owl {
+    display: none;
     position: absolute;
-    top: 8%;
-    right: -24%;
-    width: min(88vw, 34rem);
-    opacity: 0.22;
     pointer-events: none;
-  }
-
-  .menu-psi :global(.psi-net) {
-    width: 100%;
-    height: auto;
-    --psi-line: var(--haze);
   }
 
   .menu-inner {
@@ -444,12 +435,11 @@ const link = (hash: string) => (home ? hash : href(`/${hash}`));
       align-self: center;
     }
 
-    .menu-psi {
-      top: 50%;
-      right: 4%;
-      width: min(30vw, 30rem);
-      opacity: 0.5;
-      transform: translateY(-58%);
+    .menu-owl {
+      top: 14%;
+      right: max(var(--gutter), (100vw - var(--container)) / 2);
+      display: block;
+      width: min(19vw, 30svh, 17rem);
     }
   }
 

@@ -48,7 +48,27 @@ async function open(options, url, { reduced = false } = {}) {
   );
   await page.goto(url, { waitUntil: 'networkidle' });
   await page.evaluate(() => document.fonts.ready);
+  // Die Startseite stellt Sektionen weiter unten zurück: für stabile Positionen sofort berechnen.
+  await page.evaluate(async () => {
+    const lazy = [...document.querySelectorAll('[data-lazy]:not([data-laid])')];
+    for (const element of lazy) element.dataset.laid = 'new';
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+    for (const element of document.querySelectorAll('[data-lazy]')) element.dataset.laid = '';
+  });
+  await page.waitForTimeout(300);
   return page;
+}
+
+/** Scrollt so, dass das Element knapp unter der Kapsel steht, und wartet auf Einblendungen. */
+async function scrollTo(page, selector, offset = 84) {
+  await page.evaluate(
+    ([sel, gap]) => {
+      const top = document.querySelector(sel).getBoundingClientRect().top + window.scrollY;
+      window.scrollTo(0, Math.max(0, top - gap));
+    },
+    [selector, offset],
+  );
+  await page.waitForTimeout(700);
 }
 
 const shot = async (page, name, options = {}) => {
@@ -62,13 +82,14 @@ try {
   {
     const page = await open(DESKTOP, `${WEB}/`);
     await page.locator('[data-sim][data-ready]').waitFor();
-    // Der Simulator spielt einmal ab: Stand nach Schritt 1 (alle Warnsignale markiert)
-    await page.waitForTimeout(5600);
+    // Der Globus entsteht kurz nach dem ersten Bild
+    await page.waitForTimeout(1800);
     await shot(page, 'web-hero-desktop');
     await done(page);
   }
   {
     const page = await open(MOBILE, `${WEB}/`, { reduced: true });
+    await page.waitForTimeout(600);
     await shot(page, 'web-hero-mobile');
     await page.getByRole('button', { name: 'Menü' }).click();
     await page.waitForTimeout(300);
@@ -77,19 +98,30 @@ try {
   }
   {
     const page = await open(DESKTOP, `${WEB}/`, { reduced: true });
+    // Klick-Simulator in Schritt 2: der DNS-Filter hat blockiert, der Sticker klebt
+    await scrollTo(page, '[data-sim]', 40);
+    await page.getByRole('button', { name: /Schritt 2/ }).click();
+    await page.waitForTimeout(700);
+    await shot(page, 'web-simulator-desktop');
     for (const [selector, name] of [
       ['.drehbuch', 'web-drehbuch-desktop'],
       ['#maschen', 'web-maschen-desktop'],
       ['#pakete', 'web-pakete-desktop'],
+      ['#ueber', 'web-ueber-desktop'],
     ]) {
-      await page.locator(selector).first().scrollIntoViewIfNeeded();
-      await page.evaluate((sel) => {
-        const top = document.querySelector(sel).getBoundingClientRect().top + window.scrollY;
-        window.scrollTo(0, Math.max(0, top - 72));
-      }, selector);
-      await page.waitForTimeout(500);
+      // «Über» etwas tiefer, damit Karte und Sticker ganz im Bild sind
+      const offset = { '.drehbuch': 0, '#ueber': -26 }[selector] ?? 84;
+      await scrollTo(page, selector, offset);
       await shot(page, name);
     }
+    // Footer ganz zeigen: Fenster so hoch wie der Footer plus Platz für die Kapsel darüber
+    const footerHeight = await page.evaluate(() =>
+      Math.ceil(document.querySelector('footer').getBoundingClientRect().height),
+    );
+    await page.setViewportSize({ width: 1280, height: Math.min(1500, footerHeight + 96) });
+    await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight));
+    await page.waitForTimeout(700);
+    await shot(page, 'web-footer-desktop');
     await done(page);
   }
   {

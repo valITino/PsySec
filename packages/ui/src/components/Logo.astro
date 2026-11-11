@@ -1,22 +1,33 @@
 ---
-/** Psi-Icon und Wortmarke, optional als Link. */
-import PsiIcon from './PsiIcon.astro';
-import Wordmark from './Wordmark.astro';
+/**
+ * Logo aus dem Logo-Kit: die Eule mit Lupe und die Wortmarke «PSYber» als ein Bild
+ * (für dunkle Flächen). `variant="owl"` zeigt nur die Eule.
+ * Als Link trägt der Link den Namen; das Bild ist dann Dekoration.
+ */
+import logoUrl from '../brand/logo-dark.svg?url';
+import owlUrl from '../brand/owl.svg?url';
 
 interface Props {
   href?: string;
-  /** Höhe des Icons in Pixeln */
-  size?: number;
+  variant?: 'full' | 'owl';
   class?: string;
   /** Zugänglicher Name des Links */
   label?: string;
 }
 
-const { href, size = 26, class: className, label = 'PSYber, zur Startseite' } = Astro.props;
+const { href, variant = 'full', class: className, label = 'PSYber, zur Startseite' } = Astro.props;
 const Tag = href ? 'a' : 'span';
+// Seitenverhältnisse aus den viewBox-Angaben der Dateien
+const size = variant === 'owl' ? { width: 41, height: 44 } : { width: 139, height: 44 };
 ---
 
 <Tag class:list={['logo', className]} href={href} aria-label={href ? label : undefined}>
-  <PsiIcon size={size} class="logo-icon" />
-  <Wordmark class="logo-word" />
+  <img
+    class="logo-img"
+    src={variant === 'owl' ? owlUrl : logoUrl}
+    width={size.width}
+    height={size.height}
+    alt={href ? '' : 'PSYber'}
+    decoding="async"
+  />
 </Tag>

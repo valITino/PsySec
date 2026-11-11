@@ -5,6 +5,7 @@
  */
 import Icon from '@psyber/ui/components/Icon.astro';
 import Kicker from '@psyber/ui/components/Kicker.astro';
+import logoLightUrl from '@psyber/ui/brand/logo-light.svg?url';
 import { sites, sources } from '../config/site.ts';
 import Page from '../layouts/Page.astro';
 
@@ -41,7 +42,8 @@ const signals = [
   <article class="wrap checklist" data-checklist data-api={sites.api}>
     <header class="checklist-head">
       <p class="print-brand" aria-hidden="true">
-        PSYber · psyber.tech/checkliste
+        <img src={logoLightUrl} width="139" height="44" alt="" />
+        <span>psyber.tech/checkliste</span>
       </p>
       <Kicker>Checkliste zum Ausdrucken</Kicker>
       <h1 class="display h1 checklist-title">5 Warnsignale für Online-Betrug</h1>
@@ -298,10 +300,17 @@ const signals = [
     }
 
     .print-brand {
-      display: block;
-      font-size: 11pt;
-      font-weight: 800;
-      letter-spacing: -0.03em;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6mm;
+      font-size: 10pt;
+      font-weight: 600;
+    }
+
+    .print-brand img {
+      width: auto;
+      height: 12mm;
     }
 
     .checklist-head {

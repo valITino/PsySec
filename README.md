@@ -1,6 +1,6 @@
 # PSYber
 
-Cyber-Prävention für Familien im Raum Zürich. **Wir patchen Layer 8.**
+Cyber-Prävention für Familien. **Betrüger hassen diesen Blick.**
 
 Dieses Monorepo enthält die komplette Web-Plattform:
 
@@ -67,4 +67,4 @@ Auf GitHub Pages veröffentlicht der Workflow `pages.yml` denselben Stand bei je
 - [`docs/TODO.md`](docs/TODO.md): offene Angaben
 - [`docs/PR_DESCRIPTION.md`](docs/PR_DESCRIPTION.md): Überblick mit Screenshots
 
-Schrift: [Recursive](https://www.recursive.design) (SIL Open Font License). Icons: [Lucide](https://lucide.dev) (ISC License).
+Schriften: [Manrope](https://github.com/sharanda/manrope) und [Geist Mono](https://github.com/vercel/geist-font) (beide SIL Open Font License). Icons: [Lucide](https://lucide.dev) (ISC License). Logo, Eule und Sticker: eigenes Logo-Kit in `packages/ui/src/brand/`.

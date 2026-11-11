@@ -5,7 +5,7 @@
  * Verhalten: src/scripts/chat.ts
  */
 import Icon from '@psyber/ui/components/Icon.astro';
-import PsiIcon from '@psyber/ui/components/PsiIcon.astro';
+import Owl from '@psyber/ui/components/Owl.astro';
 import SectionHead from '../SectionHead.astro';
 
 const ampel = [
@@ -63,7 +63,7 @@ const ampel = [
       >
         <div class="chat-head">
           <span class="chat-logo" aria-hidden="true">
-            <PsiIcon size={18} />
+            <Owl />
           </span>
           <span class="chat-name">
             <strong>PSYber</strong>
@@ -206,12 +206,13 @@ const ampel = [
 
   .chat-logo {
     display: grid;
+    flex: none;
     place-items: center;
-    width: 2.5rem;
-    height: 2.5rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0.3125rem 0.375rem 0.25rem;
     border-radius: 50%;
     background-color: var(--void);
-    color: var(--acid);
   }
 
   .chat-name {
@@ -324,8 +325,18 @@ const ampel = [
    * Ablauf: chat.ts setzt `data-animated` und blendet die Nachrichten nacheinander ein (.is-in).
    * Ohne dieses Attribut sind alle Nachrichten sichtbar und der Tipp-Indikator ist ausgeblendet.
    */
+  /*
+   * Der Tipp-Indikator liegt im selben Rasterfeld wie die Antwort, die er ankündigt. So belegt er
+   * keinen eigenen Platz: Wenn er erscheint und wieder verschwindet, verschiebt sich nichts.
+   */
+  .msg-typing,
+  .msg-typing + .msg {
+    grid-area: 2 / 1;
+  }
+
   .msg-typing {
-    display: none;
+    align-self: start;
+    visibility: hidden;
   }
 
   .chat[data-animated] .msg {
@@ -340,7 +351,7 @@ const ampel = [
   }
 
   .chat[data-animated] .msg-typing.is-in {
-    display: flex;
+    visibility: visible;
   }
 
   @media (min-width: 64rem) {

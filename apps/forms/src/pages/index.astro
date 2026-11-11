@@ -4,7 +4,7 @@
  * die Fragen übernimmt das Preact-Island.
  */
 import { TURNSTILE_ORIGIN } from '@psyber/config/security';
-import PsiNet from '@psyber/ui/components/PsiNet.astro';
+import Owl from '@psyber/ui/components/Owl.astro';
 import SurveyApp from '../components/survey/SurveyApp.tsx';
 import Base from '../layouts/Base.astro';
 import { sites, surveyConfig } from '../lib/site.ts';
@@ -22,7 +22,7 @@ if (surveyConfig.turnstileSiteKey) {
   description="Rund 4 Minuten, anonym, mit Gratis-Checkliste: Sagen Sie uns, was Ihre Familie für mehr Sicherheit im Netz wirklich braucht."
 >
   <div class="sv-deco" aria-hidden="true">
-    <PsiNet fine />
+    <Owl lazy={false} />
   </div>
   {sites.preview && <p class="sv-preview">Vorschau: Die Umfrage speichert hier nichts.</p>}
   <SurveyApp client:load config={surveyConfig} />

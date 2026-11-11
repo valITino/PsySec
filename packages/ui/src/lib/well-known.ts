@@ -20,7 +20,7 @@ export function securityTxt(origin: string, now: Date = new Date()): string {
 export function humansTxt(site: string): string {
   return [
     '/* TEAM */',
-    'PSYber: Cyber-Prävention für Familien im Raum Zürich',
+    'PSYber: Cyber-Prävention für Familien',
     'Kontakt: security@psyber.tech',
     'Ort: Zürich, Schweiz',
     '',
@@ -33,6 +33,7 @@ export function humansTxt(site: string): string {
     'Cookies: 0. Tracking-Pixel: 0. Deepfakes: 0. Nerds: genau einer.',
     '',
     '/* MOTTO */',
+    'Betrüger hassen diesen Blick.',
     'Wir patchen Layer 8.',
     '',
   ].join('\n');

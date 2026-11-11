@@ -9,8 +9,22 @@ import { collectErrors, horizontalOverflow, layOutAll, mockApi } from './helpers
  */
 const ready = async (page: Page) => {
   await page.locator('[data-sim][data-ready]').waitFor();
-  await page.locator('html[data-scroll="ready"]').waitFor();
+  await wake(page);
   await layOutAll(page);
+};
+
+/**
+ * Smooth Scroll und Scroll-Animationen laden erst beim ersten Lebenszeichen. Eine Zeigerbewegung
+ * genügt dafür; die zurückgestellten Sektionen bleiben dabei noch unberechnet.
+ */
+const wake = async (page: Page) => {
+  let x = 10;
+  // Zeigerbewegungen zählen erst eine Sekunde nach dem Laden: bewegen, bis es wirkt.
+  await expect(async () => {
+    x += 7;
+    await page.mouse.move(x, 14);
+    await expect(page.locator('html[data-scroll="ready"]')).toBeAttached({ timeout: 300 });
+  }).toPass({ timeout: 15_000 });
 };
 
 test.describe('psyber.tech', () => {
@@ -33,6 +47,37 @@ test.describe('psyber.tech', () => {
     }
     await expect(page.getByText('Preise folgen nach der Pilotphase.')).toBeVisible();
     expect(errors).toEqual([]);
+  });
+
+  test('Marke: Logo aus dem Kit, Slogan, Leitsatz ohne «Zürich», kein alter Claim', async ({
+    page,
+    request,
+  }) => {
+    await page.goto(`${WEB}/`);
+    await expect(page).toHaveTitle('PSYber – Cyber-Prävention für Familien');
+    await expect(page.locator('.hero-head .kicker')).toHaveText(
+      /Cyber-Prävention für Familien\s*$/,
+    );
+
+    // Das Logo ist ein Bild aus dem Kit und lädt wirklich.
+    const logo = page.locator('[data-header] .logo-img');
+    await expect(logo).toBeVisible();
+    await expect
+      .poll(() => logo.evaluate((image: HTMLImageElement) => image.naturalWidth))
+      .toBeGreaterThan(0);
+
+    await layOutAll(page);
+    await expect(page.locator('footer').getByText('Betrüger hassen diesen Blick.')).toBeVisible();
+    await expect(page.locator('footer').getByText('Wir patchen Layer 8.')).toBeVisible();
+
+    // Der frühere Claim steht nirgends: weder im HTML noch in den Logo-Dateien.
+    for (const path of ['/', '/checkliste', '/styleguide']) {
+      const html = await (await request.get(`${WEB}${path}`)).text();
+      expect(html, `früherer Claim auf ${path}`).not.toMatch(/Erst Kopf/i);
+    }
+    const source = await logo.getAttribute('src');
+    const svg = await (await request.get(new URL(source ?? '', WEB).href)).text();
+    expect(svg).not.toMatch(/Erst Kopf/i);
   });
 
   test('fiktive Adressen sind nie klickbare Links', async ({ page }) => {
@@ -95,7 +140,7 @@ test.describe('psyber.tech', () => {
   }) => {
     await page.goto(`${WEB}/`);
     await page.locator('[data-sim][data-ready]').waitFor();
-    await page.locator('html[data-scroll="ready"]').waitFor();
+    await wake(page);
     const waiting = page.locator('[data-lazy]:not([data-laid])');
     expect(await waiting.count()).toBeGreaterThan(5);
 
@@ -121,11 +166,141 @@ test.describe('psyber.tech', () => {
     page,
   }) => {
     await page.goto(`${WEB}/`);
-    await page.locator('html[data-scroll="ready"]').waitFor();
+    await wake(page);
     const waiting = page.locator('[data-lazy]:not([data-laid])');
     expect(await waiting.count()).toBeGreaterThan(5);
     await page.keyboard.press('Shift');
     await expect(waiting).toHaveCount(0, { timeout: 8000 });
+  });
+
+  test('Scroll-Bibliotheken laden erst beim ersten Lebenszeichen', async ({ page }) => {
+    const scripts: string[] = [];
+    page.on('request', (request) => {
+      if (request.resourceType() === 'script') scripts.push(new URL(request.url()).pathname);
+    });
+    await page.goto(`${WEB}/`, { waitUntil: 'networkidle' });
+    await page.locator('[data-sim][data-ready]').waitFor();
+    expect(scripts.filter((path) => /\/scroll\./.test(path))).toEqual([]);
+    await expect(page.locator('html')).not.toHaveAttribute('data-scroll', 'ready');
+
+    await wake(page);
+    expect(scripts.filter((path) => /\/scroll\./.test(path))).toHaveLength(1);
+  });
+
+  for (const reducedMotion of ['no-preference', 'reduce'] as const) {
+    const mode = reducedMotion === 'reduce' ? 'reduzierte Bewegung' : 'mit Bewegung';
+
+    test(`Direktlink auf eine Marke landet auf dem Ziel (${mode})`, async ({
+      browser,
+    }, testInfo) => {
+      const context = await browser.newContext({ ...testInfo.project.use, reducedMotion });
+      const page = await context.newPage();
+      const top = (id: string) =>
+        page.evaluate(
+          (target) => Math.round(document.getElementById(target)!.getBoundingClientRect().top),
+          id,
+        );
+      // «Angebot» folgt direkt auf die angepinnte Strecke im Drehbuch, «Pakete» liegt weit unten,
+      // der dritte ist der Link von surprise.psyber.tech.
+      for (const address of ['/#angebot', '/#pakete', '/?ref=surprise#kontakt']) {
+        const id = address.slice(address.indexOf('#') + 1);
+        await page.goto(`${WEB}${address}`);
+        await expect(page.locator('html[data-scroll="ready"]')).toBeAttached({ timeout: 15_000 });
+        // Das Ziel steht direkt unter der Leiste (scroll-padding-top: 96 px) und bleibt dort.
+        await expect.poll(() => top(id), { timeout: 5000 }).toBeLessThan(112);
+        await page.waitForTimeout(400);
+        expect(await top(id), address).toBeGreaterThan(80);
+        expect(await top(id), address).toBeLessThan(112);
+      }
+      await context.close();
+    });
+
+    test(`Neu laden: derselbe Abschnitt bleibt im Bild (${mode})`, async ({
+      browser,
+    }, testInfo) => {
+      const context = await browser.newContext({ ...testInfo.project.use, reducedMotion });
+      const page = await context.newPage();
+      await page.goto(`${WEB}/`);
+      await ready(page);
+      const top = () =>
+        page.evaluate(() =>
+          Math.round(document.querySelector('#pakete')!.getBoundingClientRect().top),
+        );
+      await page.evaluate(() => {
+        const y = document.querySelector('#pakete')!.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top: y - 240, behavior: 'instant' });
+      });
+      // Die Seite merkt sich die Ansicht, sobald das Scrollen zur Ruhe kommt: im Verlaufseintrag,
+      // nicht in einem Cookie oder Speicher.
+      await expect
+        .poll(() =>
+          page.evaluate(
+            () => (window.history.state as { view?: { index: number } } | null)?.view?.index ?? -1,
+          ),
+        )
+        .toBeGreaterThan(0);
+      expect(await page.evaluate(() => document.cookie)).toBe('');
+      expect(
+        await page.evaluate(() => window.localStorage.length + window.sessionStorage.length),
+      ).toBe(0);
+      const before = await top();
+      expect(before).toBeGreaterThan(200);
+
+      await page.reload();
+      await expect(page.locator('html[data-scroll="ready"]')).toBeAttached({ timeout: 15_000 });
+      await expect
+        .poll(async () => Math.abs((await top()) - before), { timeout: 5000 })
+        .toBeLessThan(3);
+      await page.waitForTimeout(500);
+      expect(Math.abs((await top()) - before)).toBeLessThan(3);
+      await context.close();
+    });
+  }
+
+  test('Zurückgestellte Sektionen blenden beim Auslegen nichts über', async ({ page }) => {
+    await page.goto(`${WEB}/`);
+    await page.locator('[data-sim][data-ready]').waitFor();
+    const result = await page.evaluate(() => {
+      const section = document.querySelector<HTMLElement>('#kontakt')!;
+      const button = section.querySelector<HTMLElement>('.btn')!;
+      const change = (color: string) => {
+        void getComputedStyle(button).backgroundColor;
+        button.style.backgroundColor = color;
+        void getComputedStyle(button).backgroundColor;
+        return button.getAnimations().length;
+      };
+      const waiting = change('rgb(1, 2, 3)');
+      section.dataset.laid = 'new';
+      const fresh = change('rgb(4, 5, 6)');
+      section.dataset.laid = '';
+      const settled = change('rgb(7, 8, 9)');
+      return { lazy: section.hasAttribute('data-lazy'), waiting, fresh, settled };
+    });
+    // Solange der Teil zurückgestellt oder frisch ausgelegt ist: kein Übergang. Danach wieder.
+    expect(result).toEqual({ lazy: true, waiting: 0, fresh: 0, settled: 1 });
+  });
+
+  test('Reduzierte Bewegung: Stiländerungen gelten sofort, ohne Übergang', async ({
+    browser,
+  }, testInfo) => {
+    const context = await browser.newContext({ ...testInfo.project.use, reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    await page.goto(`${WEB}/`);
+    const result = await page.evaluate(() => {
+      const button = document.querySelector<HTMLElement>('.hero .btn')!;
+      void getComputedStyle(button).backgroundColor;
+      button.style.backgroundColor = 'rgb(1, 2, 3)';
+      button.style.marginTop = '40px';
+      const style = getComputedStyle(button);
+      return {
+        transitions: button.getAnimations().length,
+        color: style.backgroundColor,
+        margin: style.marginTop,
+      };
+    });
+    // Auch ein winziger Übergang hielte hier noch die alten Werte fest.
+    expect(result).toEqual({ transitions: 0, color: 'rgb(1, 2, 3)', margin: '40px' });
+    await context.close();
   });
 
   test('Klick-Simulator lässt sich per Tastatur bedienen', async ({ page }) => {
@@ -151,7 +326,8 @@ test.describe('psyber.tech', () => {
     });
     await expect(page.getByText('3 Warnsignale erkannt. Nicht klicken.')).toBeVisible();
 
-    // Uhrzeit in Zürich statt Platzhalter
+    // Uhrzeit in Zürich statt Platzhalter (die Uhr startet, sobald die Anzeige in Sicht kommt)
+    await page.locator('[data-sim-time]').scrollIntoViewIfNeeded();
     await expect(page.locator('[data-sim-time]')).toHaveText(/^\d{2}:\d{2}$/);
   });
 

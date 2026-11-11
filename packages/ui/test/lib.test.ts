@@ -1,12 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import {
-  amberEnds,
-  arcPath,
-  crossLinks,
-  shell,
-  stemNodes,
-  whiteNodes,
-} from '../src/lib/psi-net-data.ts';
 import { humansTxt, securityTxt } from '../src/lib/well-known.ts';
 import { formatNumber } from '../src/motion/count-up.ts';
 
@@ -32,31 +24,5 @@ describe('security.txt', () => {
 
   it('nennt in humans.txt die Site', () => {
     expect(humansTxt('https://forms.psyber.tech')).toContain('Site: https://forms.psyber.tech');
-  });
-});
-
-describe('Psi-Netz', () => {
-  it('hat 11 Schalenpunkte, 7 Stielknoten und 12 Querverbindungen', () => {
-    expect(shell).toHaveLength(11);
-    expect(stemNodes).toHaveLength(7);
-    expect(crossLinks).toHaveLength(12);
-  });
-
-  it('zeichnet den gemeinsamen Punkt (60, 92) nur einmal', () => {
-    expect(whiteNodes).toHaveLength(9 + 7 - 1);
-    expect(whiteNodes.filter(([x, y]) => x === 60 && y === 92)).toHaveLength(1);
-  });
-
-  it('hat drei amberfarbene Enden', () => {
-    expect(amberEnds).toEqual([
-      [12, 22],
-      [108, 22],
-      [60, 8],
-    ]);
-  });
-
-  it('berechnet die Signalbögen von −128° bis −52°', () => {
-    expect(arcPath(7)).toBe('M55.69 2.48A7 7 0 0 1 64.31 2.48');
-    expect(arcPath(16)).toBe('M50.15 -4.61A16 16 0 0 1 69.85 -4.61');
   });
 });

@@ -51,6 +51,8 @@ export function initSimulator(root: HTMLElement): void {
   let value = 0;
   let frame = 0;
   let timer = 0;
+  /** Sobald jemand selbst bedient, startet das Autoplay nicht mehr. */
+  let touched = false;
 
   const render = (next: number) => {
     value = Math.max(0, Math.min(100, next));
@@ -98,15 +100,20 @@ export function initSimulator(root: HTMLElement): void {
   };
 
   // Ab hier steuert die Person: jede Eingabe beendet das Autoplay.
-  range.addEventListener('input', () => {
+  const take = () => {
+    touched = true;
     stop();
+  };
+  range.addEventListener('input', () => {
+    take();
     render(Number(range.value));
   });
-  range.addEventListener('pointerdown', stop);
-  range.addEventListener('keydown', stop);
+  range.addEventListener('pointerdown', take);
+  range.addEventListener('keydown', take);
 
   for (const button of buttons) {
     button.addEventListener('click', () => {
+      touched = true;
       const target = button.dataset.simStep === '2' ? 100 : STATION_1_END;
       tweenTo(target, Math.abs(target - value) * 40);
     });
@@ -128,6 +135,7 @@ export function initSimulator(root: HTMLElement): void {
   onceInView(
     root,
     () => {
+      if (touched) return;
       timer = window.setTimeout(() => {
         tweenTo(STATION_1_END, 4600, () => {
           timer = window.setTimeout(() => tweenTo(100, 5200), 1500);

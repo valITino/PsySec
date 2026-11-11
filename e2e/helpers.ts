@@ -54,7 +54,11 @@ export async function horizontalOverflow(page: Page): Promise<number> {
  * sie erst bei der ersten Interaktion. Für Prüfungen der ganzen Seite hier sofort nachholen.
  */
 export async function layOutAll(page: Page): Promise<void> {
-  await page.evaluate(() => {
+  await page.evaluate(async () => {
+    // Wie home.ts: erst «neu» (ohne Übergänge), zwei Bilder später fertig.
+    const lazy = [...document.querySelectorAll<HTMLElement>('[data-lazy]:not([data-laid])')];
+    for (const element of lazy) element.dataset.laid = 'new';
+    await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
     for (const element of document.querySelectorAll<HTMLElement>('[data-lazy]')) {
       element.dataset.laid = '';
     }

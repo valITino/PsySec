@@ -11,7 +11,7 @@
   min-height: 100svh;
 }
 
-/* Deko: das Psi-Netz in einer leuchtenden Kugel, rechts angeschnitten */
+/* Deko: die Eule in einer leuchtenden Kugel, rechts angeschnitten */
 .sv-deco {
   position: fixed;
   top: -22vw;
@@ -33,12 +33,9 @@
   pointer-events: none;
 }
 
-.sv-deco .psi-net {
-  width: 44%;
-  height: auto;
-  opacity: 0.5;
-  --psi-bg: #150b34;
-  --psi-line: var(--haze);
+.sv-deco .owl {
+  width: 40%;
+  opacity: 0.55;
 }
 
 /* Während der Fragen und danach tritt die Kugel zurück */
@@ -56,8 +53,8 @@
     transform: translateY(-50%);
   }
 
-  .sv-deco .psi-net {
-    opacity: 0.9;
+  .sv-deco .owl {
+    opacity: 1;
   }
 }
 
@@ -166,6 +163,7 @@
   font-size: var(--fs-micro);
   letter-spacing: var(--ls-label);
   text-transform: uppercase;
+  font-weight: 600;
 }
 
 .sv-enter .icon {
@@ -210,7 +208,7 @@
 .sv-step {
   color: var(--ash);
   font-size: var(--fs-micro);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: var(--ls-label);
   text-transform: uppercase;
 }
@@ -337,7 +335,7 @@
 
 .sv-option:has(input:checked) {
   border-color: var(--acid);
-  background-color: rgb(201 251 82 / 0.09);
+  background-color: rgb(var(--acid-rgb) / 0.09);
 }
 
 .sv-option:has(input:checked) .sv-key {
@@ -641,9 +639,8 @@
 /* Titel der Blöcke als Label */
 .sv-block-title {
   color: var(--ash);
-  font-family: var(--ff-mono);
   font-size: var(--fs-micro);
-  font-weight: 500;
+  font-weight: 600;
   letter-spacing: var(--ls-label);
   line-height: 1.5;
   text-transform: uppercase;
@@ -736,7 +733,6 @@
   justify-content: center;
   gap: 1.5rem;
   padding: 1rem var(--gutter) 1.25rem;
-  font-family: var(--ff-mono);
   font-size: var(--fs-micro);
   letter-spacing: var(--ls-label);
   text-transform: uppercase;

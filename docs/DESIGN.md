@@ -1,127 +1,121 @@
 # PSYber Designsystem
 
-Grundhaltung: sauber, modern, elegant, minimalistisch und trotzdem aussagekräftig. Technisch und nerdig mit Humor, nie kindisch, nie Angst machend. Aubergine statt Schwarz. Animationen gezielt und ruhig.
+Stand: Redesign November 2026. Stil, Formatierung und Schrift orientieren sich auf Wunsch eng an eezyinn.de: fast schwarze Flächen, violette Bogen, riesige Überschriften in Versalien, Pillen, viel Raum. Alles ist selbst gebaut; von der Referenz stammen keine Texte, Bilder, Logos und kein Code. Die eigene Handschrift von PSYber: die Eule aus dem Logo-Kit, Hex-Nummern, Code-Kommentare, Terminal und ein trockener Ton.
 
-Der Code dazu liegt in `packages/ui`. Live ansehen: `pnpm dev:web`, dann `/styleguide`.
+Quelle der Wahrheit sind die Tokens in `packages/ui/src/styles/tokens.css`. Die Seite `/styleguide` auf psyber.tech zeigt alle Bausteine.
 
 ## 1. Farben
 
-Quelle: `packages/ui/src/styles/tokens.css`. In Tailwind stehen sie als Utilities bereit (`bg-night`, `text-lav`, `border-line` usw.); die Standardpalette von Tailwind ist entfernt.
+| Token        | Hex     | Verwendung                                           | Kontrast           |
+| ------------ | ------- | ---------------------------------------------------- | ------------------ |
+| `--void`     | #08080b | Seitenhintergrund                                    |                    |
+| `--carbon`   | #111115 | Karten, Bühnen                                       |                    |
+| `--graphite` | #1a1a20 | erhöhte Fläche in Karten                             |                    |
+| `--pit`      | #0c0c10 | Terminal, Eingabefelder                              |                    |
+| `--hairline` | #27272f | Linien auf Schwarz (nie für Text)                    |                    |
+| `--steel`    | #6d6d79 | Rahmen von Bedienelementen                           | 3,9:1 auf void     |
+| `--ash`      | #9c9ca6 | Sekundärtext auf Schwarz                             | 7,3:1 auf void     |
+| `--bone`     | #f4f4ef | Text und Überschriften                               | 18,1:1 auf void    |
+| `--space`    | #3d1e86 | violette Bogen                                       | bone darauf 11,0:1 |
+| `--nebula`   | #b678f7 | Lichtschein (nie für Text auf Space)                 |                    |
+| `--haze`     | #cfc8e2 | Sekundärtext auf Space                               | 7,5:1 auf space    |
+| `--acid`     | #c9fb52 | Aktion: Buttons, Fokus-Ring, Lichtpunkte, «gepatcht» | 16,6:1 auf void    |
+| `--ink`      | #08080b | Text auf Acid und Amber                              | 16,6:1 auf acid    |
+| `--amber`    | #f9ad26 | Warnsignale (Hebel, Marker); die Augenfarbe der Eule | 10,5:1 auf void    |
+| `--white`    | #ffffff | nur Text auf Kritisch-Rot                            | 4,8:1 auf crit     |
 
-| Token           | Hex     | Verwendung                        | Kontrast                               |
-| --------------- | ------- | --------------------------------- | -------------------------------------- |
-| `--night`       | #140a29 | Seitenhintergrund                 |                                        |
-| `--aubergine`   | #261547 | Karten, erhöhte Flächen, Header   |                                        |
-| `--deep`        | #1b0d35 | Terminal, Code, tiefe Panels      |                                        |
-| `--line`        | #3d2b68 | Linien und Rahmen (nie Text)      | 1,58:1 auf night (nur Dekor)           |
-| `--lav`         | #ad9bf6 | Akzent, Sekundärtext auf dunkel   | 7,96:1 night · 6,87:1 aubergine        |
-| `--soft`        | #e7e1fb | Fliesstext auf dunkel             | 14,98:1 night · 12,93:1 aubergine      |
-| `--white`       | #ffffff | Überschriften auf dunkel          | 19:1 night                             |
-| `--violet`      | #6b40c9 | Primärbuttons, Akzent auf hell    | Weiss darauf 6,56:1 · auf paper 6,01:1 |
-| `--violet-dark` | #492293 | Hover und Active                  | Weiss darauf 10,86:1                   |
-| `--amber`       | #f9ad26 | Warnsignale, Highlights (sparsam) | 9,98:1 night · ink darauf 8,96:1       |
-| `--paper`       | #f5f4fd | helle Fläche, max. zwei pro Seite |                                        |
-| `--ink`         | #22172f | Text auf hell                     | 15,62:1 paper                          |
-| `--muted`       | #675e76 | Sekundärtext auf hell             | 5,59:1 paper                           |
+Statusfarben nur zusammen mit Icon und Text: gut #0ca30c, Warnung #fab219, kritisch #d03b3b.
 
-Statusfarben, nie ohne Icon und Text: gut `--ok` #0ca30c, Warnung `--warn` #fab219, kritisch `--crit` #d03b3b. Auf dunklem Grund erreichen sie nur für Icons und grosse Schrift genug Kontrast (3:1), darum steht der Text daneben immer in `--soft` oder `--white`.
-
-Zusätzlich abgeleitet (kein neuer Markenton):
-
-- `--border-strong` #7c68c0: Rahmen von Eingabefeldern und Checkboxen, weil Bedienelemente 3:1 zum Hintergrund brauchen (`--line` allein hat 1,58:1).
-- Paket-Treppe: `--step-1` #ad9bf6, `--step-2` #8a6ee2, `--step-3` #6b40c9, `--step-4` #492293. Schrift auf Stufe 1 und 2 in `--night` (7,96:1 und 4,89:1), auf Stufe 3 und 4 in Weiss.
+Die Akzentfarbe hängt an drei Werten (`--acid-rgb`, `--acid`, `--acid-hi`). Wer sie tauscht, ändert Buttons, Fokus-Ring, Lichtpunkte und den Globus auf einen Schlag.
 
 ### Flächen
 
-Komponenten nutzen semantische Rollen (`--bg`, `--fg`, `--fg-strong`, `--fg-muted`, `--accent`, `--border`, `--surface`, `--surface-deep`). Standard ist dunkel. Die Klasse `.on-paper` schaltet eine Sektion auf hell um, `.on-dark` innerhalb davon wieder zurück. So passen sich Buttons, Karten, Tags und Kicker ohne Sonderfälle an.
-
-Erlaubt ist ein einziger dezenter violetter Radial-Glow hinter dem Hero-Widget. Keine Regenbogenverläufe, kein Glassmorphism ausser dem leichten Blur des Headers.
+- Standard ist Schwarz. `.on-space` setzt die Rollen für violette Flächen (Sekundärtext in `--haze`).
+- Karten (`.card`) sind immer dunkel, auch auf Space; sie setzen die Rollen selbst zurück.
+- `.sheet`: Sektion als Bogen mit runden oberen Ecken, der sich über die vorherige schiebt. `.sheet-space` gibt dem violetten Bogen einen Lichtschein oben rechts.
+- `.stage`: grosse Bühne mit Radius bis 44 px und violettem Schein in der Ecke (Simulator, «Ist das echt?», Kontakt, Footer).
+- Helle Sektionen gibt es nicht mehr.
 
 ## 2. Typografie
 
-Recursive (Variable Font, OFL), selbst gehostet aus `@fontsource-variable/recursive`, Variante mit allen fünf Achsen. Vorgeladen wird nur das Latin-Subset. Die Achsen MONO, CASL und CRSV steuern wir über die vererbbaren Custom Properties `--mono`, `--casl`, `--crsv`; Gewicht und Neigung über `font-weight` und `font-style`.
+Manrope (Variable Font, 200–800) für Überschriften und Text, wie bei der Referenz. Geist Mono nur für Code. Beide SIL Open Font License, selbst gehostet; die zwei Latin-Dateien (zusammen 48 KB) werden vorgeladen.
 
-| Rolle             | Klasse         | Einstellung                                                    |
-| ----------------- | -------------- | -------------------------------------------------------------- |
-| Display H1        | `.display .h1` | wght 900, CASL 1, letter-spacing −0.02em, line-height 0.98     |
-| H2                | `.display .h2` | wght 850, CASL 0.8, line-height 1.02                           |
-| H3                | `.h3`          | wght 800, CASL 0.6, line-height 1.12                           |
-| Lead              | `.lead`        | `--fs-lead`, line-height 1.5                                   |
-| Fliesstext        | (Standard)     | wght 400, CASL 0, 17 px (ab 768 px: 18 px), line-height 1.55   |
-| Zeilenlänge       | `.measure`     | 34em, das sind rund 68 Zeichen                                 |
-| Code und Meta     | `.mono`        | MONO 1, 13–14 px                                               |
-| Kicker            | `.kicker`      | MONO 1, 14 px, Farbe `--accent`, als Code-Kommentar: `// Text` |
-| Abschnittsnummer  | `.hexnum`      | MONO 1, tabular-nums, in Hex: `0x01`                           |
-| Grosse Einzelzahl | `.num`         | wght 900, CASL 1, proportionale Ziffern                        |
+| Stil             | Grösse                                       | Schnitt                                    |
+| ---------------- | -------------------------------------------- | ------------------------------------------ |
+| Display / H1     | `clamp(2.375rem, 0.6rem + 5.8vw, 6.25rem)`   | 650, Versalien, −0.045em, Zeilenhöhe 0.92  |
+| H2               | `clamp(1.9375rem, 0.9rem + 3.6vw, 4.5rem)`   | 650, Versalien, −0.035em, 0.98             |
+| H3               | `clamp(1.375rem, 1.05rem + 1.1vw, 2.125rem)` | 650, Versalien, −0.035em                   |
+| Titel (`.title`) | 18–21 px                                     | 600, normale Schreibweise                  |
+| Lead             | 19–26 px                                     | 400, Zeilenhöhe 1.36                       |
+| Fliesstext       | 16–18 px                                     | 400, Zeilenhöhe 1.55, höchstens 68 Zeichen |
+| Label / Kicker   | 13 px                                        | 600, Versalien, gesperrt 0.08em            |
+| Button           | 13 px (klein 12 px)                          | 700, Versalien, gesperrt 0.06em            |
 
-- Keine gesperrten Versalien. Stattdessen Hex-Nummern und Kicker als Code-Kommentar.
-- `68ch` wäre in Recursive zu breit (die Null ist 0.6em breit, der Durchschnittsbuchstabe 0.5em), darum `34em`.
-- Der H1 im Hero nutzt eine eigene, auf die zweispaltige Bühne abgestimmte Grösse (siehe `docs/DECISIONS.md`).
-- Fallback: `Recursive Fallback` (Arial bzw. Arial Bold mit `size-adjust` und angepassten Metriken), damit beim Schriftwechsel nichts springt. Recursive ist über alle Gewichte gleich breit; das hilft zusätzlich.
+- Kicker stehen als Code-Kommentar über der Überschrift: `0x01 // Wo Familien angreifbar sind`. Hex-Nummer und Schrägstriche in Mono, die Nummer in Acid.
+- Mono nur für Code: Hex-Nummern, «//», Terminal, Adressen, Zahlenreihen und die Zeilen unten im Footer.
+- «PSYber» bleibt auch in Versal-Überschriften exakt so geschrieben (`.brand`; `SectionHead` setzt das selbst).
+- Fallback-Schrift mit angepassten Metriken in drei Stufen (Text, Titel, Versalien), damit beim Schriftwechsel nichts springt.
 
 ## 3. Logo und Bildwelt
 
-- Wortmarke «PSYber»: Recursive wght 900, CASL 1, letter-spacing −0.02em (`Wordmark.astro`, Klasse `.wordmark`). Immer exakt diese Schreibweise.
-- Psi-Icon (`PsiIcon.astro`): ein Psi aus einer Linie, `viewBox="0 0 12 14"`, Strich 1.4, runde Enden. Auch Basis des Favicon-Sets (`pnpm assets`).
-- Key Visual «Psi-Netz» (`PsiNet.astro`, Daten in `lib/psi-net-data.ts`): Schale aus 11 Punkten, Stiel mit 7 Knoten, 2 Nebenknoten, 12 dünne Querverbindungen (45 % Deckkraft), drei amberfarbene Enden und drei Signalbögen. Animiert pulsieren die Knoten versetzt, die Bögen senden nacheinander (Loop 3 s); bei feinem Pointer neigt sich das Netz um bis zu 5°. Ausserhalb des Viewports ruht die Animation.
-  - Farben per CSS-Variablen: `--psi-line`, `--psi-node`, `--psi-bg` (Rand der Knoten = Hintergrund der Fläche).
-- Textur `.net-texture`: feines, kachelbares Netz aus Punkten und Linien in Weiss mit 7 % Deckkraft. Nur in Hero und Footer. Erzeugt von `packages/ui/scripts/gen-texture.mjs` (fester Seed).
-- Icons: Lucide, 1.5 px Strich bei 20 px (`Icon.astro`). Die Auswahl steht in `packages/ui/scripts/gen-icons.mjs`; nur gelistete Icons landen im Bundle.
-- Keine Stockfotos, keine KI-Bilder von Menschen. Emojis nur in Beispiel-Chats und im Test-Link der Umfrage.
+Aus dem Logo-Kit (Runde 5), abgelegt in `packages/ui/src/brand/`:
+
+- **Logo** (`logo-dark.svg`, für Druck `logo-light.svg`): die Eule mit Lupe und die Wortmarke, verbunden durch die Leiterbahn. Komponente `Logo.astro`. In der Kapsel des Headers bleibt nur die Eule sichtbar.
+- **Eule** (`Owl.astro`) in vier Mimiken: wach, skeptisch (Menü, «Über»), erwischt (surprise), genervt (404).
+- **Wortmarke** allein (`wordmark.svg`, aus dem Logo abgeleitet): gross im Footer, dahinter ein blinkender Cursor.
+- **Sticker**: «Betrüger hassen diesen Blick.» («Über»), «Netter Versuch.» (klebt sich auf den Klick-Simulator, sobald der DNS-Filter blockiert), «Du hast geklickt.» (surprise).
+- **Favicon und App-Icons** erzeugt `pnpm assets` aus dem Kit, ebenso die OG-Bilder (Eule, Wortmarke, Leiterbahnen).
+- Slogan: «Betrüger hassen diesen Blick.» Zweiter Claim: «Wir patchen Layer 8.»
+
+Nicht verwendet werden die Dateien des Kits mit dem früheren Claim (Logo mit Claim, Patch-Sticker, Key Visual).
+
+Weitere Bildelemente: der Globus «Layer 8» im Hero (Canvas, Dekoration), Punktraster (`.dot-grid`), Leuchtpunkte (`.dot`). Keine Stockfotos, keine KI-Bilder von Menschen. Icons: Lucide, 1.5 px Strich. Emojis nur in Beispiel-Chats und im Test-Link der Umfrage.
 
 ## 4. Layout
 
-- Container `.wrap`: höchstens 1200 px, seitlicher Abstand `--gutter` (20–40 px).
-- Raster `.grid-12`: 12 Spalten, Spaltenabstand 16–24 px.
-- Sektionen `.section`: vertikal `--section-y`, 72 px (Mobile) bis 160 px (Desktop).
-- Inhalte links ausgerichtet; zentriert ist nur der Abschluss-CTA «Der erste Schritt».
-- Höchstens zwei helle Sektionen pro Seite (`.on-paper`), für Rhythmus.
-- Mobile first, geprüft von 360 bis 1920 px, nie horizontales Scrollen.
+- Container höchstens 1440 px, Seitenrand 20–52 px, Sektionen 72–152 px vertikal.
+- Inhalte links ausgerichtet; zentriert nur «Haltung» und die Aussage auf surprise.
+- Radien: Karten 22 px, Panels 30 px, Bühnen bis 44 px, Bogen bis 40 px, Eingabefelder 14 px, Buttons und Tags als Pille.
+- Mobile first, sauber von 320 bis 1920 px, nie horizontales Scrollen.
 
 ## 5. Bausteine
 
-| Baustein    | Klasse / Komponente                  | Regeln                                                                                                  |
-| ----------- | ------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| Button      | `.btn .btn-primary` / `Button.astro` | Violett, weisse Schrift, 48 px hoch, Radius 12 px. Hover: violet-dark.                                  |
-| Button sek. | `.btn .btn-secondary`                | Outline in Lavendel (auf hell: Violett).                                                                |
-| Textlink    | `.btn-text`, `.link`                 | Unterstrichen in Akzentfarbe, Pfeil rückt beim Hover 3 px.                                              |
-| Karte       | `.card` / `Card.astro`               | Radius 16 px, 1 px Rahmen, kein Schatten. `.card-hover`: Rahmen lav, 2 px hoch, nur bei feinem Pointer. |
-| Tag         | `.tag` / `Tag.astro`                 | Pille in Mono. `.tag-amber` für Hebel und Warnsignale, `.tag-solid` für «Neu».                          |
-| Eingabefeld | `.field`, `.label`, `.input`         | 48 px hoch, Rahmen `--border-strong`. Fehler: roter Rahmen plus Icon plus Text.                         |
-| Checkbox    | `.checkbox`                          | 22 px, Haken per `clip-path`.                                                                           |
-| Fokus       | global                               | 3 px Amber mit 3 px Abstand. Auf hell zusätzlich dunkle Kontur (3:1).                                   |
-| Skip-Link   | `.skip-link`                         | «Zum Inhalt springen», erscheint beim ersten Tab.                                                       |
+- **Buttons** (`.btn`): Pille, 52 px hoch (klein 44 px). Primär in Acid mit dunkler Schrift und leichtem Schein; sekundär als Glas-Outline mit kurzer Lichtkante oben. `.btn-text` als Textlink mit Pfeil. `.orb`: runder Pfeil-Knopf in Listen.
+- **Karten** (`.card`): 1 px Rahmen, kein Schlagschatten, dezenter Verlauf. Hover nur bei feinem Pointer.
+- **Tags** (`.tag`): Pille in Versalien; `tag-amber` für Hebel und Warnungen, `tag-solid` (Acid) für «Neu».
+- **Formularfelder**: 52 px hoch, Radius 14 px, Rahmen 3:1; Fehler mit Icon und Text.
+- **Header**: oben volle Leiste (Logo, Navigation, CTA), nach dem Scrollen eine schwebende Kapsel (Eule, CTA, Menü-Knopf). Das Vollbild-Menü gibt es auf allen Breiten.
+- **Schwebende Bedienelemente** (`Chrome.astro`): Fortschritt (Balken auf Mobile, Schiene mit Marken ab 1280 px), Cookie-Knopf (erklärt, warum es keinen Banner gibt), Schalter «Bewegung pausieren». Auf Mobile stehen die Knöpfe als Zeile am Seitenende.
+- **Fokus-Ring**: 3 px Acid mit 3 px Abstand, bei Tastaturbedienung immer sichtbar.
 
 ## 6. Motion
 
-Tokens: 150 / 250 / 400 / 800 ms (`--dur-1` bis `--dur-4`), Easing `cubic-bezier(.2,.7,.2,1)` (`--ease`), in GSAP `power3.out`.
+Tokens: 150 / 250 / 400 / 800 ms; Easing `cubic-bezier(.2,.7,.2,1)` bzw. GSAP `power3.out`. Lenis für sanftes Scrollen (lerp 0.1), synchron zu ScrollTrigger.
 
-Smooth Scroll: Lenis mit lerp 0.1, über den GSAP-Ticker getaktet und mit ScrollTrigger synchronisiert (`@psyber/ui/motion/smooth`). Ankerlinks berücksichtigen die Höhe des Headers.
+Bewegte Momente auf psyber.tech:
 
-Nur diese sieben Momente bewegen sich:
+1. Hero: Headline fährt zeilenweise hinter einer Maske ein. Der Globus dreht langsam und lässt sich ziehen; beim Scrollen durch den Hero werden seine Knoten «gepatcht» (auf grossen Bildschirmen bleibt der Hero dafür kurz stehen).
+2. Header: Wechsel zwischen Leiste und Kapsel.
+3. Klick-Simulator: spielt einmal ab; in Schritt 2 klebt sich der Sticker auf.
+4. Überschriften der Sektionen fahren einmal zeilenweise ein.
+5. «Drehbuch»: scroll-gesteuerte Kette mit Pinning am Desktop.
+6. Zahlen zählen einmal hoch.
+7. Phishing-Ticker als Endlosband (pausiert bei Hover, Fokus und Button).
+8. «Haltung»: Wörter werden beim Scrollen hell.
+9. Paket-Treppe wächst einmal; Chat-Nachrichten erscheinen nacheinander.
+10. Footer: Cursor hinter der Wortmarke blinkt.
 
-1. Hero: Headline zeilenweise hinter einer Maske (Stagger 80 ms, reines CSS); der Klick-Simulator spielt einmal ab.
-2. «Drehbuch»: scroll-gesteuerte Kette (ScrollTrigger mit scrub, Pinning nur auf Desktop).
-3. Zahlen zählen einmal hoch (`countUp`).
-4. Phishing-Ticker als Endlosband, pausiert bei Hover, Fokus und über einen Pause-Button.
-5. «Haltung»: Wörter werden beim Scrollen von 25 % auf 100 % Deckkraft hell (SplitText).
-6. Die Paket-Treppe wächst einmal.
-7. Chat-Mockup: Nachrichten erscheinen nacheinander mit Tipp-Indikator.
-
-Dazu kommt das Psi-Netz (Abschnitt 3). Kein generisches Fade-up, kein Custom Cursor, kein Parallax auf Text.
-
-surprise.psyber.tech hat eine eigene, im Auftrag (7.1 und 7.2) vorgegebene Abfolge, sonst bewegt sich dort nichts: Teaser mit Fortschrittsbalken (höchstens 1.2 s, überspringbar), Glitch (400 ms: Streifenversatz, Farbkanäle in `--crit` und `--violet`, Scanlines) und der Amber-Marker, der einmal über «psyber.tech» wischt. Die Zeiten stehen als `--sp-*` in `apps/surprise/src/styles/global.css`.
+Kein Custom Cursor, kein Parallax auf Text.
 
 ### Reduzierte Bewegung und Pausieren
 
-- `prefers-reduced-motion: reduce`: Lenis startet nicht, keine Autoplay- und Scrub-Animationen, alle Inhalte sind sofort sichtbar und vollständig. Eine globale CSS-Regel setzt zusätzlich alle Animationen und Übergänge auf sofort.
-- Laufende Bewegung ist pausierbar (WCAG 2.2.2): Der Ticker hat einen eigenen Pause-Button, im Footer gibt es den Schalter «Bewegung pausieren» für alle Dauerschleifen (`html[data-motion='off']`).
-- Helfer: `prefersReducedMotion()`, `motionAllowed()`, `setMotionPaused()` in `@psyber/ui/motion`.
+Bei `prefers-reduced-motion` steht alles sofort im Endzustand: kein Lenis, kein Pinning, kein Autoplay, der Globus steht still (lässt sich aber drehen), der Ticker bricht um. Übergänge sind dann ganz aus (0 s, nicht 0.01 ms): Auch ein winziger Übergang hält für ein Bild die alten Werte fest und verschiebt kurz das Layout. Der Schalter «Bewegung pausieren» hält Dauerbewegung an (`html[data-motion='off']`).
 
 ## 7. Technische Regeln fürs Markup
 
-- Keine Inline-`style`-Attribute und keine Inline-Skripte: Die CSP erlaubt Styles und Skripte nur per Hash bzw. von der eigenen Herkunft. Zustände über Klassen und `data-`-Attribute, Werte zur Laufzeit über die CSSOM-API (`element.style.x = …`).
-- Keine `data:`-URIs (Vite: `assetsInlineLimit: 0`).
-- Dekorative Elemente (Hex-Nummern, `//`, Icons ohne Aussage) bekommen `aria-hidden="true"`.
-- Fiktive Adressen als `<span class="fake-link">`, nie als `<a>`.
-- Interne Links immer über `href()` aus der Site-Konfiguration der App.
+- Keine Inline-`style`-Attribute und keine Inline-Skripte (strikte CSP mit Hashes); Werte zur Laufzeit per `element.style…` setzen.
+- Interne Links über den `href()`-Helfer der jeweiligen App.
+- Klassennamen in Scoped Styles nie so nennen wie einen Baustein aus `components.css` (`pnpm test` prüft das).
+- Bilder aus dem Kit als `<img>` mit `width`, `height` und `alt` (leer, wenn Dekoration).
+- Startseite: Sektionen weit unter dem ersten Bildschirm tragen `data-lazy`; der Browser rechnet sie erst bei Bedarf (`content-visibility`). `home.ts` holt sie nach der ersten Interaktion nach und vor jedem Sprung zu einer Marke sofort. Frisch ausgelegt gelten sie zwei Bilder lang als `data-laid="new"` (darin kein Übergang), danach als `data-laid=""`.
+- Startseite: Ändert sich die Länge der Seite, während jemand schon weiter unten steht (Anpinnen im Drehbuch), bleibt der Abschnitt in der Bildmitte stehen (`keepInView` in `scroll.ts`). Die Leseposition für Neuladen und «Zurück» merkt `position.ts` im Verlaufseintrag (`history.state`), nie in Cookies oder Web-Speicher.

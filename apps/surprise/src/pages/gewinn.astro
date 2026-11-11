@@ -7,6 +7,8 @@
  */
 import Icon from '@psyber/ui/components/Icon.astro';
 import Logo from '@psyber/ui/components/Logo.astro';
+import Owl from '@psyber/ui/components/Owl.astro';
+import stickerUrl from '@psyber/ui/brand/sticker-geklickt.svg?url';
 import PreviewNote from '@psyber/ui/components/PreviewNote.astro';
 import AddressReader from '../components/AddressReader.astro';
 import Offer from '../components/Offer.astro';
@@ -76,6 +78,17 @@ const signals = [
             </div>
 
             <div class="sp-clicked">
+              <div class="sp-witness" aria-hidden="true">
+                <Owl mood="erwischt" class="sp-owl" lazy={false} />
+                <img
+                  class="sticker sp-sticker"
+                  src={stickerUrl}
+                  width="432"
+                  height="432"
+                  alt=""
+                  decoding="async"
+                />
+              </div>
               <p class="label-up sp-clicked-label">Diesen Link haben Sie angeklickt:</p>
               <p class="sp-url mono">
                 {clicked.map((part) =>
@@ -368,6 +381,24 @@ const signals = [
     display: grid;
     gap: 0.875rem;
     align-content: start;
+  }
+
+  /* Die Eule hat es gesehen */
+  .sp-witness {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .sp-witness :global(.sp-owl) {
+    width: clamp(6rem, 4rem + 8vw, 11rem);
+  }
+
+  .sp-sticker {
+    --sticker-size: clamp(5.5rem, 4rem + 6vw, 9rem);
+    --sticker-tilt: 9deg;
+    margin-bottom: 0.5rem;
   }
 
   .sp-url {

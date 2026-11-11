@@ -45,7 +45,7 @@ export function Start({ config }: { config: SurveyConfig }) {
           <span>Los geht’s</span>
           <Icon name="arrow-right" size={18} class="icon-shift" />
         </button>
-        <span class="sv-enter mono" aria-hidden="true">
+        <span class="sv-enter" aria-hidden="true">
           Enter <Icon name="corner-down-left" size={14} />
         </span>
       </div>
@@ -122,7 +122,7 @@ export function QuestionScreen() {
         key={question.id}
         aria-labelledby="sv-title"
       >
-        <p class="sv-step mono">
+        <p class="sv-step">
           <span aria-hidden="true">// </span>Frage {position.value + 1} von {total.value}
           {question.required ? '' : ' · freiwillig'}
         </p>
@@ -192,7 +192,7 @@ export function QuestionScreen() {
           <span>{label}</span>
           {!last && <Icon name="arrow-right" size={18} class="icon-shift" />}
         </button>
-        <span class="sv-enter mono" aria-hidden="true">
+        <span class="sv-enter" aria-hidden="true">
           Enter <Icon name="corner-down-left" size={14} />
         </span>
       </div>

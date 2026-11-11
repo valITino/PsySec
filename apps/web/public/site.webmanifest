@@ -1,7 +1,7 @@
 {
   "name": "PSYber",
   "short_name": "PSYber",
-  "description": "Cyber-Prävention für Familien in Zürich",
+  "description": "Cyber-Prävention für Familien",
   "lang": "de-CH",
   "start_url": ".",
   "display": "browser",

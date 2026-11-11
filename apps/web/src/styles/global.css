@@ -32,3 +32,16 @@ html.scroll-locked {
   content-visibility: auto;
   contain-intrinsic-size: auto 64rem;
 }
+
+/*
+ * Solange ein Teil zurückgestellt oder frisch ausgelegt ist (data-laid="new"), blendet darin
+ * nichts über. In manchen Ladevorgängen berechnet der Browser den Inhalt nämlich schon, bevor
+ * alle Stylesheets da sind, und würde beim Auslegen von diesen Zwischenwerten aus animieren:
+ * Farben und Rahmen blitzen dann kurz auf. home.ts meldet den Teil kurz darauf als fertig
+ * (data-laid=""), ab dann gelten die Übergänge wieder.
+ */
+[data-lazy]:not([data-laid='']) *,
+[data-lazy]:not([data-laid='']) *::before,
+[data-lazy]:not([data-laid='']) *::after {
+  transition: none !important;
+}

@@ -49,7 +49,7 @@ const cta = primaryCta(true);
         </ul>
 
         <div class="hero-head">
-          <Kicker>Cyber-Prävention für Familien in Zürich</Kicker>
+          <Kicker>Cyber-Prävention für Familien</Kicker>
           <h1 id="hero-title" class="display hero-title">
             <span class="q q1">
               <span class="mask">
@@ -127,25 +127,42 @@ const cta = primaryCta(true);
     inset: 0;
     background-image:
       linear-gradient(to bottom, rgb(8 8 11 / 0) 70%, var(--void) 100%),
-      radial-gradient(1.5px 1.5px at 138px 164px, rgb(244 244 239 / 0.6) 50%, transparent 52%),
-      radial-gradient(1px 1px at 590px 322px, rgb(244 244 239 / 0.5) 50%, transparent 52%),
-      radial-gradient(1px 1px at 262px 610px, rgb(244 244 239 / 0.4) 50%, transparent 52%),
-      radial-gradient(1.5px 1.5px at 720px 96px, rgb(182 120 247 / 0.8) 50%, transparent 52%),
-      radial-gradient(1px 1px at 430px 480px, rgb(244 244 239 / 0.45) 50%, transparent 52%),
-      radial-gradient(1px 1px at 84px 380px, rgb(244 244 239 / 0.35) 50%, transparent 52%),
-      radial-gradient(1.5px 1.5px at 910px 540px, rgb(244 244 239 / 0.4) 50%, transparent 52%),
       radial-gradient(64% 60% at 76% 44%, rgb(61 30 134 / 0.42) 0%, rgb(61 30 134 / 0) 70%);
-    /* Ungleiche, grosse Kacheln: Die Wiederholung fällt nicht auf. */
-    background-size:
-      100% 100%,
-      790px 830px,
-      1130px 710px,
-      870px 930px,
-      1370px 650px,
-      990px 770px,
-      650px 910px,
-      1510px 870px,
-      100% 100%;
+  }
+
+  /*
+   * Sterne: ein einziger Punkt mit vielen Schatten. Das ist für den Browser viel billiger als
+   * gekachelte Verläufe über die ganze Fläche.
+   */
+  .hero-sky::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1.5px;
+    height: 1.5px;
+    border-radius: 50%;
+    box-shadow:
+      7vw 18svh rgb(244 244 239 / 0.6),
+      21vw 9svh rgb(244 244 239 / 0.4),
+      33vw 27svh rgb(244 244 239 / 0.5),
+      44vw 12svh rgb(182 120 247 / 0.8),
+      58vw 6svh rgb(244 244 239 / 0.45),
+      67vw 21svh rgb(244 244 239 / 0.35),
+      88vw 11svh rgb(244 244 239 / 0.55),
+      95vw 34svh rgb(244 244 239 / 0.4),
+      12vw 44svh rgb(244 244 239 / 0.35),
+      27vw 58svh rgb(182 120 247 / 0.7),
+      39vw 71svh rgb(244 244 239 / 0.45),
+      52vw 49svh rgb(244 244 239 / 0.3),
+      63vw 83svh rgb(244 244 239 / 0.5),
+      79vw 64svh rgb(244 244 239 / 0.35),
+      91vw 77svh rgb(244 244 239 / 0.45),
+      4vw 81svh rgb(244 244 239 / 0.4),
+      18vw 92svh rgb(244 244 239 / 0.3),
+      47vw 90svh rgb(182 120 247 / 0.6),
+      72vw 39svh rgb(244 244 239 / 0.3),
+      84vw 52svh rgb(244 244 239 / 0.5);
+    content: '';
   }
 
   /* ---------- Globus ---------- */
@@ -318,9 +335,8 @@ const cta = primaryCta(true);
       justify-items: end;
       gap: 0.625rem;
       color: var(--ash);
-      font-family: var(--ff-mono);
       font-size: var(--fs-micro);
-      font-weight: 500;
+      font-weight: 600;
       letter-spacing: var(--ls-label);
       line-height: 1.4;
       text-transform: uppercase;
@@ -346,6 +362,13 @@ const cta = primaryCta(true);
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
+    }
+
+    .hero-hud [data-zurich-time],
+    .hero-hud [data-hero-patch] {
+      font-family: var(--ff-mono);
+      font-weight: 500;
+      letter-spacing: 0.02em;
     }
 
     .hud-key [data-hero-patch] {

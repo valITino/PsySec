@@ -2,6 +2,14 @@
 
 Sichtbare Platzhalter auf den Websites haben das Format `[TODO: …]`. Zentrale Stelle für Kontaktdaten und Preise: `apps/web/src/config/site.ts`.
 
+## Nach dem Redesign: Ihre Rückmeldung
+
+- [ ] Look ansehen (lokal `pnpm dev:web`, oder die Vorschau auf GitHub Pages, sobald der Stand auf `main` liegt)
+- [ ] Akzentfarbe: Lime wie bei der Referenz (jetzt) oder das Amber der Eule? Der Tausch ist eine Zeile in `packages/ui/src/styles/tokens.css` (Entscheidung 103)
+- [ ] «Zürich» steht weiterhin dort, wo der heutige Stand beschrieben wird: FAQ («Für Familien im Raum Zürich»), Einleitung der Umfrage, Kontakt («Stadt und Kanton Zürich»), Meta-Description. Sollen auch diese Stellen offener formuliert werden?
+- [ ] Logo-Kit: Die Dateien mit dem früheren Claim «Erst Kopf. Dann Klick.» (Logo mit Claim, gestapeltes Logo, Patch-Sticker, Key Visual) sind nicht eingebaut. Falls Sie Varianten mit «Betrüger hassen diesen Blick.» erstellen, gehören sie nach `packages/ui/src/brand/`
+- [ ] Sticker-Sprüche und ergänzte Texte gegenlesen (Liste in Entscheidung 112)
+
 ## Inhalte
 
 - [ ] Name (Terminal-Karte «Über», Impressum, Datenschutz)

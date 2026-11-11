@@ -28,7 +28,6 @@ export interface Globe {
   destroy(): void;
 }
 
-const ACID = '201, 251, 82';
 const BONE = '244, 244, 239';
 /** Radius der Kugel relativ zur kürzeren Kante der Zeichenfläche (muss zum CSS passen) */
 const RADIUS = 0.44;
@@ -116,6 +115,14 @@ function links(nodes: NetNode[]): [number, number][] {
 export function initGlobe(canvas: HTMLCanvasElement): Globe {
   const context = canvas.getContext('2d');
   if (!context) return { setProgress: () => undefined, destroy: () => undefined };
+
+  // Akzentfarbe aus dem Designsystem (--acid-rgb: «201 251 82») als Liste für rgba()
+  const ACID =
+    getComputedStyle(document.documentElement)
+      .getPropertyValue('--acid-rgb')
+      .trim()
+      .split(/\s+/)
+      .join(', ') || '201, 251, 82';
 
   const random = prng(8);
   const small = window.matchMedia('(max-width: 47.99rem)').matches;

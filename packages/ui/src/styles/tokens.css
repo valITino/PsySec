@@ -22,8 +22,12 @@
   --nebula: #b678f7; /* Glow und Lichtpunkte, nie für Text auf Space */
   --haze: #cfc8e2; /* Sekundärtext auf Space */
 
-  /* Aktion */
-  --acid: #c9fb52;
+  /*
+   * Aktion. Die Akzentfarbe hängt an genau diesen drei Werten: Wer sie tauscht (z. B. gegen das
+   * Amber der Eule), ändert Buttons, Fokus-Ring, Lichtpunkte und Globus auf einen Schlag.
+   */
+  --acid-rgb: 201 251 82;
+  --acid: rgb(var(--acid-rgb));
   --acid-hi: #dcff7d;
   --ink: #08080b; /* Text auf Acid und Amber */
 
@@ -96,8 +100,8 @@
   --r-pill: 999px;
 
   /* Licht */
-  --glow-acid: 0 0 22px rgb(201 251 82 / 0.22);
-  --glow-acid-hi: 0 0 32px rgb(201 251 82 / 0.4);
+  --glow-acid: 0 0 22px rgb(var(--acid-rgb) / 0.22);
+  --glow-acid-hi: 0 0 32px rgb(var(--acid-rgb) / 0.4);
 
   /* Motion */
   --dur-1: 150ms;

@@ -7,10 +7,12 @@ import Card from '@psyber/ui/components/Card.astro';
 import Icon from '@psyber/ui/components/Icon.astro';
 import Kicker from '@psyber/ui/components/Kicker.astro';
 import Logo from '@psyber/ui/components/Logo.astro';
-import PsiIcon from '@psyber/ui/components/PsiIcon.astro';
-import PsiNet from '@psyber/ui/components/PsiNet.astro';
+import Owl from '@psyber/ui/components/Owl.astro';
 import Tag from '@psyber/ui/components/Tag.astro';
-import Wordmark from '@psyber/ui/components/Wordmark.astro';
+import stickerBlick from '@psyber/ui/brand/sticker-blick.svg?url';
+import stickerGeklickt from '@psyber/ui/brand/sticker-geklickt.svg?url';
+import stickerVersuch from '@psyber/ui/brand/sticker-netter-versuch.svg?url';
+import wordmarkUrl from '@psyber/ui/brand/wordmark.svg?url';
 import { iconData, type IconName } from '@psyber/ui/icons';
 import { href } from '../config/site.ts';
 import Base from '../layouts/Base.astro';
@@ -153,30 +155,60 @@ const icons = Object.keys(iconData) as IconName[];
     </h2>
     <div class="sg-brand mt-10">
       <Card class="sg-brand-cell">
-        <p class="label-up">Wortmarke</p>
-        <Wordmark class="sg-wordmark" />
+        <p class="label-up">Logo (für dunkle Flächen)</p>
+        <Logo class="sg-logo" />
       </Card>
       <Card class="sg-brand-cell">
-        <p class="label-up">Psi-Icon</p>
-        <div class="text-acid flex items-end gap-6">
-          <PsiIcon size={72} label="Psi-Icon" />
-          <PsiIcon size={40} />
-          <PsiIcon size={24} />
-          <PsiIcon size={16} />
-        </div>
+        <p class="label-up">Wortmarke allein</p>
+        <img class="sg-wordmark" src={wordmarkUrl} width="933" height="202" alt="PSYber" />
       </Card>
       <Card class="sg-brand-cell">
-        <p class="label-up">Logo</p>
-        <Logo />
+        <p class="label-up">Slogan</p>
+        <p class="display h3">Betrüger hassen diesen Blick.</p>
       </Card>
-      <Card class="sg-brand-cell sg-psi" tone="deep" data-psi-tilt>
-        <p class="label-up">Key Visual «Psi-Netz» (animiert)</p>
-        <PsiNet animated label="Psi-Netz: ein Psi aus Netzwerkknoten" class="sg-psi-net" />
-      </Card>
-      <div class="sg-brand-cell sg-psi sg-space on-space">
-        <p class="label-up">Psi-Netz auf Space (statisch)</p>
-        <PsiNet class="sg-psi-net sg-psi-space" />
+      <div class="sg-brand-cell sg-space on-space">
+        <p class="label-up">Eule auf Space</p>
+        <Owl
+          class="sg-owl"
+          label="Die PSYber-Eule: links ein echtes Auge, rechts eines hinter der Lupe"
+        />
       </div>
+    </div>
+
+    <h3 class="h4 mt-12">Mimik: wach, skeptisch, erwischt, genervt</h3>
+    <div class="sg-moods mt-4">
+      <Owl />
+      <Owl mood="skeptisch" />
+      <Owl mood="erwischt" />
+      <Owl mood="genervt" />
+    </div>
+
+    <h3 class="h4 mt-12">Sticker</h3>
+    <div class="sg-stickers mt-4">
+      <img
+        class="sticker"
+        src={stickerBlick}
+        width="432"
+        height="432"
+        alt="Sticker: «Betrüger hassen diesen Blick.»"
+        loading="lazy"
+      />
+      <img
+        class="sticker"
+        src={stickerVersuch}
+        width="432"
+        height="432"
+        alt="Sticker: «Netter Versuch.»"
+        loading="lazy"
+      />
+      <img
+        class="sticker"
+        src={stickerGeklickt}
+        width="432"
+        height="432"
+        alt="Sticker: «Du hast geklickt.»"
+        loading="lazy"
+      />
     </div>
   </section>
 
@@ -404,23 +436,30 @@ const icons = Object.keys(iconData) as IconName[];
     gap: 1.5rem;
   }
 
-  .sg-brand :global(.sg-wordmark) {
-    font-size: clamp(3rem, 8vw, 5rem);
+  .sg-brand :global(.sg-logo) {
+    --logo-h: 4.5rem;
   }
 
-  .sg-brand :global(.sg-psi) {
-    justify-items: center;
-  }
-
-  .sg-brand :global(.sg-psi-net) {
-    width: min(100%, 15rem);
+  .sg-wordmark {
+    width: min(100%, 18rem);
     height: auto;
-    --psi-bg: var(--pit);
   }
 
-  .sg-brand :global(.sg-psi-space) {
-    --psi-bg: var(--space);
-    --psi-line: var(--haze);
+  .sg-brand :global(.sg-owl) {
+    width: min(100%, 11rem);
+  }
+
+  .sg-moods {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 7rem));
+    gap: clamp(1rem, 4vw, 2.5rem);
+  }
+
+  .sg-stickers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: clamp(1rem, 4vw, 2.5rem);
+    padding-block: 0.5rem;
   }
 
   /* Muster einer Space-Fläche */

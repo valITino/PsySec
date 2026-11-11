@@ -6,4 +6,3 @@
 export * from './reduced.ts';
 export * from './in-view.ts';
 export * from './count-up.ts';
-export * from './psi-net.ts';
