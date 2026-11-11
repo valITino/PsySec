@@ -130,6 +130,7 @@ Zum Testen: Sobald dieser Stand auf `main` liegt und GitHub Pages auf «GitHub A
 
 ## Arbeitsnotizen für Folge-Sessions
 
+- `pnpm build:pages` überschreibt die Build-Ordner `apps/*/dist` mit der Vorschau-Variante (anderer Basispfad). Danach immer `pnpm build`, bevor `pnpm e2e`, `pnpm lighthouse` oder `node scripts/docs-shots.mjs` laufen; sonst schlagen Tests für forms und surprise fehl.
 - Screenshots: `pnpm build && node scripts/shots.mjs apps/web/dist / --name web-home` (Ergebnis in `shots/`, nicht versioniert). Kontaktbogen: `node scripts/sheet.mjs <name> <mobile|desktop>`. Interaktive Zustände: `node scripts/states.mjs`.
 - `pnpm build:pages` überschreibt `apps/*/dist` mit dem Vorschau-Build (Basis-Pfad `/PsySec`). Vor `pnpm e2e` wieder `pnpm build` ausführen.
 - Die E2E-Tests laufen gegen den Produktions-Build und fangen Requests an `https://api.psyber.tech` ab. Ein Build mit `PUBLIC_API_BASE=mock` sendet nichts; dann schlagen die Tests fehl, die den Request prüfen.
