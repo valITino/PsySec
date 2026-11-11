@@ -26,7 +26,7 @@ const ampel = [
 ---
 
 <section class="section" aria-labelledby="check-title">
-  <div class="wrap check">
+  <div class="wrap echt">
     <div class="check-copy">
       <SectionHead
         num="0x06"
@@ -117,7 +117,8 @@ const ampel = [
 </section>
 
 <style>
-  .check {
+  /* Nicht «.check»: so heisst im Designsystem die Zeile aus Checkbox und Text (zwei Spalten). */
+  .echt {
     display: grid;
     gap: clamp(2.5rem, 6vw, 4rem);
   }
@@ -334,7 +335,7 @@ const ampel = [
   }
 
   @media (min-width: 64rem) {
-    .check {
+    .echt {
       grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
       align-items: center;
     }

@@ -182,6 +182,27 @@ test.describe('psyber.tech', () => {
     expect(calls).toHaveLength(1);
   });
 
+  test('Chat-Mockup in 0x06 ist sichtbar und liegt im Bildschirm', async ({
+    browser,
+  }, testInfo) => {
+    // Reduzierte Bewegung: alle Nachrichten stehen sofort da.
+    const context = await browser.newContext({ ...testInfo.project.use, reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    await page.goto(`${WEB}/`);
+    const chat = page.locator('[data-chat]');
+    await chat.scrollIntoViewIfNeeded();
+    await expect(chat).toBeVisible();
+    await expect(chat.locator('[data-chat-msg]')).toHaveCount(3);
+    const box = await chat.boundingBox();
+    const viewport = page.viewportSize();
+    expect(box?.width ?? 0).toBeGreaterThan(240);
+    expect(box?.x ?? -1).toBeGreaterThanOrEqual(0);
+    expect((box?.x ?? 0) + (box?.width ?? 0)).toBeLessThanOrEqual(viewport?.width ?? 0);
+    for (const message of await chat.locator('[data-chat-msg]').all())
+      await expect(message).toBeVisible();
+    await context.close();
+  });
+
   test('404, security.txt und Rechtliches', async ({ page, request }) => {
     const response = await page.goto(`${WEB}/gibt-es-nicht`);
     expect(response?.status()).toBe(404);

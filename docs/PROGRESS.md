@@ -98,7 +98,9 @@ Geprüft: lint, typecheck, 87 Unit-Tests, build, 148 E2E-Tests, JS-Budgets (web 
 - **Feinschliff an den Animationen:** «Haltung» und Drehbuch (siehe Phase 5), Klick-Simulator ohne Layout-Ruckeln.
 - Doku-Screenshots in `docs/screenshots/` (`node scripts/docs-shots.mjs`), PR-Beschreibung in `docs/PR_DESCRIPTION.md`.
 
-Geprüft: lint, typecheck, 116 Unit-Tests, build, 153 E2E-Tests, JS-Budgets, `pnpm check:headers`, `pnpm lighthouse`.
+- **Nachtrag:** Auf dem Handy fehlte das Chat-Mockup in 0x06 (Klassen-Kollision `.check`, siehe Entscheidung 98). Behoben und mit drei Tests abgesichert.
+
+Geprüft: lint, typecheck, 118 Unit-Tests, build, 195 E2E-Tests, JS-Budgets, `pnpm check:headers`, `pnpm lighthouse`.
 
 ## Abschluss
 
@@ -132,3 +134,5 @@ Zum Testen: Sobald dieser Stand auf `main` liegt und GitHub Pages auf «GitHub A
 - Auswertung ausprobieren: `pnpm analyze --demo` (erfundene Daten, Bericht als Demo markiert). Mit der lokalen Datenbank: `pnpm export --local && pnpm analyze`.
 - ESLint: Node-Globals und `no-console: off` gelten nur für `scripts/` und `packages/*/scripts/`, nicht für `apps/*/src/scripts/`.
 - Doku-Screenshots neu erzeugen: `pnpm build && node scripts/analyze.ts --demo && node scripts/docs-shots.mjs`.
+- Klassennamen in Scoped Styles nie so nennen wie einen Baustein aus `packages/ui/src/styles/components.css` (z. B. `.check`, `.card`, `.label`): Beide Regeln gelten sonst zugleich. `pnpm test` meldet das.
+- Layout immer in beiden Bewegungsmodi prüfen: Bei `prefers-reduced-motion` sind andere Zustände sichtbar (alle Chat-Nachrichten, statisches Drehbuch).

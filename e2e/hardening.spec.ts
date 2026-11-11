@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { FORMS, SURPRISE, WEB } from '../playwright.config.ts';
-import { API, collectErrors, mockApi } from './helpers.ts';
+import { API, collectErrors, horizontalOverflow, mockApi } from './helpers.ts';
 
 /**
  * Härtung (Auftrag, Abschnitt 9): Diese Prüfungen laufen über alle Seiten der drei Websites.
@@ -58,6 +58,21 @@ for (const entry of PAGES) {
       const expected = entry.name.endsWith('404') ? /status of 404/ : null;
       expect(errors.filter((error) => !expected?.test(error))).toEqual([]);
     });
+
+    for (const reducedMotion of ['no-preference', 'reduce'] as const) {
+      test(`kein horizontales Scrollen (Bewegung: ${reducedMotion})`, async ({
+        browser,
+      }, testInfo) => {
+        // Beide Modi prüfen: Bei reduzierter Bewegung sind andere Zustände sichtbar.
+        const context = await browser.newContext({ ...testInfo.project.use, reducedMotion });
+        const page = await context.newPage();
+        await mockApi(page);
+        await page.goto(entry.url, { waitUntil: 'networkidle' });
+        await page.waitForTimeout(300);
+        expect(await horizontalOverflow(page)).toBe(0);
+        await context.close();
+      });
+    }
 
     test('Struktur: Sprache, ein H1, lückenlose Überschriften, ein main', async ({ page }) => {
       await page.goto(entry.url);
