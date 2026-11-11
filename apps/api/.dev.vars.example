@@ -1,0 +1,10 @@
+# Lokale Entwicklung: kopieren nach .dev.vars (wird nicht committet).
+
+# Erlaubt http://localhost:<Port> als Origin.
+ENVIRONMENT=development
+
+# Offizieller Turnstile-Test-Secret von Cloudflare: besteht immer.
+TURNSTILE_SECRET=1x0000000000000000000000000000000AA
+
+# Empfänger der Benachrichtigung. Lokal wird nichts verschickt, nur protokolliert.
+NOTIFY_TO=dev@example.com

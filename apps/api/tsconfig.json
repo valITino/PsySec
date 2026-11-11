@@ -2,7 +2,7 @@
   "extends": "@psyber/config/tsconfig.base.json",
   "compilerOptions": {
     "lib": ["ES2023"],
-    "types": ["@cloudflare/workers-types"]
+    "types": ["@cloudflare/workers-types", "@cloudflare/vitest-plugin/types", "node"]
   },
   "include": ["src", "test", "vitest.config.ts"]
 }

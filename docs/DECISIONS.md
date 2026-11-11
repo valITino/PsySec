@@ -6,7 +6,7 @@ Format: **Entscheidung** – Grund – Alternative. Neue Einträge unten anhäng
 
 1. **pnpm 12 über corepack** (`packageManager` in `package.json`). – Aktuelle stabile Version; corepack lädt sie automatisch. Build-Skripte von Abhängigkeiten sind nur für `esbuild` und `workerd` freigegeben (`allowBuilds` in `pnpm-workspace.yaml`). Die Liste `minimumReleaseAgeExclude` hat pnpm beim ersten Install selbst ergänzt, weil einige Pakete jünger als die Sperrfrist waren. – Alternative: pnpm 10; brächte keine Vorteile.
 2. **TypeScript 6.0 statt 7.0.** – `typescript-eslint` und `@astrojs/check` unterstützen 7 noch nicht. – Alternative: 7.0 ohne Lint und `astro check`; nicht akzeptabel.
-3. **Vitest 4.1 statt 5.** – `@cloudflare/vitest-pool-workers` verlangt `vitest ^4.1`. Eine Version im ganzen Monorepo ist einfacher als zwei. – Alternative: Vitest 5 für Pakete, 4 für die API.
+3. **Vitest 5 mit `@cloudflare/vitest-plugin`.** – Das frühere `@cloudflare/vitest-pool-workers` ist abgekündigt und verlangte Vitest 4; der Nachfolger unterstützt Vitest 5. Damit läuft im ganzen Monorepo eine Version, und die API-Tests laufen in der echten Workers-Laufzeit (workerd) mit lokaler D1.
 4. **`@playwright/test` steht im Lockfile auf 1.63.0.** – Passt zum Chromium der Entwicklungsumgebung. In der CI installiert `playwright install` den passenden Browser, Dependabot darf aktualisieren. Lokal bei Bedarf `PW_CHROMIUM_PATH` setzen.
 5. **Skripte laufen direkt mit Node (Type Stripping), ohne tsx.** – Node ≥ 22.18 führt `.ts` nativ aus. Darum importieren wir überall mit Endung (`./x.ts`) und nutzen nur löschbare TypeScript-Syntax (`erasableSyntaxOnly`).
 6. **ESLint ohne `jsx-a11y`.** – Das Plugin unterstützt ESLint 10 noch nicht. Barrierefreiheit prüfen wir stattdessen am gerenderten Ergebnis mit axe in den Playwright-Tests. – Alternative: Fork `jsx-a11y-x`; zusätzliches Risiko ohne Mehrwert.
@@ -69,3 +69,17 @@ Der Auftrag liefert die Inhalte; für Beschriftungen und Bedienelemente fehlten 
 - 404: Terminal-Befehl «ping diese-seite», Abschnittsnummer «0x194» (404 in Hex).
 - Impressum und Datenschutz: komplette Entwurfstexte, als «Entwurf, rechtlich prüfen lassen» markiert.
 - Meta-Beschreibungen der Seiten.
+
+## Phase 2: API
+
+34. **POST-Requests brauchen einen erlaubten `Origin`-Header**, sonst antwortet die API mit 403. – Browser senden ihn bei Cross-Origin-POSTs immer. Das ersetzt keinen Spam-Schutz, hält aber beiläufigen Missbrauch der Zähler fern. Zusätzliche Origins lassen sich über die Variable `ALLOWED_ORIGINS` erlauben; `ENVIRONMENT=development` erlaubt localhost.
+35. **Honeypot-Treffer bekommen `200 { ok: true }`, gespeichert wird nichts.** – Bots lernen so nicht, dass sie erkannt wurden. Turnstile wird dafür gar nicht erst befragt.
+36. **Validierung vor Turnstile.** – Ungültige Eingaben kosten keinen Request an Cloudflare; ein Token wird nur für gültige Eingaben verbraucht.
+37. **Turnstile ohne IP-Adresse.** – `remoteip` ist bei der Prüfung optional; wir geben sie nicht weiter.
+38. **Datum in Schweizer Zeit** (`Europe/Zurich`) für `created_day` und die Zähler. – Passt zur Auswertung pro Tag; gespeichert wird nur `YYYY-MM-DD`.
+39. **Tabellen als `WITHOUT ROWID` mit zufälliger UUID.** – SQLite führt sonst eine fortlaufende Zeilennummer, aus der sich die Reihenfolge der Einträge ablesen liesse. So gibt es weder ID noch Fremdschlüssel noch Reihenfolge, die Antworten und Warteliste verbinden.
+40. **E-Mails der Warteliste werden kleingeschrieben und nur einmal gespeichert** (`UNIQUE`, UPSERT). – Doppelte Anmeldungen ergeben einen Eintrag; «Founding Family» bleibt gesetzt, wenn es einmal angekreuzt wurde.
+41. **Benachrichtigung als reiner Text über die strukturierte `send()`-API** des `send_email`-Bindings, mit `Reply-To` auf die anfragende Person. – Kein HTML, keine MIME-Bibliothek. Scheitert der Versand, bleibt die Anfrage trotzdem gespeichert; geloggt wird nur der Fehlercode.
+42. **`NOTIFY_TO` als Secret statt als Variable im Repo.** – Die private Zieladresse gehört nicht in die Versionsverwaltung.
+43. **Workers-Logs ohne automatische Request-Logs** (`invocation_logs: false`). – So landen weder IP-Adressen noch Header in den Logs.
+44. **Bekannte Grenze: D1 Time Travel.** – Cloudflare hält für D1 Wiederherstellungspunkte vor (30 Tage). Wer Administrationszugriff hat, könnte damit theoretisch nachvollziehen, welche Zeilen gleichzeitig entstanden sind. Das ist eine organisatorische Frage (Zugriff auf das Konto), technisch lässt es sich in D1 nicht abschalten.

@@ -74,6 +74,8 @@ const config = [
     name: 'psyber/worker',
     files: ['apps/api/**/*.ts'],
     languageOptions: { globals: { ...globals.serviceworker } },
+    // Logs sind die Betriebsanzeige des Workers. Inhalte von Anfragen werden nie geloggt.
+    rules: { 'no-console': 'off' },
   },
   {
     name: 'psyber/types',

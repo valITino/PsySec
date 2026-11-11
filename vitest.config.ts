@@ -10,6 +10,8 @@ export default defineConfig({
           include: ['packages/*/test/**/*.test.ts', 'scripts/**/*.test.ts'],
         },
       },
+      // API-Tests in der Workers-Laufzeit (eigene Konfiguration mit lokaler D1)
+      'apps/api/vitest.config.ts',
     ],
   },
 });

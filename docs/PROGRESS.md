@@ -8,7 +8,7 @@ Neue Session? Zuerst `CLAUDE.md` lesen, dann diese Datei. Der Auftrag steht in `
 | ----- | --------------------------------------------- | ------ |
 | 0     | Fundament, Tooling, `packages/ui`, Styleguide | fertig |
 | 1     | psyber.tech (One-Pager und Unterseiten)       | fertig |
-| 2     | API (Cloudflare Worker)                       | offen  |
+| 2     | API (Cloudflare Worker)                       | fertig |
 | 3     | forms.psyber.tech (Umfrage)                   | offen  |
 | 4     | surprise.psyber.tech («Erwischt!»)            | offen  |
 | 5     | Härtung, E2E, DEPLOY.md                       | offen  |
@@ -37,9 +37,20 @@ Neue Session? Zuerst `CLAUDE.md` lesen, dann diese Datei. Der Auftrag steht in `
 
 Geprüft: lint, typecheck, 52 Unit-Tests, build, 25 E2E-Tests, JS-Budget (web 58 von 120 KB), Screenshots in 390×844 und 1440×900 inklusive reduzierter Bewegung, Druckansicht der Checkliste.
 
+## Phase 2: API (fertig)
+
+- `apps/api`: Hono-Worker mit `POST /v1/survey`, `POST /v1/event`, `POST /v1/contact`, `GET /v1/health`; Fehler immer als `{ "error": "<code>" }`.
+- D1-Migration `0001_init.sql`: `survey_responses`, `waitlist`, `contact_requests`, `counters` (alle `WITHOUT ROWID`, Umfrage und Warteliste nur mit Datum).
+- Turnstile-Prüfung, Honeypot, Rate Limiting (5 bzw. 30 pro Minute und IP), CORS nur für die drei Sites, Body-Limit 32 KB, strikte Schemas aus `packages/survey`, nur Prepared Statements.
+- Benachrichtigung per `send_email`-Binding (reiner Text, Reply-To), Cron löscht Kontaktanfragen nach 180 Tagen.
+- 30 Tests in der Workers-Laufzeit (`@cloudflare/vitest-plugin`): Validierung, CORS, Trennung von Warteliste und Antworten, Datumsfelder ohne Uhrzeit, Rate Limit (simuliert und mit echtem Binding), Honeypot, Turnstile, Zähler, E-Mail, Löschfrist.
+- Lokal: `cp apps/api/.dev.vars.example apps/api/.dev.vars`, `pnpm --filter @psyber/api db:migrate:local`, `pnpm dev:api`.
+
+Geprüft: lint, typecheck, 82 Unit-Tests, build (`wrangler deploy --dry-run`), lokaler Lauf mit `wrangler dev` und lokaler D1 (Health, Zähler, CORS-Abweisung, Kontaktanfrage mit Turnstile-Testkey).
+
 ## Nächster Schritt
 
-Phase 2: API in `apps/api` (Hono, D1-Migrationen, Turnstile, Rate Limiting, send_email, Cron) mit Tests; lokale Entwicklung mit `wrangler dev`.
+Phase 3: Umfrage-Funnel in `apps/forms` (Preact-Island mit Signals), Danke-Screen mit Schwerpunkten und beiden Links, Anbindung an die API.
 
 ## Arbeitsnotizen für Folge-Sessions
 

@@ -9,7 +9,8 @@
     "build": "wrangler deploy --dry-run --outdir dist",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "db:migrate:local": "wrangler d1 migrations apply psyber --local",
-    "db:migrate:remote": "wrangler d1 migrations apply psyber --remote"
+    "db:migrate:remote": "wrangler d1 migrations apply psyber --remote",
+    "db:export": "wrangler d1 export psyber --remote --output ../../reports/psyber-export.sql"
   },
   "dependencies": {
     "@psyber/survey": "workspace:*",
@@ -17,11 +18,11 @@
     "zod": "^4.6.7"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.23.0",
     "@cloudflare/workers-types": "^5.20261110.1",
     "@psyber/config": "workspace:*",
     "typescript": "^6.0.3",
-    "vitest": "^4.1.12",
-    "wrangler": "^4.160.0"
+    "vitest": "^5.1.0",
+    "wrangler": "^4.160.0",
+    "@cloudflare/vitest-plugin": "^1.7.0"
   }
 }
