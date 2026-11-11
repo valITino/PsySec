@@ -1,4 +1,4 @@
-/** URL der Latin-Datei von Recursive (alle Achsen) für den Preload im <head>. */
-import recursiveLatinUrl from '@fontsource-variable/recursive/files/recursive-latin-full-normal.woff2?url';
+/** URL der Latin-Datei von Manrope für den Preload im <head>. */
+import sansLatinUrl from '@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2?url';
 
-export { recursiveLatinUrl };
+export { sansLatinUrl };

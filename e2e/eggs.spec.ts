@@ -133,7 +133,8 @@ test.describe('Easter Eggs auf psyber.tech', () => {
     const context = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await context.newPage();
     await page.goto(`${WEB}/impressum`);
-    await page.locator('[data-header]').waitFor();
+    // Der Header selbst hat keine Höhe (die Leiste schwebt): auf das Logo warten.
+    await page.locator('[data-header] .logo').waitFor();
     await konami(page);
     const terminal = page.getByRole('dialog', { name: 'PSYber-Terminal' });
     await expect(terminal).toBeVisible();

@@ -58,7 +58,7 @@ const signals = [
             {index + 1}
           </span>
           <div>
-            <h2 class="h3 signal-title">{signal.title}</h2>
+            <h2 class="display signal-title">{signal.title}</h2>
             <p>{signal.text}</p>
           </div>
         </li>
@@ -67,7 +67,7 @@ const signals = [
 
     <div class="boxes">
       <section class="box box-pause" aria-labelledby="box-verdacht">
-        <h2 class="h3" id="box-verdacht">
+        <h2 class="label-up" id="box-verdacht">
           Bei Verdacht
         </h2>
         <p class="box-lead">
@@ -76,7 +76,7 @@ const signals = [
       </section>
 
       <section class="box" aria-labelledby="box-passiert">
-        <h2 class="h3" id="box-passiert">
+        <h2 class="label-up" id="box-passiert">
           Wenn es passiert ist
         </h2>
         <ol class="box-steps">
@@ -134,19 +134,18 @@ const signals = [
 <style>
   .checklist {
     display: grid;
-    gap: clamp(2rem, 5vw, 3.5rem);
-    padding-block: clamp(2.5rem, 7vw, 5rem) var(--section-y);
+    gap: clamp(2rem, 5vw, 4rem);
+    padding-block: calc(var(--header-h) + clamp(2rem, 6vw, 5rem)) var(--section-y);
   }
 
   .checklist-head {
     display: grid;
     justify-items: start;
-    gap: 1.25rem;
+    gap: 1.5rem;
   }
 
   .checklist-title {
-    max-width: 12em;
-    font-size: clamp(2.5rem, 1.4rem + 5.2vw, 5rem);
+    max-width: 11em;
   }
 
   .print-brand {
@@ -155,15 +154,15 @@ const signals = [
 
   .signals {
     display: grid;
-    border-top: 1px solid var(--line);
+    border-top: 1px solid var(--steel);
   }
 
   .signal {
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
-    gap: clamp(1rem, 3vw, 2rem);
-    padding-block: clamp(1.25rem, 3vw, 2rem);
-    border-bottom: 1px solid var(--line);
+    gap: clamp(1rem, 3vw, 2.5rem);
+    padding-block: clamp(1.25rem, 3vw, 2.25rem);
+    border-bottom: 1px solid var(--steel);
   }
 
   .signal-num {
@@ -171,21 +170,26 @@ const signals = [
     place-items: center;
     width: clamp(2.75rem, 2rem + 3vw, 4rem);
     aspect-ratio: 1;
+    border: 1px solid var(--amber);
     border-radius: 50%;
-    background-color: var(--amber);
-    color: var(--ink);
-    font-size: clamp(1.375rem, 1rem + 1.5vw, 2rem);
-    font-weight: 900;
+    color: var(--amber);
+    font-family: var(--ff-mono);
+    font-size: clamp(1.125rem, 0.9rem + 1vw, 1.5rem);
+    font-weight: 500;
     line-height: 1;
-    --casl: 1;
   }
 
   .signal-title {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.75rem;
+    font-size: clamp(1.625rem, 1.05rem + 2.3vw, 3.25rem);
   }
 
   .signal p {
-    max-width: 36em;
+    max-width: 34em;
+    color: var(--ash);
+    font-size: var(--fs-lead);
+    letter-spacing: -0.015em;
+    line-height: 1.38;
   }
 
   .boxes {
@@ -196,46 +200,48 @@ const signals = [
   .box {
     display: grid;
     align-content: start;
-    gap: 1rem;
-    padding: clamp(1.5rem, 1rem + 2vw, 2.25rem);
-    border: 1px solid var(--line);
-    border-radius: var(--r-card);
-    background-color: var(--aubergine);
+    gap: 1.25rem;
+    padding: clamp(1.5rem, 1rem + 2.4vw, 3rem);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-panel);
+    background-color: var(--carbon);
   }
 
   .box-pause {
-    border-color: var(--lav);
+    border-color: color-mix(in srgb, var(--acid) 55%, transparent);
   }
 
   .box-lead {
-    color: var(--white);
-    font-size: var(--fs-lead);
-    font-weight: 650;
-    line-height: 1.4;
+    color: var(--bone);
+    font-size: var(--fs-h3);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
   }
 
   .box-steps {
     display: grid;
-    gap: 0.5rem;
+    gap: 0.625rem;
     padding-left: 1.5rem;
     list-style: decimal;
   }
 
   .box-steps li::marker {
-    color: var(--lav);
-    font-weight: 700;
+    color: var(--acid);
+    font-family: var(--ff-mono);
+    font-size: 0.85em;
   }
 
   .ps {
     max-width: 38em;
     padding: 1.25rem 1.5rem;
-    border-left: 3px solid var(--amber);
-    border-radius: 0 12px 12px 0;
-    background-color: var(--deep);
+    border-left: 2px solid var(--amber);
+    border-radius: 0 var(--r-input) var(--r-input) 0;
+    background-color: var(--carbon);
   }
 
   .checklist-foot {
-    color: var(--lav);
+    color: var(--ash);
     font-size: var(--fs-micro);
   }
 
@@ -254,6 +260,7 @@ const signals = [
   @media print {
     :global(.site-header),
     :global(.skip-link),
+    :global(.chrome),
     .no-print,
     .ps {
       display: none !important;
@@ -265,16 +272,17 @@ const signals = [
     }
 
     .checklist {
-      --fg: #22172f;
-      --fg-strong: #22172f;
-      --fg-muted: #22172f;
-      --accent: #22172f;
-      --line: #22172f;
+      --fg: #111;
+      --fg-strong: #111;
+      --fg-muted: #111;
+      --accent: #111;
+      --hairline: #111;
+      --steel: #111;
       gap: 6.5mm;
       width: 100%;
       max-width: none;
       padding: 0;
-      color: #22172f;
+      color: #111;
       font-size: 11.5pt;
       line-height: 1.4;
     }
@@ -286,8 +294,8 @@ const signals = [
     .print-brand {
       display: block;
       font-size: 11pt;
-      font-weight: 900;
-      --casl: 1;
+      font-weight: 800;
+      letter-spacing: -0.03em;
     }
 
     .checklist-head {
@@ -296,7 +304,7 @@ const signals = [
 
     .checklist-title {
       max-width: none;
-      color: #22172f;
+      color: #111;
       font-size: 29pt;
     }
 
@@ -308,21 +316,29 @@ const signals = [
 
     .signal-num {
       width: 12mm;
-      border: 1.5pt solid #22172f;
+      border: 1.5pt solid #111;
       background: none;
-      color: #22172f;
+      color: #111;
       font-size: 17pt;
     }
 
-    .signal-title,
-    .box .h3 {
+    .signal-title {
       margin-bottom: 1mm;
-      color: #22172f;
+      color: #111;
       font-size: 13.5pt;
+      letter-spacing: -0.02em;
+    }
+
+    .box .label-up {
+      color: #111;
+      font-size: 9pt;
     }
 
     .signal p {
       max-width: none;
+      color: #111;
+      font-size: 11.5pt;
+      line-height: 1.4;
     }
 
     .boxes {
@@ -334,12 +350,13 @@ const signals = [
     .box {
       gap: 2.2mm;
       padding: 4.5mm;
-      border: 1pt solid #22172f;
+      border: 1pt solid #111;
+      border-radius: 3mm;
       background: none;
     }
 
     .box-lead {
-      color: #22172f;
+      color: #111;
       font-size: 12pt;
     }
 
@@ -348,16 +365,16 @@ const signals = [
     }
 
     .box-steps li::marker {
-      color: #22172f;
+      color: #111;
     }
 
     .box :global(.link) {
-      color: #22172f;
+      color: #111;
       text-decoration: none;
     }
 
     .checklist-foot {
-      color: #22172f;
+      color: #111;
       font-size: 9pt;
     }
   }

@@ -13,20 +13,29 @@
 </p>
 
 <style>
+  /* Bleibt oben stehen; eine Zeile, damit die Höhe feststeht (der Header rückt darunter). */
   .preview-note {
-    position: relative;
-    z-index: 51;
+    position: sticky;
+    top: 0;
+    z-index: 60;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
-    padding: 0.4rem var(--gutter);
+    height: 1.75rem;
+    padding-inline: var(--gutter);
     background-color: var(--amber);
     color: var(--ink);
+    font-family: var(--ff-sans);
     font-size: var(--fs-micro);
     font-weight: 600;
-    line-height: 1.35;
-    text-align: center;
+    line-height: 1.2;
+  }
+
+  .preview-note span:last-child {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .preview-dot {

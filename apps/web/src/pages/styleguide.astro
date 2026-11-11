@@ -16,19 +16,19 @@ import { href } from '../config/site.ts';
 import Base from '../layouts/Base.astro';
 
 const colors = [
-  { token: '--night', hex: '#140a29', use: 'Seitenhintergrund', swatch: 'bg-night' },
-  { token: '--aubergine', hex: '#261547', use: 'Karten, erhöhte Flächen', swatch: 'bg-aubergine' },
-  { token: '--deep', hex: '#1b0d35', use: 'Terminal, tiefe Panels', swatch: 'bg-deep' },
-  { token: '--line', hex: '#3d2b68', use: 'Linien und Rahmen', swatch: 'bg-line' },
-  { token: '--lav', hex: '#ad9bf6', use: 'Akzent, Sekundärtext', swatch: 'bg-lav' },
-  { token: '--soft', hex: '#e7e1fb', use: 'Fliesstext auf dunkel', swatch: 'bg-soft' },
-  { token: '--white', hex: '#ffffff', use: 'Überschriften auf dunkel', swatch: 'bg-white' },
-  { token: '--violet', hex: '#6b40c9', use: 'Primärbuttons', swatch: 'bg-violet' },
-  { token: '--violet-dark', hex: '#492293', use: 'Hover und Active', swatch: 'bg-violet-dark' },
+  { token: '--void', hex: '#08080b', use: 'Seitenhintergrund', swatch: 'bg-void' },
+  { token: '--carbon', hex: '#111115', use: 'Karten, Panels', swatch: 'bg-carbon' },
+  { token: '--graphite', hex: '#1a1a20', use: 'Erhöhte Fläche in Karten', swatch: 'bg-graphite' },
+  { token: '--pit', hex: '#0c0c10', use: 'Terminal, Eingabefelder', swatch: 'bg-pit' },
+  { token: '--hairline', hex: '#27272f', use: 'Linien auf Schwarz', swatch: 'bg-hairline' },
+  { token: '--steel', hex: '#6d6d79', use: 'Rahmen von Bedienelementen', swatch: 'bg-steel' },
+  { token: '--ash', hex: '#9c9ca6', use: 'Sekundärtext auf Schwarz', swatch: 'bg-ash' },
+  { token: '--bone', hex: '#f4f4ef', use: 'Text und Überschriften', swatch: 'bg-bone' },
+  { token: '--space', hex: '#3d1e86', use: 'Violette Bogen', swatch: 'bg-space' },
+  { token: '--nebula', hex: '#b678f7', use: 'Lichtschein, nie für Text', swatch: 'bg-nebula' },
+  { token: '--haze', hex: '#cfc8e2', use: 'Sekundärtext auf Space', swatch: 'bg-haze' },
+  { token: '--acid', hex: '#c9fb52', use: 'Aktion, Fokus, «gepatcht»', swatch: 'bg-acid' },
   { token: '--amber', hex: '#f9ad26', use: 'Warnsignale, sparsam', swatch: 'bg-amber' },
-  { token: '--paper', hex: '#f5f4fd', use: 'Helle Fläche', swatch: 'bg-paper' },
-  { token: '--ink', hex: '#22172f', use: 'Text auf hell', swatch: 'bg-ink' },
-  { token: '--muted', hex: '#675e76', use: 'Sekundärtext auf hell', swatch: 'bg-muted' },
 ];
 
 const status = [
@@ -46,21 +46,19 @@ const icons = Object.keys(iconData) as IconName[];
   path="/styleguide"
   noindex
 >
-  <header class="wrap sg-head net-texture">
+  <header class="wrap sg-head dot-grid">
     <Logo href={href('/')} />
     <Kicker class="mt-16">Designsystem</Kicker>
     <h1 class="display h1 mt-4">Styleguide</h1>
     <p class="lead mt-6">
-      Sauber, modern, minimalistisch und trotzdem aussagekräftig. Aubergine statt Schwarz, Recursive
-      mit allen Achsen, Hex statt Versalien. Diese Seite ist nicht verlinkt und nicht indexiert.
+      Schwarz mit violetten Bogen, Acid für alles, was man anklicken kann. Riesige Versalien, kleine
+      Labels in Mono, Pillen statt Kästen. Diese Seite ist nicht verlinkt und nicht indexiert.
     </p>
   </header>
 
   <section class="wrap sg-section" aria-labelledby="sg-farben">
-    <p class="hexnum" aria-hidden="true">
-      0x01
-    </p>
-    <h2 id="sg-farben" class="h2 mt-3">
+    <Kicker num="0x01">Tokens</Kicker>
+    <h2 id="sg-farben" class="display h2 mt-3">
       Farben
     </h2>
     <ul class="sg-swatches mt-10">
@@ -86,38 +84,40 @@ const icons = Object.keys(iconData) as IconName[];
   </section>
 
   <section class="wrap sg-section" aria-labelledby="sg-typo">
-    <p class="hexnum" aria-hidden="true">
-      0x02
-    </p>
-    <h2 id="sg-typo" class="h2 mt-3">
+    <Kicker num="0x02">Manrope und Geist Mono</Kicker>
+    <h2 id="sg-typo" class="display h2 mt-3">
       Typografie
     </h2>
     <div class="sg-rows mt-10">
       <div class="sg-row">
-        <p class="mono meta">Display H1 · wght 900 · CASL 1</p>
+        <p class="label-up">Display · 650 · Versalien · −0.045em</p>
         <p class="display h1">Ein Klick zu viel?</p>
       </div>
       <div class="sg-row">
-        <p class="mono meta">H2 · wght 850 · CASL 0.8</p>
+        <p class="label-up">H2 · 650 · Versalien · −0.035em</p>
         <p class="display h2">Zwei Einfallstore. Derselbe Schaden.</p>
       </div>
       <div class="sg-row">
-        <p class="mono meta">H3 · wght 800 · CASL 0.6</p>
-        <p class="h3 text-fg-strong">Layer 8: Menschen stärken</p>
+        <p class="label-up">H3 · Kartentitel</p>
+        <p class="display h3">Layer 8: Menschen stärken</p>
       </div>
       <div class="sg-row">
-        <p class="mono meta">Lead</p>
+        <p class="label-up">Titel · 600 · normale Schreibweise</p>
+        <p class="title text-fg-strong">Was passiert mit unseren Daten und Passwörtern?</p>
+      </div>
+      <div class="sg-row">
+        <p class="label-up">Lead</p>
         <p class="lead">
           Betrüger hacken keine Router, sondern Menschen. PSYber zeigt Ihrer Familie, wie
           Manipulation funktioniert, und sichert Ihr Heimnetz gleich mit ab.
         </p>
       </div>
       <div class="sg-row">
-        <p class="mono meta">Fliesstext · wght 400 · 17–18 px · 1.55</p>
+        <p class="label-up">Fliesstext · 400 · 16–18 px · 1.55</p>
         <p class="measure">
           Ein Anruf der ‹Polizei›, eine Deepfake-Werbung, eine Online-Liebe, die plötzlich Geld
-          braucht. Solche Angriffe zielen auf Gefühle, nicht auf Technik. <strong>Fett</strong>,{' '}
-          <em>kursiv</em> und ein{' '}
+          braucht. Solche Angriffe zielen auf Gefühle, nicht auf Technik. <strong>Fett</strong> und
+          ein{' '}
           <a class="link" href="#sg-typo">
             Link im Text
           </a>
@@ -125,38 +125,40 @@ const icons = Object.keys(iconData) as IconName[];
         </p>
       </div>
       <div class="sg-row">
-        <p class="mono meta">Kicker und Abschnittsnummer · MONO 1</p>
+        <p class="label-up">Kicker mit Hex-Nummer · Mono · gesperrt</p>
         <div class="flex flex-wrap items-baseline gap-6">
-          <span class="hexnum">0x0A</span>
-          <Kicker as="span">So arbeiten wir</Kicker>
+          <Kicker as="span" num="0x0A">
+            So arbeiten wir
+          </Kicker>
+          <Kicker as="span" raw>
+            whoami
+          </Kicker>
         </div>
       </div>
       <div class="sg-row">
-        <p class="mono meta">Grosse Zahl · proportionale Ziffern</p>
+        <p class="label-up">Grosse Zahl</p>
         <p class="num">15,9 %</p>
       </div>
       <div class="sg-row">
-        <p class="mono meta">Code · MONO 1 · tabular-nums</p>
+        <p class="label-up">Code · Mono · tabular-nums</p>
         <p class="mono tabular">$ ping familie.local · 64’733 Meldungen · CHF 190.–</p>
       </div>
     </div>
   </section>
 
   <section class="wrap sg-section" aria-labelledby="sg-marke">
-    <p class="hexnum" aria-hidden="true">
-      0x03
-    </p>
-    <h2 id="sg-marke" class="h2 mt-3">
+    <Kicker num="0x03">Immer exakt «PSYber»</Kicker>
+    <h2 id="sg-marke" class="display h2 mt-3">
       Marke
     </h2>
     <div class="sg-brand mt-10">
       <Card class="sg-brand-cell">
-        <p class="mono meta">Wortmarke</p>
+        <p class="label-up">Wortmarke</p>
         <Wordmark class="sg-wordmark" />
       </Card>
       <Card class="sg-brand-cell">
-        <p class="mono meta">Psi-Icon</p>
-        <div class="flex items-end gap-6 text-lav">
+        <p class="label-up">Psi-Icon</p>
+        <div class="text-acid flex items-end gap-6">
           <PsiIcon size={72} label="Psi-Icon" />
           <PsiIcon size={40} />
           <PsiIcon size={24} />
@@ -164,32 +166,30 @@ const icons = Object.keys(iconData) as IconName[];
         </div>
       </Card>
       <Card class="sg-brand-cell">
-        <p class="mono meta">Logo</p>
+        <p class="label-up">Logo</p>
         <Logo />
       </Card>
       <Card class="sg-brand-cell sg-psi" tone="deep" data-psi-tilt>
-        <p class="mono meta">Key Visual «Psi-Netz» (animiert)</p>
+        <p class="label-up">Key Visual «Psi-Netz» (animiert)</p>
         <PsiNet animated label="Psi-Netz: ein Psi aus Netzwerkknoten" class="sg-psi-net" />
       </Card>
-      <Card class="sg-brand-cell sg-psi on-paper">
-        <p class="mono meta">Psi-Netz auf hell (statisch)</p>
-        <PsiNet class="sg-psi-net sg-psi-paper" />
-      </Card>
+      <div class="sg-brand-cell sg-psi sg-space on-space">
+        <p class="label-up">Psi-Netz auf Space (statisch)</p>
+        <PsiNet class="sg-psi-net sg-psi-space" />
+      </div>
     </div>
   </section>
 
   <section class="wrap sg-section" aria-labelledby="sg-buttons">
-    <p class="hexnum" aria-hidden="true">
-      0x04
-    </p>
-    <h2 id="sg-buttons" class="h2 mt-3">
+    <Kicker num="0x04">Pillen, 52 px</Kicker>
+    <h2 id="sg-buttons" class="display h2 mt-3">
       Buttons
     </h2>
     <div class="mt-10 flex flex-wrap items-center gap-4">
       <Button href="#sg-buttons" icon>
         Zur Umfrage
       </Button>
-      <Button href="#sg-buttons" variant="secondary">
+      <Button href="#sg-buttons" variant="secondary" icon="arrow-down-right">
         So funktioniert’s
       </Button>
       <Button size="sm">Klein, 44 px</Button>
@@ -198,13 +198,13 @@ const icons = Object.keys(iconData) as IconName[];
         Textlink mit Pfeil <Icon name="arrow-right" size={18} class="icon-shift" />
       </a>
     </div>
-    <div class="on-paper sg-paper mt-8">
-      <p class="mono meta">Auf heller Fläche</p>
+    <div class="sg-space sg-pad on-space mt-8">
+      <p class="label-up">Auf Space</p>
       <div class="mt-4 flex flex-wrap items-center gap-4">
         <Button href="#sg-buttons" icon>
           Session anfragen
         </Button>
-        <Button href="#sg-buttons" variant="secondary">
+        <Button href="#sg-buttons" variant="secondary" icon>
           Pakete ansehen
         </Button>
         <a class="link" href="#sg-buttons">
@@ -213,21 +213,19 @@ const icons = Object.keys(iconData) as IconName[];
       </div>
     </div>
     <p class="meta mt-6">
-      Fokus-Ring: 3 px Amber mit 3 px Abstand. Bitte mit der Tab-Taste durch die Buttons gehen.
+      Fokus-Ring: 3 px Acid mit 3 px Abstand. Bitte mit der Tab-Taste durch die Buttons gehen.
     </p>
   </section>
 
   <section class="wrap sg-section" aria-labelledby="sg-karten">
-    <p class="hexnum" aria-hidden="true">
-      0x05
-    </p>
-    <h2 id="sg-karten" class="h2 mt-3">
+    <Kicker num="0x05">Flächen</Kicker>
+    <h2 id="sg-karten" class="display h2 mt-3">
       Karten und Tags
     </h2>
     <div class="mt-10 grid gap-6 md:grid-cols-3">
       <Card hover>
-        <h3 class="h3">Sie werden manipuliert.</h3>
-        <p class="mt-4">Karte auf Aubergine. Hover hebt sie um 2 px und färbt den Rahmen.</p>
+        <h3 class="display h3">Sie werden manipuliert.</h3>
+        <p class="mt-4">Karte auf Carbon. Hover hebt sie um 2 px und hellt den Rahmen auf.</p>
         <ul class="mt-6 flex flex-wrap gap-2">
           <Tag as="li">Phishing</Tag>
           <Tag as="li">Romance Scam</Tag>
@@ -237,24 +235,29 @@ const icons = Object.keys(iconData) as IconName[];
         </ul>
       </Card>
       <Card tone="deep">
-        <p class="mono small text-lav">$ whoami</p>
+        <p class="mono small text-fg-muted">$ whoami</p>
         <p class="mono small mt-2">[TODO: Name]</p>
-        <p class="mono small text-lav mt-4">$ cat rolle.txt</p>
+        <p class="mono small text-fg-muted mt-4">$ cat rolle.txt</p>
         <p class="mono small mt-2">Tiefe Karte für Terminal und Code.</p>
       </Card>
       <Card tone="flat">
         <Tag tone="solid">Neu</Tag>
-        <h3 class="h3 mt-4">Flache Karte</h3>
+        <h3 class="display h3 mt-4">Flache Karte</h3>
         <p class="mt-4">Nur Rahmen, ohne Fläche. Für Listen und ruhige Bereiche.</p>
       </Card>
+    </div>
+    <div class="stage sg-pad mt-6">
+      <p class="label-up">Bühne</p>
+      <p class="display h3 mt-3">Grosses Panel mit Schein</p>
+      <p class="mt-4 max-w-xl">
+        Für die grossen Auftritte: Klick-Simulator, «Ist das echt?»-Check, Kontakt und Footer.
+      </p>
     </div>
   </section>
 
   <section class="wrap sg-section" aria-labelledby="sg-form">
-    <p class="hexnum" aria-hidden="true">
-      0x06
-    </p>
-    <h2 id="sg-form" class="h2 mt-3">
+    <Kicker num="0x06">Eingaben</Kicker>
+    <h2 id="sg-form" class="display h2 mt-3">
       Formularfelder
     </h2>
     <form class="mt-10 grid max-w-xl gap-6" novalidate>
@@ -295,10 +298,8 @@ const icons = Object.keys(iconData) as IconName[];
   </section>
 
   <section class="wrap sg-section" aria-labelledby="sg-icons">
-    <p class="hexnum" aria-hidden="true">
-      0x07
-    </p>
-    <h2 id="sg-icons" class="h2 mt-3">
+    <Kicker num="0x07">Lucide</Kicker>
+    <h2 id="sg-icons" class="display h2 mt-3">
       Icons
     </h2>
     <p class="meta mt-4">Lucide, 1.5 px Strich bei 20 px. Emojis nur in Beispiel-Chats.</p>
@@ -313,10 +314,8 @@ const icons = Object.keys(iconData) as IconName[];
   </section>
 
   <section class="wrap sg-section" aria-labelledby="sg-motion">
-    <p class="hexnum" aria-hidden="true">
-      0x08
-    </p>
-    <h2 id="sg-motion" class="h2 mt-3">
+    <Kicker num="0x08">Ruhig und gezielt</Kicker>
+    <h2 id="sg-motion" class="display h2 mt-3">
       Motion
     </h2>
     <dl class="sg-motion mt-10">
@@ -330,44 +329,41 @@ const icons = Object.keys(iconData) as IconName[];
       </div>
       <div>
         <dt class="mono">--dur-3</dt>
-        <dd>400 ms · Einblenden</dd>
+        <dd>400 ms · Einblenden, Zustände</dd>
       </div>
       <div>
         <dt class="mono">--dur-4</dt>
-        <dd>800 ms · Headline-Maske</dd>
+        <dd>800 ms · Headline-Masken, Treppe</dd>
       </div>
       <div>
         <dt class="mono">--ease</dt>
-        <dd>cubic-bezier(.2,.7,.2,1) · GSAP power3.out</dd>
+        <dd>cubic-bezier(0.2, 0.7, 0.2, 1) · in GSAP power3.out</dd>
       </div>
     </dl>
-    <p class="measure mt-8">
-      Nur sieben bewusst gesetzte Momente bewegen sich. Bei
-      <code>prefers-reduced-motion</code> ist alles sofort sichtbar und vollständig; Lenis bleibt
-      aus.
+    <p class="meta mt-6">
+      Bei «prefers-reduced-motion» steht alles sofort im Endzustand. Der Schalter «Bewegung
+      pausieren» hält Dauerbewegung an.
     </p>
   </section>
 </Base>
 
 <script>
-  import { initPsiNet } from '@psyber/ui/motion';
-
-  initPsiNet();
+  import '../scripts/page.ts';
 </script>
 
 <style>
   .sg-head {
-    padding-block: 2rem clamp(3rem, 8vw, 6rem);
+    padding-block: clamp(2rem, 6vw, 4rem) clamp(3rem, 8vw, 6rem);
   }
 
   .sg-section {
     padding-block: clamp(3rem, 7vw, 6rem);
-    border-top: 1px solid var(--border);
+    border-top: 1px solid var(--hairline);
   }
 
   .sg-swatches {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(11.5rem, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
     gap: 1rem;
   }
 
@@ -378,10 +374,11 @@ const icons = Object.keys(iconData) as IconName[];
   }
 
   .sg-chip {
+    display: block;
     height: 4.5rem;
     margin-bottom: 0.5rem;
-    border: 1px solid var(--border);
-    border-radius: 10px;
+    border: 1px solid var(--hairline);
+    border-radius: 12px;
   }
 
   .sg-rows {
@@ -396,56 +393,69 @@ const icons = Object.keys(iconData) as IconName[];
 
   .sg-brand {
     display: grid;
-    gap: 1.5rem;
     grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: 1.5rem;
   }
 
+  .sg-brand :global(.sg-brand-cell),
   .sg-brand-cell {
     display: grid;
-    gap: 1.5rem;
     align-content: start;
+    gap: 1.5rem;
   }
 
-  :global(.sg-wordmark) {
+  .sg-brand :global(.sg-wordmark) {
     font-size: clamp(3rem, 8vw, 5rem);
   }
 
-  .sg-psi {
-    --psi-bg: var(--deep);
+  .sg-brand :global(.sg-psi) {
+    justify-items: center;
   }
 
-  .sg-psi.on-paper {
-    --psi-bg: var(--white);
-    --psi-line: var(--violet);
-    --psi-node: var(--violet-dark);
+  .sg-brand :global(.sg-psi-net) {
+    width: min(100%, 15rem);
+    height: auto;
+    --psi-bg: var(--pit);
   }
 
-  :global(.sg-psi-net) {
-    width: min(100%, 13rem);
-    margin-inline: auto;
+  .sg-brand :global(.sg-psi-space) {
+    --psi-bg: var(--space);
+    --psi-line: var(--haze);
   }
 
-  .sg-paper {
-    padding: 1.5rem;
+  /* Muster einer Space-Fläche */
+  .sg-space {
+    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
     border-radius: var(--r-card);
+    background-color: var(--space);
+    background-image: radial-gradient(
+      30rem 20rem at 88% 0%,
+      rgb(182 120 247 / 0.42),
+      transparent 70%
+    );
+  }
+
+  .sg-pad {
+    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
   }
 
   .sg-icons {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
-    gap: 0.75rem 1rem;
-    font-size: var(--fs-micro);
-    color: var(--fg-muted);
+    grid-template-columns: repeat(auto-fill, minmax(10.5rem, 1fr));
+    gap: 0.5rem 1rem;
   }
 
   .sg-icons li {
     display: flex;
     align-items: center;
     gap: 0.625rem;
+    color: var(--fg-muted);
+    font-size: var(--fs-micro);
   }
 
   .sg-icons :global(.icon) {
-    color: var(--fg-strong);
+    flex: none;
+    color: var(--bone);
   }
 
   .sg-motion {
@@ -455,12 +465,12 @@ const icons = Object.keys(iconData) as IconName[];
 
   .sg-motion div {
     display: grid;
-    grid-template-columns: 7rem 1fr;
+    grid-template-columns: 6rem minmax(0, 1fr);
     gap: 1rem;
   }
 
   .sg-motion dt {
-    color: var(--accent);
+    color: var(--acid);
     font-size: var(--fs-small);
   }
 </style>

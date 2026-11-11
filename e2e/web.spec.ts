@@ -3,8 +3,14 @@ import { expect, test, type Page } from '@playwright/test';
 import { WEB } from '../playwright.config.ts';
 import { collectErrors, horizontalOverflow, mockApi } from './helpers.ts';
 
-/** Wartet, bis das Skript der Startseite gelaufen ist (der Simulator meldet sich bereit). */
-const ready = (page: Page) => page.locator('[data-sim][data-ready]').waitFor();
+/**
+ * Wartet, bis die Skripte der Startseite gelaufen sind: Der Simulator meldet sich bereit, und
+ * die Scroll-Animationen sind eingerichtet (danach ändert sich die Höhe der Seite nicht mehr).
+ */
+const ready = async (page: Page) => {
+  await page.locator('[data-sim][data-ready]').waitFor();
+  await page.locator('html[data-scroll="ready"]').waitFor();
+};
 
 test.describe('psyber.tech', () => {
   test('Startseite lädt ohne Fehler, ohne Preise und ohne horizontales Scrollen', async ({
@@ -60,6 +66,26 @@ test.describe('psyber.tech', () => {
     await expect(menu).toBeHidden();
     await expect(page.getByRole('button', { name: 'Menü' })).toBeFocused();
     expect(await page.evaluate(() => document.querySelector('main')?.inert)).toBe(false);
+  });
+
+  test('Menü aus der Kapsel: nach dem Scrollen bleibt «Schliessen» erreichbar', async ({
+    page,
+  }) => {
+    await page.goto(`${WEB}/`);
+    await ready(page);
+    await page.evaluate(() => window.scrollTo({ top: 3200, behavior: 'instant' }));
+    const header = page.locator('[data-header]');
+    await expect(header).toHaveClass(/is-scrolled/);
+
+    await page.getByRole('button', { name: 'Menü' }).click();
+    const close = page.getByRole('button', { name: 'Schliessen' });
+    await expect(close).toBeInViewport();
+    await expect(page.locator('#mobile-menu').getByRole('link', { name: /Ablauf/ })).toBeVisible();
+
+    await close.click();
+    await expect(page.locator('#mobile-menu')).toBeHidden();
+    // Die Seite steht noch dort, wo sie war.
+    expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(3000);
   });
 
   test('Klick-Simulator lässt sich per Tastatur bedienen', async ({ page }) => {

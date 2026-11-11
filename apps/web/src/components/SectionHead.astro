@@ -1,42 +1,53 @@
 ---
 /**
- * Kopf einer Sektion: Hex-Nummer, Kicker als Code-Kommentar, H2 und optionaler Einleitungstext.
+ * Kopf einer Sektion: Kicker («0x01 // …»), riesige H2 in Versalien und optionaler Einleitungstext.
+ * «PSYber» in der Überschrift bleibt exakt so geschrieben (keine Versalien).
  */
+import Kicker from '@psyber/ui/components/Kicker.astro';
+
 interface Props {
   /** Abschnittsnummer in Hex, z. B. '0x01'. Ohne Angabe entfällt die Nummer. */
   num?: string;
   kicker?: string;
+  /** Kicker in Originalschreibweise lassen (Befehle wie «whoami») */
+  kickerRaw?: boolean;
   title: string;
   /** id der Überschrift, für aria-labelledby an der Sektion */
   id: string;
   lead?: string;
-  align?: 'left' | 'center';
+  /** `split`: Überschrift links, Einleitung rechts (ab Desktop) */
+  layout?: 'stack' | 'split';
+  /** `xl` für die ganz grossen Auftritte */
+  size?: 'l' | 'xl';
   class?: string;
 }
 
-const { num, kicker, title, id, lead, align = 'left', class: className } = Astro.props;
+const {
+  num,
+  kicker,
+  kickerRaw = false,
+  title,
+  id,
+  lead,
+  layout = 'stack',
+  size = 'l',
+  class: className,
+} = Astro.props;
+
+const parts = title.split('PSYber');
 ---
 
-<header class:list={['section-head', { 'section-head-center': align === 'center' }, className]}>
-  {(num || kicker) && (
-    <p class="section-meta">
-      {num && (
-        <span class="hexnum" aria-hidden="true">
-          {num}
-        </span>
-      )}
-      {num && kicker && <span class="section-rule" aria-hidden="true" />}
-      {kicker && (
-        <span class="kicker">
-          <span aria-hidden="true">// </span>
-          {kicker}
-        </span>
-      )}
-    </p>
-  )}
-  <h2 id={id} class="display h2 section-title">
-    {title}
-  </h2>
+<header class:list={['section-head', { 'section-head-split': layout === 'split' }, className]}>
+  <div class="section-head-main">
+    {kicker && (
+      <Kicker num={num} raw={kickerRaw}>
+        {kicker}
+      </Kicker>
+    )}
+    <h2 id={id} class:list={['display', size === 'xl' ? 'h1' : 'h2', 'section-title']}>
+      {parts.map((part, index) => [index > 0 && <span class="brand">PSYber</span>, part])}
+    </h2>
+  </div>
   {lead && <p class="lead section-lead">{lead}</p>}
   <slot />
 </header>
@@ -44,44 +55,32 @@ const { num, kicker, title, id, lead, align = 'left', class: className } = Astro
 <style>
   .section-head {
     display: grid;
-    gap: 1.25rem;
-    max-width: 52rem;
+    gap: clamp(1.25rem, 2.5vw, 2rem);
   }
 
-  .section-head-center {
-    justify-items: center;
-    margin-inline: auto;
-    text-align: center;
+  .section-head-main {
+    display: grid;
+    gap: clamp(0.875rem, 1.6vw, 1.25rem);
   }
 
-  .section-meta {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.75rem;
-  }
-
-  .section-rule {
-    position: relative;
-    width: 2.5rem;
-    height: 1px;
-    background-color: var(--border);
-  }
-
-  /* Kleiner Knoten am Ende der Linie: Anklang ans Psi-Netz */
-  .section-rule::after {
-    position: absolute;
-    top: 50%;
-    right: 0;
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
-    background-color: var(--accent);
-    content: '';
-    transform: translate(50%, -50%);
+  .section-title {
+    max-width: 17em;
   }
 
   .section-lead {
-    color: var(--fg);
+    max-width: 26em;
+    color: var(--fg-muted);
+  }
+
+  @media (min-width: 64rem) {
+    .section-head-split {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+      align-items: end;
+      gap: clamp(2rem, 5vw, 5rem);
+    }
+
+    .section-head-split .section-lead {
+      padding-bottom: 0.35em;
+    }
   }
 </style>

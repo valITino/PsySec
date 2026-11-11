@@ -38,7 +38,8 @@ const { href, label } = Astro.props;
     display: grid;
     justify-items: start;
     gap: 2rem;
-    min-height: 60svh;
+    min-height: 72svh;
+    padding-top: max(var(--section-y), calc(var(--header-h) + 1.5rem));
     align-content: center;
   }
 
@@ -52,14 +53,14 @@ const { href, label } = Astro.props;
 
   .notfound-prompt {
     margin-right: 0.5rem;
-    color: var(--amber);
+    color: var(--acid);
   }
 
   .notfound-terminal p:first-child {
-    color: var(--lav);
+    color: var(--fg-muted);
   }
 
   .notfound-out {
-    color: var(--white);
+    color: var(--fg-strong);
   }
 </style>

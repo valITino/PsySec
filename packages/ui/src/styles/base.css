@@ -1,35 +1,20 @@
 /*
- * Basis-Styles: Schriftachsen, Fliesstext, Fokus, reduzierte Bewegung.
+ * Basis-Styles: Schrift, Fliesstext, Überschriften, Fokus, reduzierte Bewegung.
  */
 
 @layer base {
-  :root {
-    /* Recursive-Achsen als vererbbare Schalter */
-    --mono: 0;
-    --casl: 0;
-    --crsv: 0.5;
-  }
-
-  *,
-  ::before,
-  ::after {
-    font-variation-settings:
-      'MONO' var(--mono),
-      'CASL' var(--casl),
-      'CRSV' var(--crsv);
-  }
-
   html {
-    background-color: var(--night);
-    color: var(--soft);
+    background-color: var(--void);
+    color: var(--bone);
     font-family: var(--ff-sans);
     line-height: 1.55;
+    letter-spacing: var(--ls-body);
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-synthesis: none;
-    scroll-padding-top: calc(var(--header-h) + 1rem);
+    scroll-padding-top: calc(var(--header-h) + 0.5rem);
     -webkit-tap-highlight-color: transparent;
   }
 
@@ -51,11 +36,10 @@
   h3,
   h4 {
     color: var(--fg-strong);
-    font-weight: 850;
-    letter-spacing: -0.02em;
+    font-weight: var(--fw-display);
+    letter-spacing: var(--ls-heading);
     line-height: 1.04;
     text-wrap: balance;
-    --casl: 0.8;
   }
 
   p,
@@ -74,8 +58,8 @@
   samp,
   pre {
     font-family: var(--ff-mono);
-    --mono: 1;
-    font-size: 0.92em;
+    font-size: 0.9em;
+    letter-spacing: 0;
   }
 
   a {
@@ -85,29 +69,14 @@
   }
 
   ::selection {
-    background-color: var(--amber);
+    background-color: var(--acid);
     color: var(--ink);
   }
 
-  /* Fokus-Ring: 3 px Amber mit 3 px Abstand, bei Tastaturbedienung immer sichtbar */
+  /* Fokus-Ring: 3 px Acid mit 3 px Abstand, bei Tastaturbedienung immer sichtbar */
   :focus-visible {
     outline: 3px solid var(--focus);
     outline-offset: 3px;
-  }
-
-  /* Auf hellen Flächen bekommt der Amber-Ring eine dunkle Kontur (Kontrast 3:1) */
-  .on-paper :focus-visible {
-    box-shadow:
-      0 0 0 3px var(--paper),
-      0 0 0 6px var(--amber),
-      0 0 0 8px var(--ink);
-    outline: 2px solid transparent;
-    outline-offset: 3px;
-  }
-
-  .on-paper .on-dark :focus-visible {
-    box-shadow: none;
-    outline: 3px solid var(--focus);
   }
 
   [hidden] {
@@ -136,7 +105,7 @@
 
   input[type='checkbox'],
   input[type='radio'] {
-    accent-color: var(--violet);
+    accent-color: var(--acid);
   }
 }
 
@@ -154,7 +123,7 @@
   }
 }
 
-/* Vom Menschen pausierte Bewegung (Schalter im Footer bzw. am Ticker) */
+/* Vom Menschen pausierte Bewegung (Schalter unten rechts bzw. am Ticker) */
 html[data-motion='off'] *,
 html[data-motion='off'] ::before,
 html[data-motion='off'] ::after {

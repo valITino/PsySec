@@ -2,9 +2,8 @@
 /**
  * 0x05 Haltung: drei grosse Aussagen. Beim Scrollen werden die Wörter von 25 % auf 100 %
  * Deckkraft hell (SplitText, siehe src/scripts/haltung.ts). Ohne JS stehen sie einfach da.
- * Erste der höchstens zwei hellen Sektionen.
+ * Zentriert auf Schwarz mit violettem Schein; die Punkte darunter zählen die Aussagen mit.
  */
-import SectionHead from '../SectionHead.astro';
 
 const statements = [
   {
@@ -22,28 +21,29 @@ const statements = [
 ];
 ---
 
-<section class="section on-paper haltung" aria-labelledby="haltung-title" data-haltung>
+<section class="sheet haltung" aria-labelledby="haltung-title" data-haltung>
   <div class="wrap">
-    <SectionHead
-      num="0x05"
-      kicker="Unsere Haltung"
-      title="Unsere Haltung"
-      id="haltung-title"
-      class="haltung-head"
-    />
+    <header class="haltung-head">
+      <h2 id="haltung-title" class="kicker">
+        <span class="hexnum" aria-hidden="true">
+          0x05{' '}
+        </span>
+        <span aria-hidden="true">// </span>Unsere Haltung
+      </h2>
+    </header>
 
     <ol class="statements">
       {statements.map((statement, index) => (
         <li class="statement">
-          <span class="statement-num mono" aria-hidden="true">
-            0{index + 1}
+          <p class="statement-text" data-reveal-words>
+            {statement.text}
+          </p>
+          <span class="statement-dots" aria-hidden="true">
+            {statements.map((_, dot) => (
+              <i class:list={['dot', { 'dot-off': dot > index }]} />
+            ))}
           </span>
-          <div class="statement-body">
-            <p class="display statement-text" data-reveal-words>
-              {statement.text}
-            </p>
-            <p class="statement-note">{statement.note}</p>
-          </div>
+          <p class="statement-note">{statement.note}</p>
         </li>
       ))}
     </ol>
@@ -51,67 +51,69 @@ const statements = [
 </section>
 
 <style>
-  /* Die Überschrift steht bereits im Kicker; sichtbar wäre sie doppelt. */
-  .haltung :global(.haltung-head .section-title) {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
+  .haltung {
+    text-align: center;
+  }
+
+  .haltung-head {
+    display: grid;
+    justify-items: center;
   }
 
   .statements {
     display: grid;
-    gap: clamp(3rem, 8vw, 6.5rem);
-    margin-top: clamp(2rem, 5vw, 3.5rem);
   }
 
   .statement {
+    position: relative;
     display: grid;
-    gap: 0.75rem;
+    align-content: center;
+    justify-items: center;
+    gap: clamp(1.25rem, 3vw, 2rem);
+    min-height: min(64svh, 46rem);
+    padding-block: clamp(2.5rem, 8vw, 6rem);
   }
 
-  .statement-num {
-    color: var(--violet);
-    font-size: var(--fs-meta);
-    font-weight: 500;
+  /* Violetter Schein hinter jeder Aussage */
+  .statement::before {
+    position: absolute;
+    inset: 4% -10%;
+    z-index: 0;
+    background: radial-gradient(
+      closest-side,
+      rgb(61 30 134 / 0.5) 0%,
+      rgb(61 30 134 / 0.16) 55%,
+      rgb(61 30 134 / 0) 100%
+    );
+    content: '';
+    pointer-events: none;
   }
 
-  .statement-body {
-    display: grid;
-    gap: 1.25rem;
+  .statement > * {
+    position: relative;
   }
 
   .statement-text {
-    max-width: 15em;
+    max-width: 13em;
+    color: var(--bone);
     font-size: var(--fs-statement);
-    line-height: 1;
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1.04;
+    text-wrap: balance;
+  }
+
+  .statement-dots {
+    display: inline-flex;
+    gap: 0.75rem;
   }
 
   .statement-note {
-    max-width: 30em;
-    color: var(--ink);
+    max-width: 26em;
+    color: var(--ash);
     font-size: var(--fs-lead);
-    line-height: 1.5;
-  }
-
-  @media (min-width: 64rem) {
-    .statement {
-      grid-template-columns: 3rem minmax(0, 1fr);
-      gap: 1.5rem;
-    }
-
-    .statement-num {
-      padding-top: 0.9rem;
-    }
-
-    .statement:nth-child(2) {
-      margin-left: 8.333%;
-    }
-
-    .statement:nth-child(3) {
-      margin-left: 16.666%;
-    }
+    letter-spacing: -0.015em;
+    line-height: 1.36;
+    text-wrap: balance;
   }
 </style>

@@ -1,6 +1,6 @@
 ---
 /**
- * 0x0B Kontakt: Kontaktdaten und Formular.
+ * 0x0B Kontakt: Kontaktdaten und Formular auf einer grossen Bühne.
  * Validierung mit dem gemeinsamen Schema aus @psyber/survey, POST an {PUBLIC_API_BASE}/v1/contact.
  * Verhalten: src/scripts/contact.ts (wird erst nachgeladen, wenn das Formular in Sicht kommt).
  */
@@ -28,302 +28,322 @@ const fields = {
 };
 ---
 
-<section class="section kontakt" id="kontakt" aria-labelledby="kontakt-title">
-  <div class="wrap kontakt-grid">
-    <div class="kontakt-info">
-      <SectionHead
-        num="0x0B"
-        kicker="Kontakt"
-        title="Kontakt. Lassen Sie uns sprechen."
-        id="kontakt-title"
-      />
+<section class="sheet kontakt" id="kontakt" aria-labelledby="kontakt-title">
+  <div class="wrap">
+    <div class="stage kontakt-grid">
+      <div class="kontakt-info">
+        <SectionHead
+          num="0x0B"
+          kicker="Kontakt"
+          title="Kontakt. Lassen Sie uns sprechen."
+          id="kontakt-title"
+        />
 
-      <dl class="kontakt-list">
-        <div>
-          <dt>
-            <Icon name="mail" size={20} />
-            E-Mail
-          </dt>
-          <dd>
-            {isTodo(contact.email) ? (
-              contact.email
-            ) : (
-              <a class="link" href={`mailto:${contact.email}`}>
-                {contact.email}
-              </a>
-            )}
-          </dd>
-        </div>
-        <div>
-          <dt>
-            <Icon name="phone" size={20} />
-            Telefon/WhatsApp
-          </dt>
-          <dd>
-            {isTodo(contact.phone) ? (
-              contact.phone
-            ) : (
-              <a class="link" href={`tel:${contact.phone.replace(/\s+/g, '')}`}>
-                {contact.phone}
-              </a>
-            )}
-          </dd>
-        </div>
-        <div>
-          <dt>
-            <Icon name="map-pin" size={20} />
-            Region
-          </dt>
-          <dd>{contact.region}</dd>
-        </div>
-      </dl>
-    </div>
-
-    <div class="kontakt-panel card">
-      <form
-        class="kontakt-form"
-        novalidate
-        data-contact
-        data-api={sites.api}
-        data-turnstile-key={useTurnstile ? turnstileSiteKey : undefined}
-      >
-        <p class="form-note">
-          Felder mit <span aria-hidden="true">*</span>
-          <span class="sr-only">Stern</span> sind Pflicht.
-        </p>
-
-        <div class="form-row">
-          <div class="field">
-            <label class="label" for={fields.name}>
-              Name{' '}
-              <span class="req" aria-hidden="true">
-                *
-              </span>
-            </label>
-            <input
-              class="input"
-              id={fields.name}
-              name="name"
-              type="text"
-              autocomplete="name"
-              required
-              maxlength={CONTACT_LIMITS.name.max}
-            />
-            <p class="field-error" id={`${fields.name}-error`} data-error-for="name" hidden></p>
+        <dl class="kontakt-list">
+          <div>
+            <dt class="label-up">
+              <Icon name="mail" size={16} />
+              E-Mail
+            </dt>
+            <dd>
+              {isTodo(contact.email) ? (
+                contact.email
+              ) : (
+                <a href={`mailto:${contact.email}`}>{contact.email}</a>
+              )}
+            </dd>
           </div>
-
-          <div class="field">
-            <label class="label" for={fields.email}>
-              E-Mail{' '}
-              <span class="req" aria-hidden="true">
-                *
-              </span>
-            </label>
-            <input
-              class="input"
-              id={fields.email}
-              name="email"
-              type="email"
-              autocomplete="email"
-              inputmode="email"
-              required
-              maxlength={CONTACT_LIMITS.email.max}
-            />
-            <p class="field-error" id={`${fields.email}-error`} data-error-for="email" hidden></p>
+          <div>
+            <dt class="label-up">
+              <Icon name="phone" size={16} />
+              Telefon/WhatsApp
+            </dt>
+            <dd>
+              {isTodo(contact.phone) ? (
+                contact.phone
+              ) : (
+                <a href={`tel:${contact.phone.replace(/\s+/g, '')}`}>{contact.phone}</a>
+              )}
+            </dd>
           </div>
-        </div>
-
-        <div class="form-row">
-          <div class="field">
-            <label class="label" for={fields.phone}>
-              Telefon <span class="label-hint">(optional)</span>
-            </label>
-            <input
-              class="input"
-              id={fields.phone}
-              name="phone"
-              type="tel"
-              autocomplete="tel"
-              inputmode="tel"
-              maxlength={CONTACT_LIMITS.phone.max}
-            />
-            <p class="field-error" id={`${fields.phone}-error`} data-error-for="phone" hidden></p>
+          <div>
+            <dt class="label-up">
+              <Icon name="map-pin" size={16} />
+              Region
+            </dt>
+            <dd>{contact.region}</dd>
           </div>
+        </dl>
+      </div>
 
-          <div class="field">
-            <label class="label" for={fields.plzOrt}>
-              PLZ und Ort{' '}
-              <span class="req" aria-hidden="true">
-                *
-              </span>
-            </label>
-            <input
-              class="input"
-              id={fields.plzOrt}
-              name="plzOrt"
-              type="text"
-              required
-              maxlength={CONTACT_LIMITS.plzOrt.max}
-            />
-            <p class="field-error" id={`${fields.plzOrt}-error`} data-error-for="plzOrt" hidden></p>
-          </div>
-        </div>
-
-        <fieldset class="field" aria-describedby="kontakt-interesse-error">
-          <legend class="label">
-            Interesse{' '}
-            <span class="req" aria-hidden="true">
-              *
-            </span>
-          </legend>
-          <div class="chips">
-            {Object.entries(interessen).map(([value, label]) => (
-              <label class="chip">
-                <input type="radio" name="interesse" value={value} required />
-                <span>{label}</span>
-              </label>
-            ))}
-          </div>
-          <p class="field-error" id="kontakt-interesse-error" data-error-for="interesse" hidden></p>
-        </fieldset>
-
-        <div class="field">
-          <label class="label" for={fields.nachricht}>
-            Nachricht <span class="label-hint">(optional)</span>
-          </label>
-          <textarea
-            class="input"
-            id={fields.nachricht}
-            name="nachricht"
-            rows="5"
-            maxlength={CONTACT_LIMITS.nachricht.max}
-            aria-describedby="kontakt-nachricht-count"
-          ></textarea>
-          <p class="form-count mono" id="kontakt-nachricht-count">
-            <span data-count-current>0</span> / 2000 Zeichen
+      <div class="kontakt-panel">
+        <form
+          class="kontakt-form"
+          novalidate
+          data-contact
+          data-api={sites.api}
+          data-turnstile-key={useTurnstile ? turnstileSiteKey : undefined}
+        >
+          <p class="form-note">
+            Felder mit <span aria-hidden="true">*</span>
+            <span class="sr-only">Stern</span> sind Pflicht.
           </p>
-          <p
-            class="field-error"
-            id={`${fields.nachricht}-error`}
-            data-error-for="nachricht"
-            hidden
-          ></p>
-        </div>
 
-        <div class="field">
-          <label class="check">
-            <input
-              class="checkbox"
-              type="checkbox"
-              id={fields.datenschutz}
-              name="datenschutz"
-              required
-            />
-            <span>
-              Ich habe die
-              <a class="link" href={href('/datenschutz')}>
-                Datenschutzerklärung
-              </a>
-              gelesen.{' '}
+          <div class="form-row">
+            <div class="field">
+              <label class="label" for={fields.name}>
+                Name{' '}
+                <span class="req" aria-hidden="true">
+                  *
+                </span>
+              </label>
+              <input
+                class="input"
+                id={fields.name}
+                name="name"
+                type="text"
+                autocomplete="name"
+                required
+                maxlength={CONTACT_LIMITS.name.max}
+              />
+              <p class="field-error" id={`${fields.name}-error`} data-error-for="name" hidden></p>
+            </div>
+
+            <div class="field">
+              <label class="label" for={fields.email}>
+                E-Mail{' '}
+                <span class="req" aria-hidden="true">
+                  *
+                </span>
+              </label>
+              <input
+                class="input"
+                id={fields.email}
+                name="email"
+                type="email"
+                autocomplete="email"
+                inputmode="email"
+                required
+                maxlength={CONTACT_LIMITS.email.max}
+              />
+              <p class="field-error" id={`${fields.email}-error`} data-error-for="email" hidden></p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="field">
+              <label class="label" for={fields.phone}>
+                Telefon <span class="label-hint">(optional)</span>
+              </label>
+              <input
+                class="input"
+                id={fields.phone}
+                name="phone"
+                type="tel"
+                autocomplete="tel"
+                inputmode="tel"
+                maxlength={CONTACT_LIMITS.phone.max}
+              />
+              <p class="field-error" id={`${fields.phone}-error`} data-error-for="phone" hidden></p>
+            </div>
+
+            <div class="field">
+              <label class="label" for={fields.plzOrt}>
+                PLZ und Ort{' '}
+                <span class="req" aria-hidden="true">
+                  *
+                </span>
+              </label>
+              <input
+                class="input"
+                id={fields.plzOrt}
+                name="plzOrt"
+                type="text"
+                required
+                maxlength={CONTACT_LIMITS.plzOrt.max}
+              />
+              <p
+                class="field-error"
+                id={`${fields.plzOrt}-error`}
+                data-error-for="plzOrt"
+                hidden
+              ></p>
+            </div>
+          </div>
+
+          <fieldset class="field" aria-describedby="kontakt-interesse-error">
+            <legend class="label">
+              Interesse{' '}
               <span class="req" aria-hidden="true">
                 *
               </span>
-            </span>
-          </label>
-          <p
-            class="field-error"
-            id={`${fields.datenschutz}-error`}
-            data-error-for="datenschutz"
-            hidden
-          ></p>
-        </div>
+            </legend>
+            <div class="chips">
+              {Object.entries(interessen).map(([value, label]) => (
+                <label class="chip">
+                  <input type="radio" name="interesse" value={value} required />
+                  <span>{label}</span>
+                </label>
+              ))}
+            </div>
+            <p
+              class="field-error"
+              id="kontakt-interesse-error"
+              data-error-for="interesse"
+              hidden
+            ></p>
+          </fieldset>
 
-        <!-- Honeypot: für Menschen unsichtbar und nicht per Tab erreichbar -->
-        <div class="hp" aria-hidden="true">
-          <label>
-            Website (bitte leer lassen)
-            <input type="text" name="website" tabindex="-1" autocomplete="off" />
-          </label>
-        </div>
-
-        {useTurnstile && <div class="form-turnstile" data-turnstile></div>}
-
-        <div class="form-actions">
-          <button class="btn btn-primary" type="submit" data-submit>
-            <span data-submit-label>Anfrage senden</span>
-            <Icon name="send" size={18} />
-          </button>
-          {sites.apiMock && (
-            <p class="form-preview mono">
-              Vorschau: Die Anfrage wird nicht gesendet und nicht gespeichert.
+          <div class="field">
+            <label class="label" for={fields.nachricht}>
+              Nachricht <span class="label-hint">(optional)</span>
+            </label>
+            <textarea
+              class="input"
+              id={fields.nachricht}
+              name="nachricht"
+              rows="5"
+              maxlength={CONTACT_LIMITS.nachricht.max}
+              aria-describedby="kontakt-nachricht-count"
+            ></textarea>
+            <p class="form-count mono" id="kontakt-nachricht-count">
+              <span data-count-current>0</span> / 2000 Zeichen
             </p>
-          )}
-        </div>
+            <p
+              class="field-error"
+              id={`${fields.nachricht}-error`}
+              data-error-for="nachricht"
+              hidden
+            ></p>
+          </div>
 
-        <p class="form-status form-error" role="alert" data-form-error hidden>
-          <Icon name="circle-alert" size={20} />
-          <span>
-            Das hat nicht geklappt. Bitte versuchen Sie es nochmals oder schreiben Sie uns direkt an
-            {contact.email}.
+          <div class="field">
+            <label class="check">
+              <input
+                class="checkbox"
+                type="checkbox"
+                id={fields.datenschutz}
+                name="datenschutz"
+                required
+              />
+              <span>
+                Ich habe die
+                <a class="link" href={href('/datenschutz')}>
+                  Datenschutzerklärung
+                </a>
+                gelesen.{' '}
+                <span class="req" aria-hidden="true">
+                  *
+                </span>
+              </span>
+            </label>
+            <p
+              class="field-error"
+              id={`${fields.datenschutz}-error`}
+              data-error-for="datenschutz"
+              hidden
+            ></p>
+          </div>
+
+          <!-- Honeypot: für Menschen unsichtbar und nicht per Tab erreichbar -->
+          <div class="hp" aria-hidden="true">
+            <label>
+              Website (bitte leer lassen)
+              <input type="text" name="website" tabindex="-1" autocomplete="off" />
+            </label>
+          </div>
+
+          {useTurnstile && <div class="form-turnstile" data-turnstile></div>}
+
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit" data-submit>
+              <span data-submit-label>Anfrage senden</span>
+              <Icon name="send" size={18} />
+            </button>
+            {sites.apiMock && (
+              <p class="form-preview mono">
+                Vorschau: Die Anfrage wird nicht gesendet und nicht gespeichert.
+              </p>
+            )}
+          </div>
+
+          <p class="form-status form-error" role="alert" data-form-error hidden>
+            <Icon name="circle-alert" size={20} />
+            <span>
+              Das hat nicht geklappt. Bitte versuchen Sie es nochmals oder schreiben Sie uns direkt
+              an
+              {contact.email}.
+            </span>
+          </p>
+        </form>
+
+        <div class="form-success" role="status" tabindex="-1" data-form-success hidden>
+          <span class="form-success-icon" aria-hidden="true">
+            <Icon name="check" size={28} />
           </span>
-        </p>
-      </form>
-
-      <div class="form-success" role="status" tabindex="-1" data-form-success hidden>
-        <span class="form-success-icon" aria-hidden="true">
-          <Icon name="check" size={28} />
-        </span>
-        <p class="h3">
-          Danke! Wir melden uns innert zwei Arbeitstagen per E-Mail oder auf der Nummer, die Sie
-          angegeben haben.
-        </p>
+          <p class="form-success-text">
+            Danke! Wir melden uns innert zwei Arbeitstagen per E-Mail oder auf der Nummer, die Sie
+            angegeben haben.
+          </p>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
 <style>
+  /* Danach folgt der Footer, kein weiterer Bogen */
   .kontakt {
-    border-top: 1px solid var(--line);
+    padding-bottom: clamp(1.25rem, 3vw, 2.5rem);
   }
 
   .kontakt-grid {
     display: grid;
     gap: clamp(2.5rem, 6vw, 4rem);
+    padding: clamp(1.5rem, 0.6rem + 3.6vw, 4.5rem);
   }
 
   .kontakt-info {
     display: grid;
     align-content: start;
-    gap: 2.5rem;
+    gap: clamp(2rem, 5vw, 3.5rem);
   }
 
+  /* Kontaktwege als grosse Zeilen */
   .kontakt-list {
     display: grid;
-    gap: 1.5rem;
+    border-top: 1px solid var(--steel);
+  }
+
+  .kontakt-list > div {
+    display: grid;
+    gap: 0.5rem;
+    padding-block: 1.25rem;
+    border-bottom: 1px solid var(--steel);
   }
 
   .kontakt-list dt {
     display: flex;
     align-items: center;
-    gap: 0.625rem;
-    color: var(--lav);
-    font-family: var(--ff-mono);
-    font-size: var(--fs-meta);
-    --mono: 1;
+    gap: 0.5rem;
   }
 
   .kontakt-list dd {
-    margin-top: 0.25rem;
-    padding-left: 1.875rem;
-    color: var(--white);
-    font-size: var(--fs-lead);
+    color: var(--bone);
+    font-size: clamp(1.375rem, 1.1rem + 1.2vw, 2.125rem);
     font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
     overflow-wrap: anywhere;
   }
 
-  .kontakt-panel {
-    padding: clamp(1.25rem, 1rem + 2vw, 2.5rem);
+  .kontakt-list a {
+    text-decoration: none;
+    transition: color var(--dur-2) var(--ease);
+  }
+
+  .kontakt-list a:hover {
+    color: var(--acid);
   }
 
   .kontakt-form {
@@ -332,7 +352,7 @@ const fields = {
   }
 
   .form-note {
-    color: var(--lav);
+    color: var(--ash);
     font-size: var(--fs-small);
   }
 
@@ -342,7 +362,7 @@ const fields = {
   }
 
   .req {
-    color: var(--amber);
+    color: var(--acid);
   }
 
   fieldset.field {
@@ -376,11 +396,11 @@ const fields = {
     display: inline-flex;
     align-items: center;
     min-height: 2.75rem;
-    padding: 0.375rem 1rem;
-    border: 1.5px solid var(--border-strong);
+    padding: 0.375rem 1.125rem;
+    border: 1px solid var(--steel);
     border-radius: var(--r-pill);
-    background-color: var(--surface-deep);
-    color: var(--soft);
+    background-color: var(--pit);
+    color: var(--bone);
     font-size: var(--fs-small);
     font-weight: 600;
     transition:
@@ -390,9 +410,9 @@ const fields = {
   }
 
   .chip input:checked + span {
-    border-color: var(--lav);
-    background-color: var(--violet);
-    color: var(--white);
+    border-color: var(--acid);
+    background-color: var(--acid);
+    color: var(--ink);
   }
 
   .chip input:focus-visible + span {
@@ -405,7 +425,7 @@ const fields = {
   }
 
   .form-count {
-    color: var(--lav);
+    color: var(--ash);
     font-size: var(--fs-micro);
     text-align: right;
   }
@@ -422,7 +442,7 @@ const fields = {
   }
 
   .form-preview {
-    color: var(--lav);
+    color: var(--ash);
     font-size: var(--fs-micro);
   }
 
@@ -431,14 +451,14 @@ const fields = {
     align-items: flex-start;
     gap: 0.75rem;
     padding: 1rem 1.125rem;
-    border-radius: 12px;
+    border-radius: var(--r-input);
     line-height: 1.5;
   }
 
   .form-error {
     border: 1.5px solid var(--crit);
     background-color: color-mix(in srgb, var(--crit) 12%, transparent);
-    color: var(--white);
+    color: var(--bone);
   }
 
   .form-error :global(.icon) {
@@ -461,18 +481,23 @@ const fields = {
     width: 3.5rem;
     height: 3.5rem;
     border-radius: 50%;
-    background-color: var(--ok);
-    color: var(--white);
+    background-color: var(--acid);
+    color: var(--ink);
+    box-shadow: var(--glow-acid-hi);
   }
 
-  .form-success .h3 {
-    max-width: 22em;
-    color: var(--white);
+  .form-success-text {
+    max-width: 20em;
+    color: var(--bone);
+    font-size: var(--fs-h3);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
   }
 
   @media (hover: hover) {
     .chip:hover span {
-      border-color: var(--lav);
+      border-color: var(--acid);
     }
   }
 
@@ -484,8 +509,8 @@ const fields = {
 
   @media (min-width: 64rem) {
     .kontakt-grid {
-      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
-      gap: 1.5rem;
+      grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+      gap: clamp(2rem, 5vw, 5rem);
     }
   }
 </style>

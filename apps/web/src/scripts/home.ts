@@ -1,22 +1,17 @@
 /**
  * Einstieg der Startseite.
- * Zuerst das Nötige für den ersten Eindruck (Header, Klick-Simulator, Psi-Netz),
+ * Zuerst das Nötige für den ersten Eindruck (Header, Hero mit Globus, Klick-Simulator),
  * danach in Ruhe Smooth Scroll und die Scroll-Animationen (GSAP, Lenis).
  * Das Kontaktformular lädt erst, wenn es in Sicht kommt.
  */
-import {
-  countUp,
-  initPsiNet,
-  motionAllowed,
-  motionPaused,
-  onceInView,
-  setMotionPaused,
-} from '@psyber/ui/motion';
+import { countUp, initPsiNet, onceInView } from '@psyber/ui/motion';
 import type { SmoothScroll } from '@psyber/ui/motion/smooth';
 import { initChat } from './chat.ts';
+import { initMotionToggle, initProgress } from './chrome.ts';
 import { initEggs } from './egg.ts';
 import { initFirstStep } from './first-step.ts';
 import { initHeader } from './header.ts';
+import { initHero } from './hero.ts';
 import { initSimulator } from './simulator.ts';
 import { initStairs } from './stairs.ts';
 
@@ -24,6 +19,9 @@ let smooth: SmoothScroll | null = null;
 
 initHeader(() => smooth);
 initEggs(() => smooth);
+
+const hero = document.querySelector<HTMLElement>('[data-hero]');
+if (hero) initHero(hero);
 
 const simulator = document.querySelector<HTMLElement>('[data-sim]');
 if (simulator) initSimulator(simulator);
@@ -62,18 +60,9 @@ if (chat) initChat(chat);
 const firstStep = document.querySelector<HTMLFormElement>('[data-first-step]');
 if (firstStep) initFirstStep(firstStep);
 
-// --- Schalter «Bewegung pausieren» im Footer (nur sinnvoll, wenn sich etwas bewegt) ---
-const motionToggle = document.querySelector<HTMLButtonElement>('[data-motion-toggle]');
-const motionLabel = motionToggle?.querySelector<HTMLElement>('[data-motion-label]');
-if (motionToggle && motionLabel && motionAllowed()) {
-  motionToggle.hidden = false;
-  motionToggle.addEventListener('click', () => {
-    const paused = !motionPaused();
-    setMotionPaused(paused);
-    motionToggle.setAttribute('aria-pressed', String(paused));
-    motionLabel.textContent = paused ? 'Bewegung fortsetzen' : 'Bewegung pausieren';
-  });
-}
+// --- Schwebende Bedienelemente: Fortschritt und «Bewegung pausieren» ---
+initProgress();
+initMotionToggle(true);
 
 // --- Kontaktformular: erst laden, wenn es in Sicht kommt ---
 const contact = document.querySelector<HTMLFormElement>('[data-contact]');

@@ -3,7 +3,7 @@
  * Key Visual «Psi-Netz»: ein Psi aus Netzwerkknoten.
  * - `animated`: Knoten pulsieren versetzt, die Signalbögen senden nacheinander (Loop rund 3 s).
  *   Bei reduzierter Bewegung bleibt alles statisch.
- * - Farben über CSS-Variablen: --psi-line, --psi-node, --psi-bg (Rand der Knoten = Hintergrund).
+ * - Farben über CSS-Variablen: --psi-line, --psi-node, --psi-accent, --psi-bg (Rand der Knoten = Hintergrund).
  * - Für die Neigung bei feinem Pointer: `initPsiTilt()` aus `@psyber/ui/motion/psi-net`.
  */
 import {
@@ -80,7 +80,7 @@ const radius = fine ? { node: 0.55, side: 0.4, end: 0.95 } : { node: 1.5, side: 
 
   .psi-net .psi-main {
     fill: none;
-    stroke: var(--psi-line, var(--lav));
+    stroke: var(--psi-line, var(--ash));
     stroke-linecap: round;
     stroke-linejoin: round;
     stroke-width: 1.15;
@@ -89,7 +89,7 @@ const radius = fine ? { node: 0.55, side: 0.4, end: 0.95 } : { node: 1.5, side: 
   .psi-net .psi-cross {
     fill: none;
     opacity: 0.45;
-    stroke: var(--psi-line, var(--lav));
+    stroke: var(--psi-line, var(--ash));
     stroke-linecap: round;
     stroke-width: 0.6;
   }
@@ -103,16 +103,16 @@ const radius = fine ? { node: 0.55, side: 0.4, end: 0.95 } : { node: 1.5, side: 
   }
 
   .psi-net .psi-node {
-    fill: var(--psi-node, var(--white));
+    fill: var(--psi-node, var(--bone));
   }
 
   .psi-net .psi-end {
-    fill: var(--amber);
+    fill: var(--psi-accent, var(--acid));
   }
 
   .psi-net .psi-arc {
     fill: none;
-    stroke: var(--amber);
+    stroke: var(--psi-accent, var(--acid));
     stroke-linecap: round;
     stroke-width: 1.15;
   }

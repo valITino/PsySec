@@ -1,0 +1,305 @@
+---
+/**
+ * Schwebende Bedienelemente am Rand des Bildschirms:
+ *   - Fortschritt: dünner Balken oben (Mobile) bzw. Schiene mit Marken links (Desktop, nur Startseite)
+ *   - unten links: der Cookie-Knopf. Er öffnet keinen Banner, sondern sagt, warum es keinen gibt.
+ *   - unten rechts: Schalter «Bewegung pausieren» (nur sichtbar, wenn sich etwas bewegt)
+ * Verhalten: src/scripts/chrome.ts
+ */
+import Icon from '@psyber/ui/components/Icon.astro';
+
+interface Props {
+  /** Fortschritts-Anzeige (nur auf langen Seiten sinnvoll) */
+  progress?: boolean;
+}
+
+const { progress = false } = Astro.props;
+---
+
+<div class="chrome" data-chrome>
+  {progress && (
+    <>
+      <div class="progress-bar" aria-hidden="true">
+        <span data-progress-bar />
+      </div>
+      <div class="rail" aria-hidden="true" data-rail>
+        <span class="rail-ticks" data-rail-ticks />
+        <span class="rail-dot" data-rail-dot />
+      </div>
+    </>
+  )}
+
+  <div class="chrome-left">
+    <button
+      type="button"
+      class="chrome-btn"
+      popovertarget="cookie-note"
+      aria-label="Cookie-Banner? Gibt es hier nicht."
+    >
+      <Icon name="cookie" size={20} />
+    </button>
+    <div class="cookie-note" id="cookie-note" popover>
+      <p class="kicker">
+        <span aria-hidden="true">// </span>cookie-banner: 404
+      </p>
+      <p class="cookie-title">Kein Cookie-Banner.</p>
+      <p class="cookie-text">
+        Hier würde Sie jetzt ein Banner um Zustimmung bitten. Müssen wir nicht: Wir setzen keine
+        Cookies und verfolgen niemanden.
+      </p>
+      <button
+        type="button"
+        class="btn btn-secondary btn-sm"
+        popovertarget="cookie-note"
+        popovertargetaction="hide"
+      >
+        Alle 0 akzeptieren
+      </button>
+    </div>
+  </div>
+
+  <button type="button" class="chrome-motion" data-motion-toggle aria-pressed="false" hidden>
+    <span class="chrome-motion-label" data-motion-label>
+      Bewegung pausieren
+    </span>
+    <span class="eq" aria-hidden="true">
+      <i></i>
+      <i></i>
+      <i></i>
+      <i></i>
+    </span>
+  </button>
+</div>
+
+<style>
+  /* ---------- Fortschritt ---------- */
+
+  .progress-bar {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 60;
+    height: 2px;
+    pointer-events: none;
+  }
+
+  .progress-bar span {
+    display: block;
+    height: 100%;
+    background-color: var(--acid);
+    transform: scaleX(var(--progress, 0));
+    transform-origin: left;
+  }
+
+  .rail {
+    display: none;
+  }
+
+  @media (min-width: 80rem) {
+    .progress-bar {
+      display: none;
+    }
+
+    /* Schiene links: eine Marke je Sektion, der Punkt wandert mit */
+    .rail {
+      position: fixed;
+      top: 28svh;
+      left: calc(var(--gutter) * 0.5);
+      z-index: 40;
+      display: block;
+      width: 1px;
+      height: 44svh;
+      background-color: rgb(244 244 239 / 0.28);
+      pointer-events: none;
+    }
+
+    .rail-ticks :global(i) {
+      position: absolute;
+      left: -3px;
+      width: 7px;
+      height: 1px;
+      background-color: rgb(244 244 239 / 0.5);
+    }
+
+    .rail-dot {
+      position: absolute;
+      top: -4px;
+      left: -4px;
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background-color: var(--acid);
+      box-shadow: 0 0 12px rgb(201 251 82 / 0.7);
+      transform: translateY(var(--rail-y, 0));
+    }
+  }
+
+  /* ---------- Knöpfe ---------- */
+
+  /*
+   * Schmal: Die beiden Knöpfe stehen als Zeile am Ende der Seite (unter dem Footer), damit sie
+   * keinen Text verdecken. Ab Tablet schweben sie in den unteren Ecken.
+   */
+  .chrome {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: min(100% - 2 * var(--gutter), var(--container));
+    margin-inline: auto;
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+
+  .chrome-btn,
+  .chrome-motion {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--steel);
+    border-radius: var(--r-pill);
+    background-color: rgb(17 17 21 / 0.82);
+    backdrop-filter: blur(12px);
+    color: var(--ash);
+    transition:
+      border-color var(--dur-2) var(--ease),
+      color var(--dur-2) var(--ease);
+  }
+
+  .chrome-btn:hover,
+  .chrome-motion:hover {
+    border-color: var(--acid);
+    color: var(--bone);
+  }
+
+  .chrome-motion {
+    gap: 0.75rem;
+    padding-inline: 1.25rem 1.125rem;
+    font-family: var(--ff-mono);
+    font-size: var(--fs-micro);
+    font-weight: 500;
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+  }
+
+  @media (min-width: 48rem) {
+    .chrome {
+      display: block;
+      width: auto;
+      padding: 0;
+    }
+
+    .chrome-left,
+    .chrome-motion {
+      position: fixed;
+      bottom: 1.25rem;
+      z-index: 45;
+    }
+
+    .chrome-left {
+      left: var(--gutter);
+    }
+
+    .chrome-motion {
+      right: var(--gutter);
+    }
+  }
+
+  /* Kleiner Equalizer: bewegt sich, solange Bewegung läuft */
+  .eq {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    height: 0.875rem;
+  }
+
+  .eq i {
+    width: 2px;
+    height: 100%;
+    border-radius: 1px;
+    background-color: currentColor;
+    transform: scaleY(0.35);
+    animation: eq 1.1s ease-in-out infinite;
+  }
+
+  .eq i:nth-child(2) {
+    animation-delay: -0.3s;
+  }
+
+  .eq i:nth-child(3) {
+    animation-delay: -0.6s;
+  }
+
+  .eq i:nth-child(4) {
+    animation-delay: -0.15s;
+  }
+
+  .chrome-motion[aria-pressed='true'] .eq i {
+    animation: none;
+  }
+
+  @keyframes eq {
+    0%,
+    100% {
+      transform: scaleY(0.3);
+    }
+
+    50% {
+      transform: scaleY(1);
+    }
+  }
+
+  /* ---------- Cookie-Hinweis ---------- */
+
+  .cookie-note {
+    position: fixed;
+    inset: auto auto 5rem var(--gutter);
+    width: min(22rem, 100vw - 2 * var(--gutter));
+    margin: 0;
+    padding: 1.25rem;
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-card);
+    background-color: var(--carbon);
+    background-image: radial-gradient(
+      18rem 12rem at 100% 0%,
+      rgb(182 120 247 / 0.22),
+      transparent 70%
+    );
+    color: var(--bone);
+  }
+
+  .cookie-note:popover-open {
+    display: grid;
+    justify-items: start;
+    gap: 0.75rem;
+  }
+
+  .cookie-title {
+    font-size: var(--fs-h3);
+    font-weight: var(--fw-display);
+    letter-spacing: var(--ls-heading);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .cookie-text {
+    color: var(--ash);
+    font-size: var(--fs-small);
+    line-height: 1.5;
+  }
+
+  /* Ohne Popover-Unterstützung bliebe der Hinweis offen stehen: dann ganz weglassen. */
+  @supports not selector(:popover-open) {
+    .chrome-left {
+      display: none;
+    }
+  }
+
+  @media print {
+    .chrome {
+      display: none;
+    }
+  }
+</style>

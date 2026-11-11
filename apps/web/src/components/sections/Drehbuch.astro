@@ -2,6 +2,7 @@
 /**
  * 0x02 Drehbuch: acht Schritte eines Betrugs in drei Akten, dazu die drei Eingriffe von PSYber.
  *
+ * Schwarzer Bogen mit Fluchtlinien (die Strasse, auf der jeder Betrug fährt).
  * Desktop: horizontale Kette, die Sektion bleibt stehen (Pinning), eine Linie zeichnet sich mit
  * dem Scrollen durch die Kette. Der Kurztext des aktuellen Schritts steht gross darunter;
  * Hover und Tastaturfokus (Tab) zeigen den Text jedes Schritts.
@@ -70,21 +71,22 @@ const numbered = acts.map((act) => ({
 }));
 ---
 
-<section class="drehbuch" aria-labelledby="drehbuch-title" data-drehbuch>
+<section class="sheet drehbuch" aria-labelledby="drehbuch-title" data-drehbuch>
+  <svg class="road" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M50 22 L-12 100 M50 22 L112 100 M50 22 L-60 78 M50 22 L160 78" />
+    <path class="road-mid" d="M50 30 V100" />
+  </svg>
+
   <div class="drehbuch-stage" data-drehbuch-stage>
     <div class="wrap">
-      <div class="drehbuch-head">
-        <SectionHead
-          num="0x02"
-          kicker="Anatomie eines Betrugs"
-          title="Jeder Betrug folgt demselben Drehbuch."
-          id="drehbuch-title"
-        />
-        <p class="lead drehbuch-lead">
-          Acht Schritte, von der ersten Nachricht bis zum Schweigen danach. PSYber setzt an drei
-          Stellen an.
-        </p>
-      </div>
+      <SectionHead
+        num="0x02"
+        kicker="Anatomie eines Betrugs"
+        title="Jeder Betrug folgt demselben Drehbuch."
+        id="drehbuch-title"
+        layout="split"
+        lead="Acht Schritte, von der ersten Nachricht bis zum Schweigen danach. PSYber setzt an drei Stellen an."
+      />
 
       <div class="acts" data-acts>
         <div class="acts-track" aria-hidden="true">
@@ -93,7 +95,7 @@ const numbered = acts.map((act) => ({
 
         {numbered.map((act, actIndex) => (
           <section class="act" data-act={act.id} aria-labelledby={`act-${act.id}`}>
-            <h3 class="act-label mono" id={`act-${act.id}`}>
+            <h3 class="label-up act-label" id={`act-${act.id}`}>
               <span class="act-label-text">{act.label}</span>
             </h3>
 
@@ -116,11 +118,13 @@ const numbered = acts.map((act) => ({
 
             <div class="fix" data-fix={actIndex + 1}>
               <span class="fix-link" aria-hidden="true" />
-              <p class="fix-kicker mono">
+              <p class="label-up fix-kicker">
                 <Icon name={act.fix.icon} size={16} />
-                <span>PSYber setzt an</span>
+                <span>
+                  <span class="brand">PSYber</span> setzt an
+                </span>
               </p>
-              <h4 class="fix-title">{act.fix.title}</h4>
+              <h4 class="display fix-title">{act.fix.title}</h4>
               <ul class="fix-items">
                 {act.fix.items.map((item) => (
                   <li>{item}</li>
@@ -138,48 +142,63 @@ const numbered = acts.map((act) => ({
 
 <style>
   .drehbuch {
-    position: relative;
-    background-color: var(--deep);
-    border-block: 1px solid var(--line);
+    padding-block: 0 var(--r-sheet);
+    overflow: clip;
+  }
+
+  /* Fluchtlinien: eine Strasse, die auf den Betrachter zuläuft */
+  .road {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    pointer-events: none;
+    stroke: rgb(244 244 239 / 0.13);
+    stroke-width: 1px;
+  }
+
+  .road path {
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* Mittelstreifen: nur dort, wo die Kette quer läuft (Desktop) */
+  .road-mid {
+    display: none;
+    stroke: rgb(244 244 239 / 0.3);
+    stroke-dasharray: 28 58;
+    stroke-width: 2px;
   }
 
   .drehbuch-stage {
+    position: relative;
     padding-block: var(--section-y);
-  }
-
-  .drehbuch-head {
-    display: grid;
-    gap: 1.25rem;
-  }
-
-  .drehbuch-lead {
-    max-width: 30em;
   }
 
   /* ---------- Kette: vertikal (Mobile, Standard) ---------- */
 
   .acts {
-    --node: 0.875rem;
-    --rail: 0.4375rem; /* Mitte der Knoten, von links */
+    --node: 0.75rem;
+    --rail: 0.375rem; /* Mitte der Knoten, von links */
     position: relative;
     display: grid;
-    gap: 2rem;
-    margin-top: clamp(2.5rem, 7vw, 4rem);
+    gap: 2.25rem;
+    margin-top: clamp(2.5rem, 7vw, 4.5rem);
   }
 
   .acts-track {
     position: absolute;
     top: 0.25rem;
     bottom: 0.25rem;
-    left: calc(var(--rail) - 1px);
-    width: 2px;
-    background-color: var(--line);
+    left: calc(var(--rail) - 0.5px);
+    width: 1px;
+    background-color: var(--steel);
   }
 
   .acts-line {
     position: absolute;
-    inset: 0;
-    background-color: var(--lav);
+    inset: 0 -0.5px;
+    background-color: var(--acid);
     transform: scaleY(var(--p, 1));
     transform-origin: top;
   }
@@ -191,12 +210,7 @@ const numbered = acts.map((act) => ({
 
   .act-label {
     padding-left: 2rem;
-    color: var(--lav);
-    font-size: var(--fs-meta);
-    font-weight: 500;
-    letter-spacing: 0;
-    line-height: 1.4;
-    --casl: 0;
+    color: var(--bone);
   }
 
   .act-steps {
@@ -219,36 +233,38 @@ const numbered = acts.map((act) => ({
 
   .step-node {
     position: absolute;
-    top: 0.3em;
+    top: 0.4em;
     left: 0;
     width: var(--node);
     height: var(--node);
-    border: 2px solid var(--lav);
+    border: 1px solid var(--acid);
     border-radius: 50%;
-    background-color: var(--lav);
+    background-color: var(--acid);
+    box-shadow: 0 0 12px rgb(201 251 82 / 0.55);
     transition:
       background-color var(--dur-2) var(--ease),
       border-color var(--dur-2) var(--ease),
-      box-shadow var(--dur-2) var(--ease);
+      box-shadow var(--dur-2) var(--ease),
+      transform var(--dur-2) var(--ease);
   }
 
   .step-num {
-    color: var(--lav);
+    color: var(--ash);
     font-size: var(--fs-micro);
+    letter-spacing: 0.04em;
   }
 
   .step-title {
-    color: var(--white);
-    font-size: 1.1875rem;
-    font-weight: 800;
-    letter-spacing: -0.01em;
-    line-height: 1.25;
-    --casl: 0.6;
+    color: var(--bone);
+    font-size: clamp(1.1875rem, 1.05rem + 0.5vw, 1.4375rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
   }
 
   .step-text {
     padding-left: 2rem;
-    color: var(--soft);
+    color: var(--ash);
     font-size: var(--fs-small);
     line-height: 1.5;
   }
@@ -256,15 +272,16 @@ const numbered = acts.map((act) => ({
   .fix {
     position: relative;
     display: grid;
-    gap: 0.5rem;
+    gap: 0.625rem;
     margin-left: 2rem;
-    padding: 1.125rem 1.25rem;
-    border: 1px solid var(--lav);
+    padding: 1.25rem 1.375rem;
+    border: 1px solid var(--acid);
     border-radius: var(--r-card);
-    background-color: var(--aubergine);
+    background-color: var(--carbon);
+    box-shadow: 0 0 26px rgb(201 251 82 / 0.1);
     transition:
       border-color var(--dur-3) var(--ease),
-      background-color var(--dur-3) var(--ease),
+      box-shadow var(--dur-3) var(--ease),
       transform var(--dur-3) var(--ease);
   }
 
@@ -274,8 +291,8 @@ const numbered = acts.map((act) => ({
     top: 1.75rem;
     left: calc(-2rem + var(--rail));
     width: calc(2rem - var(--rail));
-    height: 2px;
-    background-color: var(--lav);
+    height: 1px;
+    background-color: var(--acid);
     transform-origin: left;
     transition: transform var(--dur-3) var(--ease);
   }
@@ -284,23 +301,21 @@ const numbered = acts.map((act) => ({
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    color: var(--lav);
-    font-size: var(--fs-micro);
+  }
+
+  .fix-kicker :global(.icon) {
+    color: var(--acid);
   }
 
   .fix-title {
-    color: var(--white);
-    font-size: clamp(1.5rem, 1.2rem + 1.2vw, 2rem);
-    font-weight: 900;
-    line-height: 1.05;
-    --casl: 1;
+    font-size: clamp(1.625rem, 1.2rem + 1.5vw, 2.375rem);
   }
 
   .fix-items {
     display: flex;
     flex-wrap: wrap;
     gap: 0.25rem 1rem;
-    color: var(--soft);
+    color: var(--bone);
     font-size: var(--fs-small);
   }
 
@@ -314,7 +329,7 @@ const numbered = acts.map((act) => ({
     width: 4px;
     height: 4px;
     border-radius: 50%;
-    background-color: var(--lav);
+    background-color: var(--acid);
     content: '';
   }
 
@@ -327,18 +342,19 @@ const numbered = acts.map((act) => ({
    * und Eingriffen. Ohne dieses Attribut gilt der Endzustand (statisches Diagramm).
    */
   .drehbuch[data-animated] .step:not(.is-on) .step-node {
-    border-color: var(--border-strong);
-    background-color: var(--deep);
+    border-color: var(--steel);
+    background-color: var(--void);
+    box-shadow: none;
   }
 
   .drehbuch[data-animated] .step.is-current .step-node {
-    box-shadow: 0 0 0 5px color-mix(in srgb, var(--lav) 28%, transparent);
+    transform: scale(1.5);
   }
 
-  /* Noch nicht eingerastet: zurückgesetzt und flach, der Text bleibt voll lesbar (kein opacity). */
+  /* Noch nicht eingerastet: zurückgesetzt und ohne Licht, der Text bleibt voll lesbar (kein opacity). */
   .drehbuch[data-animated] .fix:not(.is-on) {
-    border-color: var(--line);
-    background-color: var(--deep);
+    border-color: var(--hairline);
+    box-shadow: none;
     transform: translateX(0.75rem);
   }
 
@@ -349,14 +365,8 @@ const numbered = acts.map((act) => ({
   /* ---------- Kette: horizontal (Desktop) ---------- */
 
   @media (min-width: 64rem) {
-    .drehbuch-head {
-      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-      align-items: end;
-      gap: 1.5rem;
-    }
-
-    .drehbuch-lead {
-      justify-self: end;
+    .road-mid {
+      display: block;
     }
 
     .acts {
@@ -364,7 +374,7 @@ const numbered = acts.map((act) => ({
       grid-template-columns: 4fr 2fr 2fr;
       grid-template-rows: auto auto auto auto;
       gap: 0;
-      margin-top: clamp(2.5rem, 5vh, 4rem);
+      margin-top: clamp(2rem, 5vh, 4.5rem);
     }
 
     /* Linie durch die Knotenreihe: von der Mitte der ersten bis zur Mitte der letzten Spalte */
@@ -376,11 +386,12 @@ const numbered = acts.map((act) => ({
       grid-row: 2;
       grid-column: 1 / -1;
       width: auto;
-      height: 2px;
-      margin-top: calc(var(--node) / 2 - 1px);
+      height: 1px;
+      margin-top: calc(var(--node) / 2 - 0.5px);
     }
 
     .acts-line {
+      inset: -0.5px 0;
       transform: scaleX(var(--p, 1));
       transform-origin: left;
     }
@@ -405,16 +416,13 @@ const numbered = acts.map((act) => ({
       grid-column: 3;
     }
 
-    /* Klammer über jedem Akt */
+    /* Bezeichnung über jedem Akt */
     .act-label {
-      margin-inline: 0.5rem;
-      margin-bottom: 1.75rem;
-      padding: 0 0 0.75rem;
-      border-bottom: 1px solid var(--border-strong);
+      margin-bottom: 2.25rem;
+      padding: 0 0.5rem;
       text-align: center;
-      transition:
-        border-color var(--dur-3) var(--ease),
-        color var(--dur-3) var(--ease);
+      text-wrap: balance;
+      transition: color var(--dur-3) var(--ease);
     }
 
     .act-steps {
@@ -450,11 +458,10 @@ const numbered = acts.map((act) => ({
       position: relative;
       top: auto;
       z-index: 1;
-      margin-bottom: 0.75rem;
+      margin-bottom: 1rem;
     }
 
     .step-title {
-      font-size: 1.0625rem;
       text-wrap: balance;
     }
 
@@ -469,14 +476,14 @@ const numbered = acts.map((act) => ({
     .fix {
       grid-row: 4;
       margin: 0 0.5rem;
-      padding: 1.25rem;
+      padding: 1.375rem 1.5rem;
       align-content: start;
     }
 
     .fix-link {
       top: -1.5rem;
       left: 50%;
-      width: 2px;
+      width: 1px;
       height: 1.5rem;
       transform-origin: bottom;
     }
@@ -492,20 +499,20 @@ const numbered = acts.map((act) => ({
       grid-column: 1 / -1;
       align-self: center;
       min-height: 2.8em;
-      margin-block: 1.5rem 3rem;
-      color: var(--white);
-      font-size: clamp(1.25rem, 1rem + 1vw, 1.75rem);
-      font-weight: 700;
+      margin-block: clamp(0.75rem, 2vh, 1.5rem) clamp(2.25rem, 4vh, 3rem);
+      color: var(--bone);
+      font-size: var(--fs-lead);
+      font-weight: 500;
+      letter-spacing: -0.015em;
       line-height: 1.3;
       text-align: center;
       text-wrap: balance;
-      --casl: 0.5;
     }
 
     .acts-caption :global(.acts-caption-num) {
-      margin-right: 0.4em;
-      color: var(--lav);
-      font-size: 0.65em;
+      margin-right: 0.5em;
+      color: var(--acid);
+      font-size: 0.6em;
       font-weight: 500;
     }
 
@@ -528,12 +535,11 @@ const numbered = acts.map((act) => ({
     }
 
     .drehbuch[data-animated] .act:not(.is-on) .act-label {
-      border-bottom-color: var(--line);
-      color: color-mix(in srgb, var(--lav) 70%, var(--deep));
+      color: var(--ash);
     }
 
     .drehbuch[data-animated] .step:not(.is-on) .step-title {
-      color: color-mix(in srgb, var(--white) 55%, var(--deep));
+      color: var(--ash);
     }
 
     .drehbuch[data-animated] .step-title {
@@ -553,17 +559,18 @@ const numbered = acts.map((act) => ({
       display: grid;
       align-items: center;
       min-height: 100svh;
-      padding-block: calc(var(--header-h) + 1rem) 2rem;
+      /* unten Platz für die schwebenden Knöpfe */
+      padding-block: calc(var(--header-h) + 0.25rem) 4.75rem;
     }
   }
 
   @media (hover: hover) and (pointer: fine) and (min-width: 64rem) {
     .step-head[tabindex]:hover .step-node {
-      box-shadow: 0 0 0 5px color-mix(in srgb, var(--lav) 28%, transparent);
+      transform: scale(1.5);
     }
 
     .drehbuch[data-animated] .step-head[tabindex]:hover .step-title {
-      color: var(--white);
+      color: var(--bone);
     }
   }
 </style>

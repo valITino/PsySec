@@ -1,9 +1,10 @@
 /**
- * Klick-Simulator im Hero.
+ * Klick-Simulator (Bühne direkt unter dem Hero).
  * Die Zeitleiste (0–100) schaltet Zustände über Klassen; die Übergänge selbst macht CSS.
  * Autoplay einmal, sobald das Widget sichtbar ist (nicht bei reduzierter Bewegung).
  */
 import { motionAllowed, onceInView } from '@psyber/ui/motion';
+import { startClock } from './clock.ts';
 
 /** Ab welchem Wert der Zeitleiste welcher Zustand gilt */
 const STEPS = [
@@ -38,22 +39,6 @@ function valueText(value: number): string {
       ? 'Diese Seite ist nicht erreichbar: blockiert vom DNS-Filter.'
       : 'Ein Finger tippt trotzdem.';
   return `Schritt 2 von 2: Technik, nach dem Klick. ${detail}`;
-}
-
-/** Echte Uhrzeit in Zürich, jede volle Minute aktualisiert */
-function startClock(element: HTMLElement | null): void {
-  if (!element) return;
-  const format = new Intl.DateTimeFormat('de-CH', {
-    timeZone: 'Europe/Zurich',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-  const tick = () => {
-    const now = new Date();
-    element.textContent = format.format(now);
-    window.setTimeout(tick, 60_000 - (now.getSeconds() * 1000 + now.getMilliseconds()) + 50);
-  };
-  tick();
 }
 
 export function initSimulator(root: HTMLElement): void {

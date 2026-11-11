@@ -15,6 +15,7 @@ const ICONS = {
   'arrow-left': 'arrow-left',
   'arrow-down': 'arrow-down',
   'arrow-up-right': 'arrow-up-right',
+  'arrow-down-right': 'arrow-down-right',
   'corner-down-left': 'corner-down-left',
   check: 'check',
   x: 'x',
@@ -83,6 +84,9 @@ const ICONS = {
   signal: 'signal',
   'battery-medium': 'battery-medium',
   'more-horizontal': 'ellipsis',
+  cookie: 'cookie',
+  'audio-lines': 'audio-lines',
+  'rotate-3d': 'rotate-3d',
 };
 
 const esc = (v) => String(v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');

@@ -4,14 +4,26 @@
  *   Schritt 1 (Psychologie, vor dem Klick): drei Warnsignale werden markiert.
  *   Schritt 2 (Technik, nach dem Klick): der DNS-Filter blockiert die Seite.
  *
+ * Als Bühne direkt unter dem Hero: links Titel und Steuerung, rechts das Gerät.
  * Ohne JS und bei reduzierter Bewegung zeigt das Markup Schritt 1 vollständig.
  * Alle Texte stehen im DOM; Screenreader lesen den ganzen Ablauf ohne die Zeitleiste zu bedienen.
  * Verhalten: src/scripts/simulator.ts
  */
 import Icon from '@psyber/ui/components/Icon.astro';
+import Kicker from '@psyber/ui/components/Kicker.astro';
+
+const steps = [
+  { step: 1, num: '01', title: 'Psychologie', sub: 'vor dem Klick' },
+  { step: 2, num: '02', title: 'Technik', sub: 'nach dem Klick' },
+];
 ---
 
-<div class="sim" data-sim>
+<div class="sim stage" data-sim>
+  <div class="sim-head">
+    <Kicker>Klick-Simulator</Kicker>
+    <h2 class="display h2">Eine SMS. Zwei Schritte.</h2>
+  </div>
+
   <div
     class="sim-phone"
     role="group"
@@ -141,70 +153,74 @@ import Icon from '@psyber/ui/components/Icon.astro';
   </div>
 
   <div class="sim-controls" data-sim-controls>
-    <div class="sim-controls-top">
-      <label class="sim-label mono" for="sim-range">
+    <ol class="sim-steps">
+      {steps.map((item) => (
+        <li>
+          <button
+            type="button"
+            class="sim-step"
+            data-sim-step={item.step}
+            data-sim-station={item.step}
+            aria-pressed={item.step === 1 ? 'true' : 'false'}
+          >
+            <span class="sim-step-num mono" aria-hidden="true">
+              {item.num}
+            </span>
+            <span class="sim-step-label">
+              <span class="sr-only">Schritt {item.step}: </span>
+              {item.title} <span class="sim-step-sub">· {item.sub}</span>
+            </span>
+            <span class="orb sim-step-orb" aria-hidden="true">
+              <Icon name="play" size={16} />
+            </span>
+          </button>
+        </li>
+      ))}
+    </ol>
+
+    <div class="sim-scrub">
+      <label class="label-up sim-label" for="sim-range">
         Ziehen zum Abspielen
       </label>
-      <div class="sim-buttons">
-        <button
-          type="button"
-          class="sim-step"
-          data-sim-step="1"
-          aria-pressed="true"
-          aria-label="Schritt 1: Psychologie, vor dem Klick"
-        >
-          Schritt 1
-        </button>
-        <button
-          type="button"
-          class="sim-step"
-          data-sim-step="2"
-          aria-pressed="false"
-          aria-label="Schritt 2: Technik, nach dem Klick"
-        >
-          Schritt 2
-        </button>
+      <div class="sim-track">
+        <input
+          class="sim-range"
+          id="sim-range"
+          type="range"
+          min="0"
+          max="100"
+          step="1"
+          value="0"
+          aria-valuetext="Schritt 1 von 2: Psychologie, vor dem Klick. Noch kein Warnsignal markiert."
+          data-sim-range
+        />
+        <span class="sim-click" aria-hidden="true">
+          Klick
+        </span>
       </div>
     </div>
-
-    <div class="sim-track">
-      <input
-        class="sim-range"
-        id="sim-range"
-        type="range"
-        min="0"
-        max="100"
-        step="1"
-        value="0"
-        aria-valuetext="Schritt 1 von 2: Psychologie, vor dem Klick. Noch kein Warnsignal markiert."
-        data-sim-range
-      />
-    </div>
-
-    <ol class="sim-stations mono" aria-hidden="true">
-      <li data-sim-station="1">
-        <span>1. Psychologie</span> <span>· vor dem Klick</span>
-      </li>
-      <li data-sim-station="2">
-        <span>2. Technik</span> <span>· nach dem Klick</span>
-      </li>
-    </ol>
   </div>
 </div>
 
 <style>
   .sim {
-    --sim-w: clamp(17rem, 34svh, 19.5rem);
+    --sim-w: clamp(17rem, 40svh, 20.5rem);
     /*
      * Breite des Geräts als reine Rechnung: höchstens --sim-w, auf sehr schmalen Bildschirmen
      * die Breite des Inhaltsbereichs. Daran hängt die Schriftgrösse im Gerät. Bewusst keine
      * Container Query: Mit cqw-Einheiten hat der Browser bei jedem Layout der Seite das ganze
      * Gerät mehrfach neu gestaltet und gesetzt (rund fünfmal so viel Layout-Zeit).
      */
-    --sim-phone: min(100vw - 2 * var(--gutter), var(--sim-w));
+    --sim-pad: clamp(1.25rem, 0.5rem + 3.4vw, 4rem);
+    --sim-phone: min(100vw - 2 * var(--gutter) - 2 * var(--sim-pad), var(--sim-w));
     display: grid;
-    gap: 0.875rem;
-    width: min(100%, 21.5rem);
+    gap: clamp(1.75rem, 4vw, 2.5rem);
+    padding: var(--sim-pad);
+  }
+
+  .sim-head {
+    display: grid;
+    gap: 1rem;
   }
 
   /* ---------- Smartphone ---------- */
@@ -214,9 +230,9 @@ import Icon from '@psyber/ui/components/Icon.astro';
     justify-self: center;
     aspect-ratio: 320 / 610;
     padding: 9px;
-    border: 1px solid var(--line);
+    border: 1px solid var(--hairline);
     border-radius: 13.5% / 7%;
-    background-color: var(--deep);
+    background-color: var(--pit);
   }
 
   .sim-screen {
@@ -224,10 +240,10 @@ import Icon from '@psyber/ui/components/Icon.astro';
     height: 100%;
     flex-direction: column;
     overflow: hidden;
-    border: 1px solid var(--line);
+    border: 1px solid var(--hairline);
     border-radius: 11.5% / 6%;
-    background-color: var(--night);
-    color: var(--soft);
+    background-color: var(--void);
+    color: var(--fg);
     /* Alle Masse im Gerät skalieren mit der Gerätebreite (Innenbreite = Breite − 20 px) */
     font-size: calc((var(--sim-phone) - 20px) * 0.0482);
     line-height: 1.42;
@@ -238,7 +254,7 @@ import Icon from '@psyber/ui/components/Icon.astro';
     grid-template-columns: 1fr auto 1fr;
     align-items: center;
     padding: 0.85em 1.35em 0.4em;
-    color: var(--white);
+    color: var(--fg-strong);
     font-size: 0.83em;
     font-weight: 600;
   }
@@ -247,8 +263,8 @@ import Icon from '@psyber/ui/components/Icon.astro';
     width: 5.2em;
     height: 1.45em;
     border-radius: 1em;
-    background-color: var(--deep);
-    border: 1px solid var(--line);
+    background-color: var(--pit);
+    border: 1px solid var(--hairline);
   }
 
   .sim-city {
@@ -261,7 +277,7 @@ import Icon from '@psyber/ui/components/Icon.astro';
   .sim-city :global(.icon) {
     width: 1em;
     height: 1em;
-    color: var(--lav);
+    color: var(--fg-muted);
   }
 
   .sim-views {
@@ -286,7 +302,7 @@ import Icon from '@psyber/ui/components/Icon.astro';
     align-items: center;
     gap: 0.7em;
     padding: 0.55em 1.1em 0.75em;
-    border-bottom: 1px solid var(--line);
+    border-bottom: 1px solid var(--hairline);
   }
 
   .sim-avatar {
@@ -296,8 +312,8 @@ import Icon from '@psyber/ui/components/Icon.astro';
     width: 2.3em;
     height: 2.3em;
     border-radius: 50%;
-    background-color: var(--aubergine);
-    color: var(--lav);
+    background-color: var(--graphite);
+    color: var(--fg-muted);
   }
 
   .sim-avatar :global(.icon) {
@@ -316,7 +332,7 @@ import Icon from '@psyber/ui/components/Icon.astro';
   }
 
   .sim-sender .mono {
-    color: var(--lav);
+    color: var(--fg-muted);
     font-size: 0.76em;
   }
 
@@ -332,15 +348,15 @@ import Icon from '@psyber/ui/components/Icon.astro';
     max-width: 94%;
     padding: 0.75em 0.9em;
     border-radius: 1.2em 1.2em 1.2em 0.35em;
-    background-color: var(--aubergine);
-    color: var(--white);
+    background-color: var(--graphite);
+    color: var(--fg-strong);
     text-wrap: wrap;
     animation: sim-pop var(--dur-3) var(--ease) both;
   }
 
   .sim-url {
     position: relative;
-    color: var(--lav);
+    color: var(--fg-muted);
     text-decoration: underline;
     text-decoration-style: dotted;
     text-underline-offset: 0.2em;
@@ -374,10 +390,10 @@ import Icon from '@psyber/ui/components/Icon.astro';
     width: 3em;
     height: 3em;
     margin: -1.5em 0 0 -1.5em;
-    border: 2px solid var(--white);
+    border: 2px solid var(--fg-strong);
     border-radius: 50%;
-    background-color: color-mix(in srgb, var(--white) 22%, transparent);
-    color: var(--white);
+    background-color: color-mix(in srgb, var(--fg-strong) 22%, transparent);
+    color: var(--fg-strong);
     opacity: 0;
     pointer-events: none;
     transform: scale(1.5);
@@ -422,13 +438,13 @@ import Icon from '@psyber/ui/components/Icon.astro';
   }
 
   .sim-signals strong {
-    color: var(--white);
+    color: var(--fg-strong);
     font-weight: 700;
   }
 
   .sim-signal-note {
     display: block;
-    color: var(--soft);
+    color: var(--fg);
     font-size: 0.9em;
   }
 
@@ -468,9 +484,9 @@ import Icon from '@psyber/ui/components/Icon.astro';
   .sim-compose-field {
     flex: 1;
     padding: 0.5em 0.9em;
-    border: 1px solid var(--line);
+    border: 1px solid var(--hairline);
     border-radius: 1.2em;
-    color: color-mix(in srgb, var(--lav) 70%, var(--night));
+    color: var(--ash);
     font-size: 0.86em;
   }
 
@@ -480,8 +496,8 @@ import Icon from '@psyber/ui/components/Icon.astro';
     width: 2.2em;
     height: 2.2em;
     border-radius: 50%;
-    background-color: var(--aubergine);
-    color: var(--lav);
+    background-color: var(--graphite);
+    color: var(--fg-muted);
   }
 
   .sim-compose-send :global(.icon) {
@@ -495,8 +511,8 @@ import Icon from '@psyber/ui/components/Icon.astro';
     justify-content: space-between;
     margin-top: auto;
     padding: 0.7em 1.4em 0.4em;
-    border-top: 1px solid var(--line);
-    color: var(--lav);
+    border-top: 1px solid var(--hairline);
+    color: var(--fg-muted);
   }
 
   .sim-toolbar :global(.icon) {
@@ -519,10 +535,10 @@ import Icon from '@psyber/ui/components/Icon.astro';
     align-items: center;
     gap: 0.5em;
     padding: 0.55em 0.8em;
-    border: 1px solid var(--line);
+    border: 1px solid var(--hairline);
     border-radius: 0.8em;
-    background-color: var(--deep);
-    color: var(--soft);
+    background-color: var(--pit);
+    color: var(--fg);
     font-size: 0.78em;
   }
 
@@ -558,10 +574,10 @@ import Icon from '@psyber/ui/components/Icon.astro';
     width: 3.6em;
     height: 3.6em;
     margin-bottom: 0.3em;
-    border: 1px solid var(--line);
+    border: 1px solid var(--hairline);
     border-radius: 50%;
-    background-color: var(--aubergine);
-    color: var(--lav);
+    background-color: var(--graphite);
+    color: var(--fg-muted);
   }
 
   .sim-error-icon :global(.icon) {
@@ -570,15 +586,14 @@ import Icon from '@psyber/ui/components/Icon.astro';
   }
 
   .sim-error-title {
-    color: var(--white);
+    color: var(--fg-strong);
     font-size: 1.12em;
     font-weight: 800;
     line-height: 1.2;
-    --casl: 0.6;
   }
 
   .sim-error-code {
-    color: var(--lav);
+    color: var(--fg-muted);
     font-size: 0.78em;
   }
 
@@ -590,7 +605,7 @@ import Icon from '@psyber/ui/components/Icon.astro';
     border: 1px solid color-mix(in srgb, var(--ok) 60%, transparent);
     border-radius: 0.8em;
     background-color: color-mix(in srgb, var(--ok) 12%, transparent);
-    color: var(--white);
+    color: var(--fg-strong);
     font-size: 0.86em;
     line-height: 1.35;
     opacity: 0;
@@ -609,7 +624,7 @@ import Icon from '@psyber/ui/components/Icon.astro';
   }
 
   .sim-small {
-    color: var(--soft);
+    color: var(--fg);
     font-size: 0.78em;
     line-height: 1.4;
     opacity: 0;
@@ -707,7 +722,7 @@ import Icon from '@psyber/ui/components/Icon.astro';
     }
 
     .sim-browser {
-      border-top: 1px solid var(--line);
+      border-top: 1px solid var(--hairline);
       padding-top: 1em;
       opacity: 1;
       transform: none;
@@ -732,67 +747,107 @@ import Icon from '@psyber/ui/components/Icon.astro';
     }
   }
 
-  /* ---------- Zeitleiste ---------- */
+  /* ---------- Steuerung ---------- */
 
   .sim-controls {
     display: grid;
-    gap: 0.25rem;
+    gap: 1.75rem;
   }
 
-  .sim-controls-top {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
+  .sim-steps {
+    display: grid;
+    border-top: 1px solid var(--hairline);
   }
 
-  .sim-label {
-    color: var(--lav);
-    font-size: var(--fs-micro);
-  }
-
-  .sim-buttons {
-    display: flex;
-    gap: 0.375rem;
-  }
-
+  /* Die zwei Schritte als grosse Zeilen */
   .sim-step {
-    min-height: 2.75rem;
-    padding-inline: 0.625rem;
-    border: 1px solid var(--border-strong);
-    border-radius: 10px;
-    color: var(--soft);
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding-block: 0.875rem;
+    border-bottom: 1px solid var(--hairline);
+    color: var(--ash);
+    text-align: left;
+    transition: color var(--dur-2) var(--ease);
+  }
+
+  .sim-step-num {
+    color: inherit;
     font-size: var(--fs-micro);
-    font-weight: 650;
-    transition:
-      background-color var(--dur-1) var(--ease),
-      border-color var(--dur-1) var(--ease),
-      color var(--dur-1) var(--ease);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  .sim-step-label {
+    font-size: clamp(1.375rem, 1rem + 1.7vw, 2.5rem);
+    font-weight: var(--fw-display);
+    letter-spacing: var(--ls-heading);
+    line-height: 1.05;
+    text-transform: uppercase;
+  }
+
+  .sim-step-sub {
+    display: block;
+    margin-top: 0.375rem;
+    font-family: var(--ff-mono);
+    font-size: var(--fs-micro);
+    font-weight: 500;
+    letter-spacing: var(--ls-label);
   }
 
   .sim-step[aria-pressed='true'] {
-    border-color: var(--lav);
-    background-color: color-mix(in srgb, var(--lav) 18%, transparent);
-    color: var(--white);
+    color: var(--bone);
+  }
+
+  .sim-step[aria-pressed='true'] .sim-step-num {
+    color: var(--acid);
+  }
+
+  .sim-step[aria-pressed='true'] .sim-step-orb {
+    border-color: var(--acid);
+    background-color: var(--acid);
+    color: var(--ink);
+  }
+
+  @media (hover: hover) {
+    .sim-step:hover {
+      color: var(--bone);
+    }
+
+    .sim-step:hover .sim-step-orb {
+      border-color: var(--acid);
+    }
+  }
+
+  .sim-scrub {
+    display: grid;
+    gap: 0.25rem;
   }
 
   .sim-track {
     position: relative;
   }
 
-  /* Stationsmarke in der Mitte der Zeitleiste */
-  .sim-track::after {
+  /* Der Moment des Klicks als Marke auf der Zeitleiste */
+  .sim-click {
     position: absolute;
     top: 50%;
-    left: 50%;
-    width: 2px;
-    height: 12px;
-    border-radius: 1px;
-    background-color: var(--border-strong);
-    content: '';
+    left: 59%;
+    padding: 0.125rem 0.5rem;
+    border: 1px solid var(--bone);
+    border-radius: var(--r-pill);
+    background-color: var(--carbon);
+    color: var(--bone);
+    font-family: var(--ff-mono);
+    font-size: 0.6875rem;
+    font-weight: 500;
+    letter-spacing: var(--ls-label);
+    line-height: 1.4;
     pointer-events: none;
-    transform: translate(-50%, -50%);
+    text-transform: uppercase;
+    transform: translate(-50%, 0.75rem);
   }
 
   .sim-range {
@@ -812,67 +867,74 @@ import Icon from '@psyber/ui/components/Icon.astro';
   }
 
   .sim-range::-webkit-slider-runnable-track {
-    height: 4px;
-    border-radius: 2px;
+    height: 2px;
+    border-radius: 1px;
     background: linear-gradient(
       to right,
-      var(--lav) 0 var(--sim-fill, 0%),
-      var(--line) var(--sim-fill, 0%) 100%
+      var(--acid) 0 var(--sim-fill, 0%),
+      var(--steel) var(--sim-fill, 0%) 100%
     );
   }
 
   .sim-range::-moz-range-track {
-    height: 4px;
-    border-radius: 2px;
-    background-color: var(--line);
+    height: 2px;
+    border-radius: 1px;
+    background-color: var(--steel);
   }
 
   .sim-range::-moz-range-progress {
-    height: 4px;
-    border-radius: 2px;
-    background-color: var(--lav);
+    height: 2px;
+    border-radius: 1px;
+    background-color: var(--acid);
   }
 
   .sim-range::-webkit-slider-thumb {
     position: relative;
     z-index: 1;
-    width: 1.375rem;
-    height: 1.375rem;
+    width: 1.25rem;
+    height: 1.25rem;
     margin-top: -9px;
-    border: 3px solid var(--lav);
+    border: 0;
     border-radius: 50%;
-    background-color: var(--white);
+    background-color: var(--acid);
+    box-shadow: 0 0 14px rgb(201 251 82 / 0.6);
     appearance: none;
     -webkit-appearance: none;
   }
 
   .sim-range::-moz-range-thumb {
     box-sizing: border-box;
-    width: 1.375rem;
-    height: 1.375rem;
-    border: 3px solid var(--lav);
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 0;
     border-radius: 50%;
-    background-color: var(--white);
+    background-color: var(--acid);
+    box-shadow: 0 0 14px rgb(201 251 82 / 0.6);
   }
 
-  .sim-stations {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0.75rem;
-    color: var(--lav);
-    font-size: var(--fs-micro);
-    line-height: 1.35;
-  }
+  /* ---------- Bühne: ab Desktop Text links, Gerät rechts ---------- */
 
-  .sim-stations span {
-    white-space: nowrap;
-  }
+  @media (min-width: 64rem) {
+    .sim {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      grid-template-rows: auto 1fr;
+      align-items: start;
+      column-gap: clamp(2rem, 5vw, 5rem);
+      row-gap: clamp(2rem, 4vw, 3.5rem);
+    }
 
-  .sim-stations li {
-    transition: color var(--dur-2) var(--ease);
-  }
+    .sim-head {
+      grid-area: 1 / 1;
+    }
 
-  .sim-stations li:global(.is-active) {
-    color: var(--white);
+    .sim-phone {
+      grid-area: 1 / 2 / span 2 / 2;
+      align-self: center;
+    }
+
+    .sim-controls {
+      grid-area: 2 / 1;
+      align-self: end;
+    }
   }
 </style>

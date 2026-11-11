@@ -143,10 +143,7 @@ for (const entry of PAGES) {
       expect(/<[a-z][^>]*\sstyle=/i.test(html), 'style-Attribut im HTML').toBe(false);
     });
 
-    test('Tastatur: das erste Element zeigt den Fokus-Ring in Amber', async ({
-      page,
-      isMobile,
-    }) => {
+    test('Tastatur: das erste Element zeigt den Fokus-Ring in Acid', async ({ page, isMobile }) => {
       test.skip(isMobile, 'Fokus per Tabulator gibt es am Gerät mit Tastatur.');
       await page.goto(entry.url);
       await page.keyboard.press('Tab');
@@ -157,16 +154,12 @@ for (const entry of PAGES) {
         return {
           tag: element.tagName,
           outline: `${style.outlineStyle} ${style.outlineWidth} ${style.outlineColor}`,
-          shadow: style.boxShadow,
         };
       });
       expect(focus, 'Tab erreicht ein Element').not.toBeNull();
-      // Dunkle Flächen: 3 px Amber als Outline. Helle Flächen: Amber-Ring per box-shadow.
-      const amber = 'rgb(249, 173, 38)';
-      expect(
-        focus?.outline === `solid 3px ${amber}` || (focus?.shadow ?? '').includes(amber),
-        `Fokus-Stil: ${JSON.stringify(focus)}`,
-      ).toBe(true);
+      // Überall derselbe Ring: 3 px Acid als Outline.
+      const acid = 'rgb(201, 251, 82)';
+      expect(focus?.outline, `Fokus-Stil: ${JSON.stringify(focus)}`).toBe(`solid 3px ${acid}`);
     });
   });
 }

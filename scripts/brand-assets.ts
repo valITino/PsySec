@@ -10,8 +10,8 @@ import { fileURLToPath } from 'node:url';
 import { renderOgImages } from './og.ts';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const NIGHT = '#140a29';
-const LAV = '#ad9bf6';
+const VOID = '#08080b';
+const ACID = '#c9fb52';
 const PSI_PATH = 'M2 2.2 C2 7 4 9.2 6 9.2 C8 9.2 10 7 10 2.2 M6 0.8 V13.2';
 
 /** Psi-Icon auf dunklem Quadrat. `radius` 0 für Apple und maskierbare Icons. */
@@ -21,7 +21,7 @@ function iconSvg(size: number, radius: number, scale = 1.7): string {
   const height = 14 * scale * unit;
   const x = (size - width) / 2;
   const y = (size - height) / 2;
-  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="${size}" height="${size}" rx="${radius * unit}" fill="${NIGHT}"/><path d="${PSI_PATH}" transform="translate(${x} ${y}) scale(${scale * unit})" fill="none" stroke="${LAV}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}"><rect width="${size}" height="${size}" rx="${radius * unit}" fill="${VOID}"/><path d="${PSI_PATH}" transform="translate(${x} ${y}) scale(${scale * unit})" fill="none" stroke="${ACID}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 }
 
 const png = (svg: string): Buffer => Buffer.from(new Resvg(svg).render().asPng());
@@ -74,8 +74,8 @@ for (const app of apps) {
     lang: 'de-CH',
     start_url: '.',
     display: 'browser',
-    background_color: NIGHT,
-    theme_color: NIGHT,
+    background_color: VOID,
+    theme_color: VOID,
     icons: [
       { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any maskable' },
       { src: 'icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },

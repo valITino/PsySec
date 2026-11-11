@@ -1,6 +1,6 @@
 /*
  * Konami-Terminal (Easter Egg). Wird zusammen mit scripts/terminal.ts erst bei Bedarf geladen.
- * Tiefe Fläche (--deep), Schrift in Mono, Fokus in Amber wie überall.
+ * Tiefe Fläche (--pit), Schrift in Mono, Fokus in Acid wie überall.
  */
 .term {
   width: min(100% - 2rem, 46rem);
@@ -9,16 +9,16 @@
   margin: auto;
   padding: 0;
   overflow: hidden;
-  border: 1px solid var(--border-strong);
-  border-radius: var(--r-card);
-  background-color: var(--deep);
-  color: var(--soft);
+  border: 1px solid var(--steel);
+  border-radius: var(--r-panel);
+  background-color: var(--pit);
+  box-shadow: 0 0 60px rgb(182 120 247 / 0.22);
+  color: var(--bone);
   font-family: var(--ff-mono);
-  --mono: 1;
 }
 
 .term::backdrop {
-  background-color: color-mix(in srgb, var(--night) 84%, transparent);
+  background-color: color-mix(in srgb, var(--void) 84%, transparent);
 }
 
 .term-window {
@@ -33,11 +33,11 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.375rem 0.5rem 0.375rem 1rem;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--hairline);
 }
 
 .term-title {
-  color: var(--lav);
+  color: var(--fg-muted);
   font-size: var(--fs-meta);
   font-weight: 500;
 }
@@ -48,8 +48,8 @@
   gap: 0.5rem;
   min-height: 2.75rem;
   padding-inline: 0.75rem;
-  border-radius: 10px;
-  color: var(--soft);
+  border-radius: var(--r-pill);
+  color: var(--fg);
   font-size: var(--fs-meta);
 }
 
@@ -57,13 +57,13 @@
   padding: 0.0625rem 0.375rem;
   border: 1px solid var(--border-strong);
   border-radius: 6px;
-  color: var(--lav);
+  color: var(--fg-muted);
   font-size: var(--fs-micro);
 }
 
 @media (hover: hover) {
   .term-close:hover {
-    color: var(--white);
+    color: var(--fg-strong);
   }
 }
 
@@ -82,16 +82,16 @@
 }
 
 .term-log .is-cmd {
-  color: var(--white);
+  color: var(--fg-strong);
 }
 
 .term-log .is-dim {
-  color: var(--lav);
+  color: var(--fg-muted);
 }
 
 .term-log .is-ok {
-  color: var(--white);
-  font-weight: 650;
+  color: var(--acid);
+  font-weight: 600;
 }
 
 .term-line {
@@ -102,13 +102,13 @@
   border-bottom: 2px solid transparent;
 }
 
-/* Fokus: Die Eingabezeile ist das Fenster. Markiert wird die ganze Zeile in Amber. */
+/* Fokus: Die Eingabezeile ist das Fenster. Markiert wird die ganze Zeile in Acid. */
 .term-line:focus-within {
-  border-bottom-color: var(--amber);
+  border-bottom-color: var(--acid);
 }
 
 .term-prompt {
-  color: var(--lav);
+  color: var(--acid);
   white-space: nowrap;
 }
 
@@ -119,9 +119,9 @@
   border: 0;
   border-radius: 0;
   background: transparent;
-  color: var(--white);
+  color: var(--fg-strong);
   font: inherit;
-  caret-color: var(--amber);
+  caret-color: var(--acid);
 }
 
 .term-input:focus-visible {
@@ -130,7 +130,7 @@
 
 .term-hint {
   padding: 0.5rem 1rem 0.625rem;
-  border-top: 1px solid var(--line);
-  color: var(--lav);
+  border-top: 1px solid var(--hairline);
+  color: var(--fg-muted);
   font-size: var(--fs-micro);
 }

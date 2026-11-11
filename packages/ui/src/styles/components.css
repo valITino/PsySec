@@ -1,5 +1,5 @@
 /*
- * Bausteine des Designsystems: Layout, Typo-Klassen, Buttons, Karten, Tags, Formularfelder.
+ * Bausteine des Designsystems: Layout, Flächen, Typo-Klassen, Buttons, Karten, Tags, Formularfelder.
  * Bewusst als Klassen (nicht nur als Astro-Komponenten), damit auch Preact-Islands sie nutzen.
  */
 
@@ -22,7 +22,7 @@
   }
 
   .measure {
-    max-width: 34em; /* rund 68 Zeichen in Recursive Sans */
+    max-width: 36em; /* rund 68 Zeichen in Manrope */
   }
 
   .skip-link {
@@ -31,12 +31,15 @@
     left: 0.75rem;
     z-index: 100;
     transform: translateY(-200%);
-    padding: 0.75rem 1rem;
-    border-radius: var(--r-btn);
-    background: var(--amber);
+    padding: 0.875rem 1.25rem;
+    border-radius: var(--r-pill);
+    background: var(--acid);
     color: var(--ink);
+    font-size: var(--fs-meta);
     font-weight: 700;
+    letter-spacing: 0.06em;
     text-decoration: none;
+    text-transform: uppercase;
   }
 
   .skip-link:focus {
@@ -55,15 +58,68 @@
     border: 0;
   }
 
+  /* ---------- Flächen ---------- */
+
+  /*
+   * Sheet: Sektion als Bogen mit runden oberen Ecken, der sich über die vorherige Sektion
+   * schiebt. Jeder Bogen bringt unten den Platz mit, den der nächste überdeckt.
+   */
+  .sheet {
+    position: relative;
+    margin-top: calc(-1 * var(--r-sheet));
+    padding-block: var(--section-y) calc(var(--section-y) + var(--r-sheet));
+    border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+    background-color: var(--bg);
+  }
+
+  /* Violetter Bogen: Space mit Lichtschein oben rechts */
+  .sheet-space {
+    background-image: radial-gradient(
+      70rem 46rem at 88% 0%,
+      rgb(182 120 247 / 0.42) 0%,
+      rgb(182 120 247 / 0) 68%
+    );
+  }
+
+  /* Bühne: grosses, dunkles Panel mit violettem Schein in der Ecke */
+  .stage {
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-stage);
+    background-color: var(--carbon);
+    background-image: radial-gradient(
+      46rem 30rem at 100% 0%,
+      rgb(182 120 247 / 0.26) 0%,
+      rgb(182 120 247 / 0) 70%
+    );
+  }
+
+  /* Punktraster als ruhige Textur (reines CSS, kein Bild) */
+  .dot-grid {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .dot-grid::before {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: radial-gradient(rgb(244 244 239 / 0.16) 1px, transparent 1.5px);
+    background-size: 22px 22px;
+    content: '';
+    pointer-events: none;
+    mask-image: radial-gradient(60% 60% at 50% 40%, #000 0%, transparent 100%);
+  }
+
   /* ---------- Typografie ---------- */
 
+  /* Display: riesig, Versalien, eng gesetzt */
   .display {
     color: var(--fg-strong);
-    font-weight: 900;
-    letter-spacing: -0.02em;
-    line-height: 0.98;
+    font-weight: var(--fw-display);
+    letter-spacing: var(--ls-display);
+    line-height: 0.92;
+    text-transform: uppercase;
     text-wrap: balance;
-    --casl: 1;
   }
 
   .h1 {
@@ -72,61 +128,76 @@
 
   .h2 {
     font-size: var(--fs-h2);
-    font-weight: 850;
-    line-height: 1.02;
-    --casl: 0.8;
+    letter-spacing: var(--ls-heading);
+    line-height: 0.98;
+    text-transform: uppercase;
   }
 
   .h3 {
     font-size: var(--fs-h3);
-    font-weight: 800;
-    letter-spacing: -0.015em;
-    line-height: 1.12;
-    --casl: 0.6;
+    letter-spacing: var(--ls-heading);
+    line-height: 1;
+    text-transform: uppercase;
   }
 
-  .h4 {
-    font-size: 1.1875rem;
-    font-weight: 750;
-    letter-spacing: -0.01em;
-    line-height: 1.25;
-    --casl: 0.5;
+  /* Titel in normaler Schreibweise: Zeilen in Listen, Fragen, Aussagen */
+  .h4,
+  .title {
+    font-size: var(--fs-h4);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    text-transform: none;
+  }
+
+  /* Markenname in Versal-Umgebung: «PSYber» bleibt exakt so geschrieben */
+  .brand {
+    text-transform: none;
   }
 
   .lead {
     font-size: var(--fs-lead);
-    line-height: 1.5;
-    max-width: 33em;
+    letter-spacing: -0.015em;
+    line-height: 1.36;
+    max-width: 30em;
   }
 
   .mono {
     font-family: var(--ff-mono);
-    --mono: 1;
+    letter-spacing: 0;
   }
 
   .tabular {
     font-variant-numeric: tabular-nums;
   }
 
-  /* Kicker als Code-Kommentar: «// So arbeiten wir» */
-  .kicker {
+  /* Label: klein, Versalien, gesperrt, in Mono. Als Kicker mit «//» davor. */
+  .kicker,
+  .label-up {
+    color: var(--fg-muted);
     font-family: var(--ff-mono);
-    --mono: 1;
-    color: var(--accent);
-    font-size: var(--fs-meta);
+    font-size: var(--fs-micro);
     font-weight: 500;
-    line-height: 1.4;
+    letter-spacing: var(--ls-label);
+    line-height: 1.5;
+    text-transform: uppercase;
   }
 
-  /* Abschnittsnummer in Hex: «0x01» */
+  /* Wörter, die auch im Label klein bleiben (Befehle wie «whoami») */
+  .kicker-raw {
+    text-transform: none;
+  }
+
+  /* Abschnittsnummer in Hex: «0x01» (das x bleibt klein) */
   .hexnum {
+    color: var(--accent);
     font-family: var(--ff-mono);
-    --mono: 1;
-    color: var(--fg-muted);
-    font-size: var(--fs-meta);
+    font-size: var(--fs-micro);
     font-weight: 500;
     font-variant-numeric: tabular-nums;
-    line-height: 1.4;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+    text-transform: none;
   }
 
   .meta {
@@ -140,15 +211,14 @@
     line-height: 1.5;
   }
 
-  /* Grosse Einzelzahl: Display-Schnitt, proportionale Ziffern */
+  /* Grosse Einzelzahl */
   .num {
     color: var(--fg-strong);
     font-size: var(--fs-number);
-    font-weight: 900;
+    font-weight: var(--fw-display);
     font-variant-numeric: proportional-nums;
-    letter-spacing: -0.03em;
+    letter-spacing: var(--ls-display);
     line-height: 0.9;
-    --casl: 1;
   }
 
   .link {
@@ -164,7 +234,7 @@
 
   /* Fiktive Adresse: sieht aus wie ein Link, ist aber keiner */
   .fake-link {
-    color: var(--lav);
+    color: var(--fg-muted);
     text-decoration: underline;
     text-decoration-style: dotted;
     overflow-wrap: anywhere;
@@ -172,14 +242,13 @@
 
   /* ---------- Marke ---------- */
 
-  /* Wortmarke «PSYber»: wght 900, CASL 1, letter-spacing −0.02em */
+  /* Wortmarke «PSYber»: Manrope 800, eng gesetzt, nie in Versalien */
   .wordmark {
     color: var(--fg-strong);
-    font-weight: 900;
-    letter-spacing: -0.02em;
+    font-weight: 800;
+    letter-spacing: -0.045em;
     line-height: 1;
-    --casl: 1;
-    --mono: 0;
+    text-transform: none;
   }
 
   /* Psi-Icon plus Wortmarke */
@@ -194,40 +263,44 @@
 
   .logo-icon {
     flex: none;
-    color: var(--accent);
+    color: var(--acid);
   }
 
   .logo-word {
-    font-size: 1.375rem;
+    font-size: 1.5rem;
   }
 
   /* ---------- Buttons ---------- */
 
+  /* Pille, Versalien, 52 px hoch. Primär in Acid, sekundär als Glas-Outline. */
   .btn {
     --btn-bg: transparent;
-    --btn-fg: var(--fg-strong);
+    --btn-fg: var(--bone);
     --btn-border: transparent;
+    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 0.625rem;
-    min-height: 3rem; /* 48 px */
-    padding: 0.5rem 1.375rem;
-    border: 1.5px solid var(--btn-border);
+    gap: 0.75rem;
+    min-height: 3.25rem; /* 52 px */
+    padding: 0.5rem 1.625rem;
+    border: 1px solid var(--btn-border);
     border-radius: var(--r-btn);
     background-color: var(--btn-bg);
     color: var(--btn-fg);
-    font-size: 1rem;
-    font-weight: 650;
+    font-size: var(--fs-meta);
+    font-weight: 700;
+    letter-spacing: 0.06em;
     line-height: 1.2;
     text-align: center;
     text-decoration: none;
+    text-transform: uppercase;
     transition:
-      background-color var(--dur-1) var(--ease),
-      border-color var(--dur-1) var(--ease),
-      color var(--dur-1) var(--ease),
+      background-color var(--dur-2) var(--ease),
+      border-color var(--dur-2) var(--ease),
+      box-shadow var(--dur-2) var(--ease),
+      color var(--dur-2) var(--ease),
       transform var(--dur-1) var(--ease);
-    --casl: 0.4;
   }
 
   .btn:active {
@@ -240,30 +313,38 @@
   }
 
   .btn-primary {
-    --btn-bg: var(--violet);
-    --btn-fg: var(--white);
-    --btn-border: var(--violet);
+    --btn-bg: var(--acid);
+    --btn-fg: var(--ink);
+    --btn-border: var(--acid);
+    box-shadow: var(--glow-acid);
   }
 
   .btn-secondary {
-    --btn-fg: var(--lav);
-    --btn-border: var(--lav);
+    --btn-bg: rgb(244 244 239 / 0.06);
+    --btn-fg: var(--bone);
+    --btn-border: rgb(244 244 239 / 0.42);
   }
 
-  .on-paper .btn-secondary {
-    --btn-fg: var(--violet-dark);
-    --btn-border: var(--violet);
-  }
-
-  .on-paper .on-dark .btn-secondary {
-    --btn-fg: var(--lav);
-    --btn-border: var(--lav);
+  /* Lichtkante: kurzer Acid-Strich auf der oberen Kante des sekundären Buttons */
+  .btn-secondary::before {
+    position: absolute;
+    top: -1px;
+    left: 20%;
+    width: 36%;
+    height: 1.5px;
+    border-radius: 1px;
+    background: linear-gradient(90deg, transparent, var(--acid), transparent);
+    content: '';
+    pointer-events: none;
+    transition:
+      left var(--dur-3) var(--ease),
+      width var(--dur-3) var(--ease);
   }
 
   .btn-sm {
     min-height: 2.75rem; /* 44 px */
-    padding-inline: 1rem;
-    font-size: var(--fs-small);
+    padding-inline: 1.25rem;
+    font-size: var(--fs-micro);
   }
 
   .btn-block {
@@ -277,27 +358,24 @@
 
   @media (hover: hover) {
     .btn-primary:hover:not(:disabled, [aria-disabled='true']) {
-      --btn-bg: var(--violet-dark);
-      --btn-border: var(--lav);
+      --btn-bg: var(--acid-hi);
+      --btn-border: var(--acid-hi);
+      box-shadow: var(--glow-acid-hi);
     }
 
     .btn-secondary:hover:not(:disabled, [aria-disabled='true']) {
-      --btn-bg: color-mix(in srgb, var(--lav) 16%, transparent);
-      --btn-fg: var(--white);
+      --btn-bg: rgb(244 244 239 / 0.1);
+      --btn-border: var(--acid);
+      box-shadow: 0 0 20px rgb(201 251 82 / 0.2);
     }
 
-    .on-paper .btn-secondary:hover:not(:disabled, [aria-disabled='true']) {
-      --btn-bg: color-mix(in srgb, var(--violet) 10%, transparent);
-      --btn-fg: var(--violet-dark);
-    }
-
-    .on-paper .on-dark .btn-secondary:hover:not(:disabled, [aria-disabled='true']) {
-      --btn-bg: color-mix(in srgb, var(--lav) 16%, transparent);
-      --btn-fg: var(--white);
+    .btn-secondary:hover:not(:disabled, [aria-disabled='true'])::before {
+      left: 12%;
+      width: 76%;
     }
 
     .btn:hover .icon-shift {
-      transform: translateX(3px);
+      transform: translateX(4px);
     }
   }
 
@@ -308,11 +386,13 @@
     gap: 0.5rem;
     min-height: 2.75rem;
     color: var(--fg-strong);
-    font-weight: 650;
+    font-size: var(--fs-meta);
+    font-weight: 700;
+    letter-spacing: 0.06em;
     text-decoration: underline;
     text-decoration-color: var(--accent);
-    text-underline-offset: 0.3em;
-    --casl: 0.4;
+    text-transform: uppercase;
+    text-underline-offset: 0.4em;
   }
 
   .btn-text .icon {
@@ -326,31 +406,62 @@
     }
 
     .btn-text:hover .icon-shift {
-      transform: translateX(3px);
+      transform: translateX(4px);
     }
+  }
+
+  /* Runder Pfeil-Knopf (Zeilen in Listen, Menü) */
+  .orb {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 50%;
+    color: var(--fg-strong);
+    transition:
+      background-color var(--dur-2) var(--ease),
+      border-color var(--dur-2) var(--ease),
+      color var(--dur-2) var(--ease),
+      transform var(--dur-2) var(--ease);
   }
 
   /* ---------- Karten ---------- */
 
+  /* Karten sind immer dunkel, auch auf Space: darum setzen sie die Rollen zurück. */
   .card {
+    --bg: var(--carbon);
+    --fg: var(--bone);
+    --fg-strong: var(--bone);
+    --fg-muted: var(--ash);
+    --border: var(--hairline);
+    --border-strong: var(--steel);
+    --surface: var(--carbon);
+    --surface-raised: var(--graphite);
+    --surface-deep: var(--pit);
     border: 1px solid var(--border);
     border-radius: var(--r-card);
     background-color: var(--surface);
+    background-image: linear-gradient(165deg, rgb(244 244 239 / 0.045) 0%, transparent 45%);
+    color: var(--fg);
   }
 
   .card-flat {
     background-color: transparent;
+    background-image: none;
   }
 
   .card-deep {
     background-color: var(--surface-deep);
+    background-image: none;
   }
 
   .card-pad {
     padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
   }
 
-  /* Hover nur bei feinem Pointer: Rahmen in Lavendel, 2 px Anhebung */
+  /* Hover nur bei feinem Pointer: heller Rahmen, 2 px Anhebung */
   @media (hover: hover) and (pointer: fine) {
     .card-hover {
       transition:
@@ -359,12 +470,8 @@
     }
 
     .card-hover:hover {
-      border-color: var(--lav);
+      border-color: rgb(244 244 239 / 0.4);
       transform: translateY(-2px);
-    }
-
-    .on-paper .card-hover:hover {
-      border-color: var(--violet);
     }
   }
 
@@ -374,35 +481,33 @@
     display: inline-flex;
     align-items: center;
     gap: 0.375rem;
-    min-height: 1.75rem;
-    padding: 0.1875rem 0.6875rem;
-    border: 1px solid var(--border);
+    min-height: 1.875rem;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid rgb(244 244 239 / 0.3);
     border-radius: var(--r-pill);
-    color: var(--fg-muted);
+    color: var(--fg);
     font-family: var(--ff-mono);
-    --mono: 1;
     font-size: var(--fs-micro);
     font-weight: 500;
+    letter-spacing: 0.06em;
     line-height: 1.2;
+    text-transform: uppercase;
     white-space: nowrap;
   }
 
+  /* Hebel und Warnungen */
   .tag-amber {
-    border-color: color-mix(in srgb, var(--amber) 60%, transparent);
+    border-color: color-mix(in srgb, var(--amber) 62%, transparent);
     color: var(--amber);
   }
 
-  .on-paper .tag-amber {
-    border-color: var(--ink);
-    background-color: var(--amber);
-    color: var(--ink);
-  }
-
+  /* Hervorhebung, z. B. «Neu» */
   .tag-solid {
-    border-color: var(--amber);
-    background-color: var(--amber);
+    border-color: var(--acid);
+    background-color: var(--acid);
     color: var(--ink);
     font-weight: 700;
+    box-shadow: var(--glow-acid);
   }
 
   /* ---------- Formularfelder ---------- */
@@ -416,7 +521,7 @@
   .label {
     color: var(--fg-strong);
     font-size: var(--fs-small);
-    font-weight: 650;
+    font-weight: 600;
     line-height: 1.4;
   }
 
@@ -427,13 +532,14 @@
 
   .input {
     width: 100%;
-    min-height: 3rem;
-    padding: 0.6875rem 0.875rem;
-    border: 1.5px solid var(--border-strong);
-    border-radius: var(--r-btn);
+    min-height: 3.25rem;
+    padding: 0.8125rem 1rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-input);
     background-color: var(--surface-deep);
     color: var(--fg-strong);
     font: inherit;
+    letter-spacing: inherit;
     line-height: 1.4;
     transition: border-color var(--dur-1) var(--ease);
   }
@@ -444,12 +550,12 @@
   }
 
   .input::placeholder {
-    color: color-mix(in srgb, var(--fg-muted) 78%, var(--surface-deep));
+    color: var(--fg-muted);
     opacity: 1;
   }
 
   .input:hover {
-    border-color: var(--accent);
+    border-color: var(--acid);
   }
 
   .input[aria-invalid='true'] {
@@ -493,7 +599,7 @@
     width: 1.375rem;
     height: 1.375rem;
     border: 1.5px solid var(--border-strong);
-    border-radius: 6px;
+    border-radius: var(--r-xs);
     background-color: var(--surface-deep);
     appearance: none;
     transition:
@@ -504,7 +610,7 @@
   .checkbox::before {
     width: 0.8rem;
     height: 0.8rem;
-    background-color: var(--white);
+    background-color: var(--ink);
     clip-path: polygon(14% 52%, 5% 63%, 38% 92%, 96% 22%, 85% 12%, 37% 68%);
     content: '';
     transform: scale(0);
@@ -512,8 +618,8 @@
   }
 
   .checkbox:checked {
-    border-color: var(--violet);
-    background-color: var(--violet);
+    border-color: var(--acid);
+    background-color: var(--acid);
   }
 
   .checkbox:checked::before {
@@ -547,39 +653,21 @@
     vertical-align: -0.2em;
   }
 
-  /* ---------- Textur: feines Netz aus Punkten und Linien (nur Hero und Footer) ---------- */
+  /* ---------- Kleinteile ---------- */
 
-  .net-texture {
-    position: relative;
-    isolation: isolate;
+  /* Leuchtpunkt: Status, aktive Schritte, Listenmarken */
+  .dot {
+    display: inline-block;
+    flex: none;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--acid);
+    box-shadow: 0 0 10px rgb(201 251 82 / 0.6);
   }
 
-  /*
-   * Das Netz ist die Maske einer weissen Fläche, kein Hintergrundbild. So zählt es für den
-   * Browser nicht als grösstes Bild der Seite (LCP bleibt die Headline), und solange die Datei
-   * lädt, ist schlicht nichts zu sehen. Die zweite Maske blendet nach unten (oder oben) aus.
-   */
-  .net-texture::before {
-    --net-fade: to bottom;
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    background-color: var(--white);
-    content: '';
-    opacity: 0.07;
-    pointer-events: none;
-    /* Die -webkit-Varianten für ältere Browser ergänzt der Build (Lightning CSS). */
-    mask-image:
-      url('../assets/net-texture.svg'),
-      linear-gradient(var(--net-fade), #000 0%, #000 55%, transparent 100%);
-    mask-size:
-      420px 420px,
-      100% 100%;
-    mask-repeat: repeat, no-repeat;
-    mask-composite: intersect;
-  }
-
-  .net-texture-up::before {
-    --net-fade: to top;
+  .dot-off {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px var(--border-strong);
   }
 }

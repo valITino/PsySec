@@ -60,7 +60,7 @@ const signals = [
     </header>
 
     <main id="inhalt">
-      <section class="sp-hero net-texture">
+      <section class="sp-hero dot-grid">
         <div class="wrap">
           <h1 class="sp-title display" data-text={TITLE}>
             <span class="sp-title-text">{TITLE}</span>
@@ -69,14 +69,14 @@ const signals = [
           <div class="sp-hero-grid">
             <div class="sp-intro">
               <p class="sp-sub">Zum Glück nur von uns.</p>
-              <p class="lead">
+              <p class="lead sp-lead">
                 Keine Sorge, es ist nichts passiert. Dieser Link war ein Test. Ein echter Betrüger
                 hätte Sie jetzt auf eine gefälschte Login- oder Zahlungsseite geführt.
               </p>
             </div>
 
             <div class="sp-clicked">
-              <p class="sp-clicked-label">Diesen Link haben Sie angeklickt:</p>
+              <p class="label-up sp-clicked-label">Diesen Link haben Sie angeklickt:</p>
               <p class="sp-url mono">
                 {clicked.map((part) =>
                   part.mark ? (
@@ -93,69 +93,74 @@ const signals = [
         </div>
       </section>
 
-      <section class="sp-section wrap" aria-labelledby="signale">
-        <p class="hexnum" aria-hidden="true">
-          0x01
-        </p>
-        <h2 class="display h2 sp-h2" id="signale">
-          Diese drei Signale hätten Sie warnen können
-        </h2>
-        <ol class="signals">
-          {signals.map((signal, index) => (
-            <li class="signal">
-              <span class="signal-top">
-                <span class="signal-icon">
-                  <Icon name={signal.icon} size={26} />
-                </span>
-                <span class="signal-num mono" aria-hidden="true">
-                  {index + 1}
-                </span>
-              </span>
-              <h3 class="h4 signal-title">{signal.title}</h3>
-              <p class="signal-text">{signal.text}</p>
-            </li>
-          ))}
-        </ol>
-      </section>
+      <section class="sheet sheet-space on-space" aria-labelledby="signale">
+        <div class="wrap">
+          <p class="hexnum" aria-hidden="true">
+            0x01
+          </p>
+          <h2 class="display h2 sp-h2" id="signale">
+            Diese drei Signale hätten Sie warnen können
+          </h2>
 
-      <section class="sp-section wrap" aria-labelledby="adressen">
-        <div class="lesen">
-          <div class="lesen-head">
-            <p class="hexnum" aria-hidden="true">
-              0x02
-            </p>
-            <h2 class="display h2 sp-h2" id="adressen">
-              Adressen lesen
-            </h2>
-          </div>
-          <div class="lesen-reader">
-            <AddressReader labelledby="adressen" />
-          </div>
-          <div class="lesen-rule">
-            <p class="lead">
-              Lesen Sie die Adresse bis zum ersten einzelnen ‹/›. Entscheidend ist, was direkt davor
-              steht, zum Beispiel ‹psyber.tech›.
-            </p>
-            <p class="lesen-tip mono">
-              <Icon name="smartphone" size={20} />
-              <span>
-                Auf dem Handy einen Link lange gedrückt halten. Dann sehen Sie die Adresse, bevor
-                Sie klicken.
-              </span>
-            </p>
-          </div>
+          <ol class="signals">
+            {signals.map((signal, index) => (
+              <li class="card signal">
+                <span class="signal-top">
+                  <span class="signal-icon">
+                    <Icon name={signal.icon} size={26} />
+                  </span>
+                  <span class="signal-num mono" aria-hidden="true">
+                    0{index + 1}
+                  </span>
+                </span>
+                <h3 class="display signal-title">{signal.title}</h3>
+                <p class="signal-text">{signal.text}</p>
+              </li>
+            ))}
+          </ol>
         </div>
       </section>
 
-      <section class="sp-section wrap">
-        <p class="sp-statement">
-          <span class="sp-statement-strong">Das passiert den meisten Menschen.</span>
-          Genau diese Hebel funktionieren bei uns allen, deshalb setzen Betrüger sie ein.
-        </p>
-      </section>
+      <section class="sheet" aria-labelledby="adressen">
+        <div class="wrap">
+          <div class="lesen">
+            <div class="lesen-head">
+              <p class="hexnum" aria-hidden="true">
+                0x02
+              </p>
+              <h2 class="display h2 sp-h2" id="adressen">
+                Adressen lesen
+              </h2>
+            </div>
 
-      <section class="sp-offer wrap">
-        <Offer />
+            <div class="lesen-reader">
+              <AddressReader labelledby="adressen" />
+            </div>
+
+            <div class="lesen-rule">
+              <p class="lead sp-lead">
+                Lesen Sie die Adresse bis zum ersten einzelnen ‹/›. Entscheidend ist, was direkt
+                davor steht, zum Beispiel ‹psyber.tech›.
+              </p>
+              <p class="lesen-tip mono">
+                <Icon name="smartphone" size={20} />
+                <span>
+                  Auf dem Handy einen Link lange gedrückt halten. Dann sehen Sie die Adresse, bevor
+                  Sie klicken.
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <p class="sp-statement">
+            <span class="sp-statement-strong">Das passiert den meisten Menschen.</span>
+            Genau diese Hebel funktionieren bei uns allen, deshalb setzen Betrüger sie ein.
+          </p>
+
+          <div class="sp-offer">
+            <Offer />
+          </div>
+        </div>
       </section>
     </main>
 
@@ -196,6 +201,8 @@ const signals = [
   }
 
   .sp-header {
+    position: relative;
+    z-index: 2;
     display: flex;
     align-items: center;
     height: var(--header-h);
@@ -203,18 +210,26 @@ const signals = [
 
   /* ---------- Auflösung ---------- */
 
+  /* Der Hero reicht unter den Kopf, damit sein Schein bis ganz nach oben geht */
   .sp-hero {
-    padding-block: clamp(1.5rem, 5vw, 4rem) clamp(3.5rem, 8vw, 7rem);
+    margin-top: calc(-1 * var(--header-h));
+    padding-block: calc(var(--header-h) + clamp(1rem, 4vw, 3rem))
+      calc(clamp(3.5rem, 8vw, 7rem) + var(--r-sheet));
+    background-image: radial-gradient(
+      60rem 36rem at 86% 10%,
+      rgb(61 30 134 / 0.6) 0%,
+      rgb(61 30 134 / 0) 70%
+    );
   }
 
+  /* «ERWISCHT!» füllt die Breite: 5.2 Geviert breit, also höchstens ein Sechstel der Breite hoch */
   .sp-title {
     position: relative;
     isolation: isolate;
     width: fit-content;
-    margin-left: -0.035em;
-    font-size: clamp(3.5rem, 19.5vw, 15.5rem);
-    letter-spacing: -0.035em;
-    line-height: 0.92;
+    margin-left: -0.03em;
+    font-size: clamp(3.25rem, 17vw, 15rem);
+    line-height: 0.9;
   }
 
   .sp-title-text {
@@ -243,7 +258,7 @@ const signals = [
   }
 
   .sp-title::after {
-    color: var(--violet);
+    color: var(--acid);
     animation: sp-ghost-b var(--sp-half) steps(1, end) var(--sp-cut) both;
   }
 
@@ -328,41 +343,39 @@ const signals = [
   .sp-hero-grid {
     display: grid;
     gap: clamp(2rem, 5vw, 3rem);
-    margin-top: clamp(1.25rem, 3vw, 2.5rem);
+    margin-top: clamp(1.5rem, 3vw, 2.5rem);
   }
 
   .sp-intro {
     display: grid;
-    gap: 1rem;
+    gap: 1.25rem;
     align-content: start;
   }
 
   .sp-sub {
-    color: var(--lav);
-    font-size: clamp(1.5rem, 1.1rem + 1.9vw, 2.5rem);
-    font-weight: 800;
-    letter-spacing: -0.015em;
-    line-height: 1.1;
-    --casl: 0.8;
+    color: var(--bone);
+    font-size: clamp(1.75rem, 1.1rem + 2.8vw, 3.5rem);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1.04;
+  }
+
+  .sp-lead {
+    color: var(--fg-muted);
   }
 
   .sp-clicked {
     display: grid;
-    gap: 0.75rem;
+    gap: 0.875rem;
     align-content: start;
   }
 
-  .sp-clicked-label {
-    color: var(--white);
-    font-weight: 650;
-  }
-
   .sp-url {
-    padding: 1.125rem clamp(1rem, 3.4vw, 1.5rem);
-    border: 1px solid var(--border-strong);
+    padding: 1.25rem clamp(1rem, 3.4vw, 1.5rem);
+    border: 1px solid var(--steel);
     border-radius: var(--r-card);
-    background-color: var(--deep);
-    color: var(--soft);
+    background-color: var(--pit);
+    color: var(--ash);
     font-size: clamp(0.8125rem, 0.43rem + 1.9vw, 1.1875rem);
     font-weight: 500;
     line-height: 1.6;
@@ -377,8 +390,8 @@ const signals = [
   .marker {
     position: relative;
     display: inline-block;
-    color: var(--white);
-    font-weight: 750;
+    color: var(--bone);
+    font-weight: 700;
   }
 
   .marker::after {
@@ -398,6 +411,7 @@ const signals = [
     from {
       clip-path: inset(0 100% 0 0);
     }
+
     to {
       clip-path: inset(0);
     }
@@ -405,13 +419,9 @@ const signals = [
 
   /* ---------- Sektionen ---------- */
 
-  .sp-section {
-    padding-block: clamp(3rem, 1.5rem + 5vw, 6rem);
-  }
-
   .sp-h2 {
-    max-width: 14em;
-    margin-top: 0.75rem;
+    max-width: 13em;
+    margin-top: 1rem;
   }
 
   /* ---------- Drei Signale ---------- */
@@ -419,33 +429,31 @@ const signals = [
   .signals {
     display: grid;
     gap: 1rem;
-    margin-top: clamp(2rem, 4vw, 3.5rem);
+    margin-top: clamp(2rem, 5vw, 4rem);
   }
 
   .signal {
     display: grid;
     align-content: start;
-    gap: 0.625rem;
-    padding: clamp(1.25rem, 1rem + 1.4vw, 2rem);
-    border: 1px solid var(--line);
-    border-radius: var(--r-card);
-    background-color: var(--aubergine);
+    gap: 0.75rem;
+    padding: clamp(1.5rem, 1rem + 1.8vw, 2.5rem);
+    border-radius: var(--r-panel);
   }
 
   .signal-top {
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
-    margin-bottom: clamp(0.75rem, 2vw, 1.75rem);
+    margin-bottom: clamp(1rem, 3vw, 2.5rem);
   }
 
   .signal-icon {
     display: grid;
     place-items: center;
-    width: 3.25rem;
-    height: 3.25rem;
-    border: 1px solid color-mix(in srgb, var(--amber) 55%, transparent);
-    border-radius: var(--r-btn);
+    width: 3.5rem;
+    height: 3.5rem;
+    border: 1px solid color-mix(in srgb, var(--amber) 62%, transparent);
+    border-radius: 50%;
     color: var(--amber);
   }
 
@@ -455,17 +463,19 @@ const signals = [
   }
 
   .signal-num {
-    color: var(--lav);
-    font-size: var(--fs-meta);
-    font-weight: 500;
+    color: var(--ash);
+    font-size: var(--fs-micro);
+    letter-spacing: 0.04em;
   }
 
   .signal-title {
-    font-size: clamp(1.25rem, 1.1rem + 0.6vw, 1.5rem);
+    font-size: clamp(1.5rem, 1.15rem + 1.2vw, 2.25rem);
+    letter-spacing: var(--ls-heading);
+    line-height: 1;
   }
 
   .signal-text {
-    color: var(--soft);
+    color: var(--ash);
     line-height: 1.5;
   }
 
@@ -486,46 +496,55 @@ const signals = [
     display: grid;
     grid-template-columns: auto minmax(0, 1fr);
     gap: 0.75rem;
-    max-width: 34em;
+    max-width: 36em;
     padding-top: 1.25rem;
-    border-top: 1px dashed var(--border-strong);
-    color: var(--lav);
-    font-size: var(--fs-small);
-    line-height: 1.55;
+    border-top: 1px dashed var(--steel);
+    color: var(--ash);
+    font-size: var(--fs-meta);
+    line-height: 1.6;
   }
 
   .lesen-tip :global(.icon) {
     margin-top: 0.125rem;
+    color: var(--acid);
   }
 
-  /* ---------- Entlastung ---------- */
+  /* ---------- Entlastung: zentriert, mit violettem Schein ---------- */
 
   .sp-statement {
-    max-width: 21em;
-    color: var(--lav);
-    font-size: clamp(1.625rem, 1rem + 2.9vw, 3.25rem);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    line-height: 1.12;
+    position: relative;
+    isolation: isolate;
+    max-width: 17em;
+    margin: clamp(5rem, 12vw, 11rem) auto;
+    color: var(--ash);
+    font-size: var(--fs-statement);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1.04;
+    text-align: center;
     text-wrap: balance;
-    --casl: 0.8;
+  }
+
+  .sp-statement::before {
+    position: absolute;
+    inset: -60% -20%;
+    z-index: -1;
+    background: radial-gradient(closest-side, rgb(61 30 134 / 0.5), rgb(61 30 134 / 0));
+    content: '';
+    pointer-events: none;
   }
 
   .sp-statement-strong {
     display: block;
-    color: var(--white);
+    color: var(--bone);
   }
 
-  /* ---------- Angebot und Footer ---------- */
-
-  .sp-offer {
-    padding-block: clamp(1rem, 3vw, 2rem) clamp(4rem, 9vw, 7rem);
-  }
+  /* ---------- Footer ---------- */
 
   .sp-footer {
-    border-top: 1px solid var(--line);
     padding-block: 1.75rem 2rem;
-    color: var(--lav);
+    border-top: 1px solid var(--hairline);
+    color: var(--ash);
     font-size: var(--fs-micro);
   }
 
@@ -546,6 +565,7 @@ const signals = [
     display: inline-flex;
     align-items: center;
     min-height: 2.75rem;
+    color: var(--bone);
     font-size: var(--fs-small);
   }
 
@@ -558,12 +578,8 @@ const signals = [
   @media (min-width: 60rem) {
     .sp-hero-grid {
       grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
-      align-items: start;
+      align-items: end;
       column-gap: clamp(2rem, 6vw, 5rem);
-    }
-
-    .sp-clicked {
-      padding-top: 0.375rem;
     }
 
     .lesen {

@@ -5,73 +5,101 @@
  */
 
 :root {
-  /* Farben (Abschnitt 4.1) */
-  --night: #140a29;
-  --aubergine: #261547;
-  --deep: #1b0d35;
-  --line: #3d2b68;
-  --lav: #ad9bf6;
-  --soft: #e7e1fb;
-  --white: #ffffff;
-  --violet: #6b40c9;
-  --violet-dark: #492293;
+  /* Flächen: Schwarz mit einem Hauch Aubergine */
+  --void: #08080b; /* Seitenhintergrund */
+  --carbon: #111115; /* Karten und Panels */
+  --graphite: #1a1a20; /* erhöhte Fläche innerhalb von Karten */
+  --pit: #0c0c10; /* Terminal, Code, Eingabefelder */
+  --hairline: #27272f; /* Linien auf Schwarz (nie für Text) */
+  --steel: #6d6d79; /* Rahmen von Bedienelementen, mindestens 3:1 */
+  --ash: #9c9ca6; /* Sekundärtext auf Schwarz */
+  --bone: #f4f4ef; /* Text und Überschriften */
+  --white: #ffffff; /* nur für Text auf Kritisch-Rot (Kontrast) */
+
+  /* Space: die violetten Panels */
+  --space: #3d1e86;
+  --space-deep: #2a1463;
+  --nebula: #b678f7; /* Glow und Lichtpunkte, nie für Text auf Space */
+  --haze: #cfc8e2; /* Sekundärtext auf Space */
+
+  /* Aktion */
+  --acid: #c9fb52;
+  --acid-hi: #dcff7d;
+  --ink: #08080b; /* Text auf Acid und Amber */
+
+  /* Warnsignale: nur dort, wo wirklich gewarnt wird */
   --amber: #f9ad26;
-  --paper: #f5f4fd;
-  --ink: #22172f;
-  --muted: #675e76;
 
   /* Statusfarben: nie ohne Icon und Text */
   --ok: #0ca30c;
   --warn: #fab219;
   --crit: #d03b3b;
 
-  /* Paket-Treppe */
-  --step-1: #ad9bf6;
-  --step-2: #8a6ee2;
-  --step-3: #6b40c9;
-  --step-4: #492293;
+  /* Paket-Treppe: violette Abstufung */
+  --step-1: #c9b4fb;
+  --step-2: #a37df2;
+  --step-3: #7a4ddb;
+  --step-4: #5429ad;
 
-  /* Semantische Rollen: Standard ist die dunkle Fläche */
-  --bg: var(--night);
-  --fg: var(--soft);
-  --fg-strong: var(--white);
-  --fg-muted: var(--lav);
-  --accent: var(--lav);
-  --border: var(--line);
-  /* Rahmen von Bedienelementen: mindestens 3:1 zum Hintergrund */
-  --border-strong: #7c68c0;
-  --surface: var(--aubergine);
-  --surface-deep: var(--deep);
-  --focus: var(--amber);
+  /* Semantische Rollen: Standard ist die schwarze Fläche */
+  --bg: var(--void);
+  --fg: var(--bone);
+  --fg-strong: var(--bone);
+  --fg-muted: var(--ash);
+  --accent: var(--acid);
+  --border: var(--hairline);
+  --border-strong: var(--steel);
+  --surface: var(--carbon);
+  --surface-raised: var(--graphite);
+  --surface-deep: var(--pit);
+  --focus: var(--acid);
 
   /* Schrift */
   --ff-sans:
-    'Recursive Variable', 'Recursive Fallback', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    'Manrope Variable', 'Manrope Fallback', system-ui, -apple-system, 'Segoe UI', sans-serif;
   --ff-mono:
-    'Recursive Variable', ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono',
+    'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono',
     'Courier New', monospace;
 
-  --fs-micro: 0.8125rem; /* 13 px */
-  --fs-meta: 0.875rem; /* 14 px */
+  --fs-micro: 0.75rem; /* 12 px: Labels in Mono */
+  --fs-meta: 0.8125rem; /* 13 px */
   --fs-small: 0.9375rem; /* 15 px */
-  --fs-body: 1.0625rem; /* 17 px */
-  --fs-lead: clamp(1.125rem, 1.05rem + 0.4vw, 1.3125rem);
-  --fs-h3: clamp(1.375rem, 1.2rem + 0.8vw, 1.875rem);
-  --fs-h2: clamp(2rem, 1.25rem + 3.3vw, 3.75rem);
-  --fs-h1: clamp(2.75rem, 1rem + 7vw, 6.5rem);
-  --fs-statement: clamp(2rem, 1rem + 4.6vw, 4.75rem);
-  --fs-number: clamp(3.5rem, 2rem + 6.4vw, 7rem);
+  --fs-body: clamp(1rem, 0.96rem + 0.18vw, 1.125rem);
+  --fs-lead: clamp(1.1875rem, 1.03rem + 0.62vw, 1.625rem);
+  --fs-h4: clamp(1.125rem, 1.05rem + 0.3vw, 1.3125rem);
+  --fs-h3: clamp(1.375rem, 1.05rem + 1.1vw, 2.125rem);
+  --fs-h2: clamp(1.9375rem, 0.9rem + 3.6vw, 4.5rem);
+  --fs-h1: clamp(2.375rem, 0.6rem + 5.8vw, 6.25rem);
+  --fs-display: clamp(2.25rem, 0.25rem + 6.5vw, 6.625rem);
+  --fs-statement: clamp(1.75rem, 0.95rem + 3.3vw, 4rem);
+  --fs-number: clamp(3.75rem, 1.8rem + 7vw, 8rem);
+
+  /* Schnitte und Laufweiten */
+  --fw-display: 650;
+  --ls-display: -0.045em;
+  --ls-heading: -0.035em;
+  --ls-body: -0.005em;
+  --ls-label: 0.08em;
 
   /* Layout */
-  --container: 75rem; /* 1200 px */
-  --gutter: clamp(1.25rem, 0.5rem + 3.2vw, 2.5rem);
-  --section-y: clamp(4.5rem, 2.25rem + 7.4vw, 10rem); /* 72 px bis 160 px */
-  --header-h: 4.5rem;
-  --r-card: 16px;
-  --r-btn: 12px;
+  --container: 90rem; /* 1440 px */
+  --gutter: clamp(1.25rem, 0.35rem + 3.1vw, 3.25rem);
+  --section-y: clamp(4.5rem, 2.4rem + 7vw, 9.5rem);
+  --header-h: 5.5rem;
+  --r-xs: 6px;
+  --r-input: 14px;
+  --r-card: 22px;
+  --r-panel: 30px;
+  --r-stage: clamp(28px, 3.2vw, 44px);
+  --r-sheet: clamp(24px, 3vw, 40px);
+  --r-btn: 999px;
   --r-pill: 999px;
 
-  /* Motion (Abschnitt 4.5) */
+  /* Licht */
+  --glow-acid: 0 0 22px rgb(201 251 82 / 0.22);
+  --glow-acid-hi: 0 0 32px rgb(201 251 82 / 0.4);
+
+  /* Motion */
   --dur-1: 150ms;
   --dur-2: 250ms;
   --dur-3: 400ms;
@@ -81,39 +109,32 @@
   color-scheme: dark;
 }
 
-@media (min-width: 48rem) {
-  :root {
-    --fs-body: 1.125rem; /* 18 px */
-  }
-}
-
-/* Helle Fläche: höchstens zwei Sektionen pro Seite */
-.on-paper {
-  --bg: var(--paper);
-  --fg: var(--ink);
-  --fg-strong: var(--ink);
-  --fg-muted: var(--muted);
-  --accent: var(--violet);
-  --border: color-mix(in srgb, var(--ink) 16%, transparent);
-  --border-strong: var(--muted);
-  --surface: var(--white);
-  --surface-deep: #ebe8f8;
-  color-scheme: light;
-  background-color: var(--bg);
+/*
+ * Space-Fläche: violettes Panel. Karten darauf bleiben schwarz und setzen die Rollen
+ * über .on-void (bzw. .card) wieder zurück.
+ */
+.on-space {
+  --bg: var(--space);
+  --fg: var(--bone);
+  --fg-strong: var(--bone);
+  --fg-muted: var(--haze);
+  --border: rgb(244 244 239 / 0.2);
+  --border-strong: rgb(244 244 239 / 0.52);
+  --surface: var(--carbon);
+  --surface-raised: var(--graphite);
+  --surface-deep: var(--pit);
   color: var(--fg);
 }
 
-/* Dunkle Fläche innerhalb einer hellen Sektion zurücksetzen */
-.on-dark {
-  --bg: var(--night);
-  --fg: var(--soft);
-  --fg-strong: var(--white);
-  --fg-muted: var(--lav);
-  --accent: var(--lav);
-  --border: var(--line);
-  --border-strong: #7c68c0;
-  --surface: var(--aubergine);
-  --surface-deep: var(--deep);
-  color-scheme: dark;
+.on-void {
+  --bg: var(--void);
+  --fg: var(--bone);
+  --fg-strong: var(--bone);
+  --fg-muted: var(--ash);
+  --border: var(--hairline);
+  --border-strong: var(--steel);
+  --surface: var(--carbon);
+  --surface-raised: var(--graphite);
+  --surface-deep: var(--pit);
   color: var(--fg);
 }

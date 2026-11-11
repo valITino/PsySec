@@ -1,15 +1,14 @@
 ---
 /**
- * 0x03 Lösungen: zwei nummerierte Karten, je mit Button.
+ * 0x03 Lösungen: zwei nummerierte, dunkle Karten auf violettem Bogen, je mit Button.
  */
 import Button from '@psyber/ui/components/Button.astro';
-import Card from '@psyber/ui/components/Card.astro';
-import Icon from '@psyber/ui/components/Icon.astro';
 import SectionHead from '../SectionHead.astro';
 
 const cards = [
   {
     num: '01',
+    label: 'Vor dem Klick',
     title: 'Layer 8: Menschen stärken',
     text: 'Wir erklären die Tricks hinter Phishing, Anlagebetrug, Romance Scam und Cybermobbing, zeigen, welche Spuren Ihre Familie online hinterlässt, und üben das Erkennen an echten Beispielen.',
     points: [
@@ -21,6 +20,7 @@ const cards = [
   },
   {
     num: '02',
+    label: 'Nach dem Klick',
     title: 'Heimnetz: Technik absichern',
     text: 'Wir richten Router, Gästenetz und DNS-Filter ein, schützen die Geräte der Kinder, sorgen für Passwort-Manager und Backup und zeigen Ihnen, welche Geräte im Netz sind und was blockiert wird.',
     points: [
@@ -34,7 +34,7 @@ const cards = [
 ];
 ---
 
-<section class="section" id="angebot" aria-labelledby="angebot-title">
+<section class="sheet sheet-space on-space" id="angebot" aria-labelledby="angebot-title">
   <div class="wrap">
     <SectionHead
       num="0x03"
@@ -45,17 +45,23 @@ const cards = [
 
     <div class="solutions">
       {cards.map((card) => (
-        <Card as="article" hover class="solution">
-          <p class="solution-num mono" aria-hidden="true">
+        <article class="card solution">
+          <span class="solution-ghost" aria-hidden="true">
             {card.num}
+          </span>
+          <p class="label-up solution-label">
+            <span class="hexnum" aria-hidden="true">
+              {card.num}
+            </span>
+            {card.label}
           </p>
-          <h3 class="h3">{card.title}</h3>
+          <h3 class="display solution-title">{card.title}</h3>
           <p class="solution-text">{card.text}</p>
           <ul class="solution-points">
             {card.points.map((point) => (
               <li>
-                <Icon name="check" size={18} strokeWidth={2.2} />
                 <span>{point}</span>
+                <i class="dot" aria-hidden="true" />
               </li>
             ))}
           </ul>
@@ -64,7 +70,7 @@ const cards = [
               {card.button.label}
             </Button>
           </div>
-        </Card>
+        </article>
       ))}
     </div>
   </div>
@@ -74,48 +80,78 @@ const cards = [
   .solutions {
     display: grid;
     gap: 1.5rem;
-    margin-top: clamp(2.5rem, 6vw, 4.5rem);
+    margin-top: clamp(2.5rem, 6vw, 5rem);
   }
 
-  .solutions :global(.solution) {
+  .solution {
+    position: relative;
     display: grid;
     grid-template-rows: auto auto auto 1fr auto;
     gap: 1.25rem;
+    overflow: hidden;
+    padding: clamp(1.5rem, 1rem + 2.4vw, 3rem);
+    border-radius: var(--r-panel);
+    background-image:
+      radial-gradient(26rem 18rem at 100% 0%, rgb(182 120 247 / 0.2), transparent 70%),
+      linear-gradient(165deg, rgb(244 244 239 / 0.045) 0%, transparent 45%);
   }
 
-  .solution-num {
-    color: var(--lav);
-    font-size: clamp(2.5rem, 5vw, 3.75rem);
-    font-weight: 300;
+  /* Grosse Nummer als Kontur in der Ecke */
+  .solution-ghost {
+    position: absolute;
+    top: -0.16em;
+    right: 0.04em;
+    color: transparent;
+    font-size: clamp(6rem, 3.5rem + 10vw, 13rem);
+    font-weight: 800;
+    letter-spacing: -0.06em;
     line-height: 1;
+    pointer-events: none;
+    -webkit-text-stroke: 1px rgb(244 244 239 / 0.14);
+  }
+
+  .solution-label {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .solution-title {
+    position: relative;
+    max-width: 9em;
+    font-size: clamp(2rem, 1.1rem + 3.4vw, 4rem);
   }
 
   .solution-text {
+    position: relative;
     max-width: 34em;
+    color: var(--fg-muted);
   }
 
   .solution-points {
     display: grid;
     align-content: start;
-    gap: 0.625rem;
-    padding-top: 1.25rem;
-    border-top: 1px solid var(--line);
+    margin-top: 0.5rem;
+    border-top: 1px solid var(--border);
   }
 
   .solution-points li {
     display: flex;
-    align-items: flex-start;
-    gap: 0.75rem;
-  }
-
-  .solution-points :global(.icon) {
-    flex: none;
-    margin-top: 0.3em;
-    color: var(--lav);
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.9375rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--fg-strong);
+    font-size: var(--fs-h4);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
   }
 
   .solution-action {
-    margin-top: 0.75rem;
+    margin-top: 1rem;
   }
 
   @media (min-width: 56rem) {

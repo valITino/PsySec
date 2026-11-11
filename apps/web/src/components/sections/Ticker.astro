@@ -24,11 +24,16 @@ const phrases = [
 const rows = [phrases.slice(0, 6), phrases.slice(6)];
 ---
 
-<section class="ticker" aria-labelledby="ticker-title" data-ticker>
+<section class="sheet sheet-space on-space ticker" aria-labelledby="ticker-title" data-ticker>
   <div class="wrap ticker-head">
-    <h2 id="ticker-title" class="ticker-title">
-      Sätze, bei denen Sie stutzig werden sollten.
-    </h2>
+    <div class="ticker-heading">
+      <p class="kicker">
+        <span aria-hidden="true">// </span>Phishing-Ticker
+      </p>
+      <h2 id="ticker-title" class="display h2 ticker-title">
+        Sätze, bei denen Sie stutzig werden sollten.
+      </h2>
+    </div>
     <button type="button" class="ticker-toggle" aria-pressed="false" data-ticker-toggle>
       <span class="ticker-icon ticker-icon-pause">
         <Icon name="pause" size={16} />
@@ -66,39 +71,45 @@ const rows = [phrases.slice(0, 6), phrases.slice(6)];
 
 <style>
   .ticker {
-    padding-block: clamp(3rem, 6vw, 4.5rem);
-    border-block: 1px solid var(--line);
-    background-color: var(--aubergine);
     overflow: clip;
   }
 
   .ticker-head {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    align-items: flex-end;
     justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .ticker-heading {
+    display: grid;
     gap: 1rem;
   }
 
   .ticker-title {
-    font-size: clamp(1.25rem, 1.05rem + 0.9vw, 1.625rem);
-    font-weight: 800;
-    letter-spacing: -0.01em;
-    line-height: 1.2;
-    --casl: 0.6;
+    max-width: 14em;
   }
 
   .ticker-toggle {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.625rem;
     min-height: 2.75rem;
-    padding-inline: 0.875rem;
+    padding-inline: 1.125rem;
     border: 1px solid var(--border-strong);
     border-radius: var(--r-pill);
-    color: var(--soft);
+    color: var(--fg-strong);
+    font-family: var(--ff-mono);
     font-size: var(--fs-micro);
-    font-weight: 600;
+    font-weight: 500;
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+    transition: border-color var(--dur-2) var(--ease);
+  }
+
+  .ticker-toggle:hover {
+    border-color: var(--acid);
   }
 
   .ticker-icon {
@@ -116,51 +127,57 @@ const rows = [phrases.slice(0, 6), phrases.slice(6)];
 
   .ticker-rows {
     display: grid;
-    gap: 0.75rem;
-    margin-top: 1.75rem;
+    gap: 0.875rem;
+    margin-top: clamp(2rem, 5vw, 4rem);
   }
 
   .ticker-row {
     display: flex;
     width: max-content;
-    animation: ticker 48s linear infinite;
+    animation: ticker 52s linear infinite;
   }
 
   .ticker-row-reverse {
     animation-direction: reverse;
-    animation-duration: 56s;
+    animation-duration: 60s;
   }
 
   .ticker-list {
     display: flex;
     flex: none;
-    gap: 0.75rem;
-    padding-right: 0.75rem;
+    gap: 0.875rem;
+    padding-right: 0.875rem;
   }
 
+  /* Dunkle Kachel auf Violett */
   .pill {
     display: inline-flex;
     align-items: center;
-    gap: 0.75rem;
-    min-height: 3rem;
-    padding: 0.5rem 0.625rem 0.5rem 1.125rem;
-    border: 1px solid var(--line);
-    border-radius: var(--r-pill);
-    background-color: var(--night);
+    gap: 1rem;
+    min-height: 4.5rem;
+    padding: 0.875rem 1.125rem 0.875rem 1.625rem;
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-card);
+    background-color: var(--carbon);
     white-space: nowrap;
   }
 
   .pill-text {
-    color: var(--white);
-    font-weight: 550;
+    color: var(--bone);
+    font-size: var(--fs-h4);
+    font-weight: 500;
+    letter-spacing: -0.02em;
   }
 
   .pill-lever {
-    padding: 0.1875rem 0.625rem;
+    padding: 0.3125rem 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--amber) 62%, transparent);
     border-radius: var(--r-pill);
-    background-color: color-mix(in srgb, var(--amber) 16%, transparent);
     color: var(--amber);
     font-size: var(--fs-micro);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
   }
 
   /* Pausiert bei Hover, bei Fokus und wenn der Button gedrückt ist */
@@ -201,6 +218,7 @@ const rows = [phrases.slice(0, 6), phrases.slice(6)];
     }
 
     .pill {
+      min-height: 3.5rem;
       white-space: normal;
     }
 

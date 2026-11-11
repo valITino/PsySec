@@ -7,19 +7,23 @@
   --color-*: initial;
   --color-transparent: transparent;
   --color-current: currentColor;
-  --color-night: var(--night);
-  --color-aubergine: var(--aubergine);
-  --color-deep: var(--deep);
-  --color-line: var(--line);
-  --color-lav: var(--lav);
-  --color-soft: var(--soft);
+  --color-void: var(--void);
+  --color-carbon: var(--carbon);
+  --color-graphite: var(--graphite);
+  --color-pit: var(--pit);
+  --color-hairline: var(--hairline);
+  --color-steel: var(--steel);
+  --color-ash: var(--ash);
+  --color-bone: var(--bone);
   --color-white: var(--white);
-  --color-violet: var(--violet);
-  --color-violet-dark: var(--violet-dark);
-  --color-amber: var(--amber);
-  --color-paper: var(--paper);
+  --color-space: var(--space);
+  --color-space-deep: var(--space-deep);
+  --color-nebula: var(--nebula);
+  --color-haze: var(--haze);
+  --color-acid: var(--acid);
+  --color-acid-hi: var(--acid-hi);
   --color-ink: var(--ink);
-  --color-muted: var(--muted);
+  --color-amber: var(--amber);
   --color-ok: var(--ok);
   --color-warn: var(--warn);
   --color-crit: var(--crit);
@@ -31,6 +35,7 @@
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
   --color-surface-deep: var(--surface-deep);
 
   --font-sans: var(--ff-sans);
@@ -43,6 +48,7 @@
   --text-lead: var(--fs-lead);
 
   --radius-card: var(--r-card);
+  --radius-panel: var(--r-panel);
   --radius-btn: var(--r-btn);
   --radius-pill: var(--r-pill);
 

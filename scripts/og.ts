@@ -1,9 +1,9 @@
 // OG-Bilder 1200×630 im Markenlook.
 //
-// Statt satori nutzen wir fontkit + resvg: satori kann weder WOFF2 noch die Achsen einer
-// Variable Font. fontkit liest Recursive direkt aus @fontsource-variable/recursive, stellt
-// CASL, MONO und wght ein und liefert die Buchstaben als Pfade. So sehen die Bilder exakt
-// aus wie die Website, ohne dass eine zweite Schriftdatei gepflegt werden muss.
+// Statt satori nutzen wir fontkit + resvg: satori kann weder WOFF2 noch Variable Fonts.
+// fontkit liest Manrope und Geist Mono direkt aus den Fontsource-Paketen, stellt das Gewicht
+// ein und liefert die Buchstaben als Pfade. So sehen die Bilder aus wie die Website, ohne dass
+// eine zweite Schriftdatei gepflegt werden muss.
 import { Resvg } from '@resvg/resvg-js';
 import * as fontkit from 'fontkit';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -24,39 +24,49 @@ import {
 const WIDTH = 1200;
 const HEIGHT = 630;
 const C = {
-  night: '#140a29',
-  lav: '#ad9bf6',
-  soft: '#e7e1fb',
-  white: '#ffffff',
-  violet: '#6b40c9',
-  amber: '#f9ad26',
-  line: '#3d2b68',
+  void: '#08080b',
+  ash: '#9c9ca6',
+  bone: '#f4f4ef',
+  haze: '#cfc8e2',
+  space: '#3d1e86',
+  nebula: '#b678f7',
+  acid: '#c9fb52',
 };
-
-interface Axes {
-  wght: number;
-  CASL: number;
-  MONO: number;
-}
 
 type Font = fontkit.Font;
 
-async function loadRecursive(root: string): Promise<Font> {
+interface Fonts {
+  sans: Font;
+  mono: Font;
+}
+
+async function loadFont(root: string, file: string): Promise<Font> {
   const require = createRequire(resolve(root, 'packages/ui/package.json'));
-  const file =
-    require.resolve('@fontsource-variable/recursive/files/recursive-latin-full-normal.woff2');
-  const ttf = Buffer.from(await wawoff2.decompress(readFileSync(file)));
+  const ttf = Buffer.from(await wawoff2.decompress(readFileSync(require.resolve(file))));
   return fontkit.create(ttf) as Font;
+}
+
+async function loadFonts(root: string): Promise<Fonts> {
+  return {
+    sans: await loadFont(
+      root,
+      '@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2',
+    ),
+    mono: await loadFont(
+      root,
+      '@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2',
+    ),
+  };
 }
 
 /** Text als SVG-Pfad. `x`, `y` = linke Kante und Grundlinie. */
 function textPath(
   base: Font,
-  axes: Axes,
+  weight: number,
   text: string,
   options: { x: number; y: number; size: number; fill: string; tracking?: number },
 ): { svg: string; width: number } {
-  const font = base.getVariation({ ...axes, slnt: 0, CRSV: 0.5 });
+  const font = base.getVariation({ wght: weight });
   const scale = options.size / font.unitsPerEm;
   const tracking = (options.tracking ?? 0) * font.unitsPerEm;
   const run = font.layout(text);
@@ -83,35 +93,28 @@ function textPath(
 /** Psi-Netz aus denselben Daten wie die Astro-Komponente */
 function psiNet(x: number, y: number, scale: number, opacity: number): string {
   const nodes = whiteNodes
-    .map(([cx, cy]) => `<circle cx="${cx}" cy="${cy}" r="1.3" fill="${C.white}"/>`)
+    .map(([cx, cy]) => `<circle cx="${cx}" cy="${cy}" r="1.3" fill="${C.bone}"/>`)
     .join('');
   const sides = sideNodes
-    .map(([cx, cy]) => `<circle cx="${cx}" cy="${cy}" r="0.9" fill="${C.white}"/>`)
+    .map(([cx, cy]) => `<circle cx="${cx}" cy="${cy}" r="0.9" fill="${C.bone}"/>`)
     .join('');
   const ends = amberEnds
-    .map(([cx, cy]) => `<circle cx="${cx}" cy="${cy}" r="2.3" fill="${C.amber}"/>`)
+    .map(([cx, cy]) => `<circle cx="${cx}" cy="${cy}" r="2.3" fill="${C.acid}"/>`)
     .join('');
   const arcs = signalArcs
     .map(
       ({ r, opacity: o }) =>
-        `<path d="${arcPath(r)}" fill="none" stroke="${C.amber}" stroke-width="1.1" stroke-linecap="round" opacity="${o}"/>`,
+        `<path d="${arcPath(r)}" fill="none" stroke="${C.acid}" stroke-width="1.1" stroke-linecap="round" opacity="${o}"/>`,
     )
     .join('');
   return `<g transform="translate(${x} ${y}) scale(${scale})" opacity="${opacity}">
-    <path d="${crossPath}" fill="none" stroke="${C.lav}" stroke-width="0.5" opacity="0.45"/>
-    <g fill="none" stroke="${C.lav}" stroke-width="0.95" stroke-linecap="round" stroke-linejoin="round">
+    <path d="${crossPath}" fill="none" stroke="${C.haze}" stroke-width="0.5" opacity="0.45"/>
+    <g fill="none" stroke="${C.haze}" stroke-width="0.95" stroke-linecap="round" stroke-linejoin="round">
       <polyline points="${shellPoints}"/>
       <path d="M${stem.x} ${stem.top}V${stem.bottom}M${sideNodes[0]![0]} ${sideNodes[0]![1]}H${sideNodes[1]![0]}"/>
     </g>
     ${nodes}${sides}${ends}${arcs}
   </g>`;
-}
-
-/** Kachelbare Netz-Textur aus packages/ui als <pattern> */
-function texture(root: string): string {
-  const file = readFileSync(resolve(root, 'packages/ui/src/assets/net-texture.svg'), 'utf8');
-  const inner = file.replace(/^<svg[^>]*>/, '').replace(/<\/svg>\s*$/, '');
-  return `<pattern id="net" width="420" height="420" patternUnits="userSpaceOnUse">${inner}</pattern>`;
 }
 
 interface Card {
@@ -126,64 +129,78 @@ interface Card {
 
 const PSI_ICON = 'M2 2.2 C2 7 4 9.2 6 9.2 C8 9.2 10 7 10 2.2 M6 0.8 V13.2';
 
-function render(root: string, font: Font, card: Card): Buffer {
-  const display: Axes = { wght: 900, CASL: 1, MONO: 0 };
-  const mono: Axes = { wght: 500, CASL: 0, MONO: 1 };
-  const left = 80;
+function render(fonts: Fonts, card: Card): Buffer {
+  const left = 72;
 
-  const kicker = textPath(font, mono, `// ${card.kicker}`, {
+  const kicker = textPath(fonts.mono, 500, `// ${card.kicker.toLocaleUpperCase('de-CH')}`, {
     x: left,
-    y: 196,
-    size: 25,
-    fill: C.lav,
+    y: 192,
+    size: 19,
+    fill: C.ash,
+    tracking: 0.08,
   });
-  const lineHeight = card.size * 1.02;
-  const firstBaseline = 196 + 40 + card.size * 0.78;
+  // Etwas Luft zwischen den Zeilen: Die Punkte von Ä, Ö, Ü stossen sonst an die Zeile darüber.
+  const lineHeight = card.size * 1.0;
+  const firstBaseline = 192 + 34 + card.size * 0.74;
   const headline = card.lines
     .map(
       (line, index) =>
-        textPath(font, display, line, {
+        textPath(fonts.sans, 650, line.toLocaleUpperCase('de-CH'), {
           x: left,
           y: firstBaseline + index * lineHeight,
           size: card.size,
-          fill: C.white,
-          tracking: -0.02,
+          fill: C.bone,
+          tracking: -0.045,
         }).svg,
     )
     .join('');
 
-  const wordmark = textPath(font, display, 'PSYber', {
-    x: left + 46,
-    y: 104,
-    size: 44,
-    fill: C.white,
-    tracking: -0.02,
+  const wordmark = textPath(fonts.sans, 800, 'PSYber', {
+    x: left + 44,
+    y: 100,
+    size: 42,
+    fill: C.bone,
+    tracking: -0.045,
   });
-  const footer = textPath(font, mono, card.footer, { x: left, y: 560, size: 23, fill: C.soft });
+  const footer = textPath(fonts.mono, 500, card.footer, {
+    x: left,
+    y: 560,
+    size: 20,
+    fill: C.haze,
+    tracking: 0.02,
+  });
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
   <defs>
-    ${texture(root)}
+    <radialGradient id="orb" cx="0.62" cy="0.24" r="0.8">
+      <stop offset="0" stop-color="#3a2180"/>
+      <stop offset="0.45" stop-color="#1c0f45"/>
+      <stop offset="1" stop-color="#0b0719"/>
+    </radialGradient>
     <radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
-      <stop offset="0" stop-color="${C.violet}" stop-opacity="0.5"/>
-      <stop offset="1" stop-color="${C.violet}" stop-opacity="0"/>
+      <stop offset="0" stop-color="${C.space}" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="${C.space}" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="fade" x1="0" y1="0" x2="1" y2="0">
-      <stop offset="0" stop-color="${C.night}" stop-opacity="1"/>
-      <stop offset="0.55" stop-color="${C.night}" stop-opacity="0.82"/>
-      <stop offset="1" stop-color="${C.night}" stop-opacity="0"/>
+      <stop offset="0" stop-color="${C.void}" stop-opacity="1"/>
+      <stop offset="0.6" stop-color="${C.void}" stop-opacity="0.72"/>
+      <stop offset="1" stop-color="${C.void}" stop-opacity="0"/>
     </linearGradient>
+    <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse">
+      <circle cx="11" cy="11" r="1" fill="${C.bone}" opacity="0.14"/>
+    </pattern>
   </defs>
-  <rect width="${WIDTH}" height="${HEIGHT}" fill="${C.night}"/>
-  <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#net)" opacity="0.07"/>
-  <circle cx="985" cy="330" r="390" fill="url(#glow)"/>
-  ${psiNet(770, 78, 3.6, 0.95)}
-  <rect width="780" height="${HEIGHT}" fill="url(#fade)"/>
-  <g transform="translate(${left} 63) scale(3.1)" fill="none" stroke="${C.lav}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="${PSI_ICON}"/></g>
+  <rect width="${WIDTH}" height="${HEIGHT}" fill="${C.void}"/>
+  <rect width="${WIDTH}" height="${HEIGHT}" fill="url(#dots)"/>
+  <circle cx="960" cy="330" r="560" fill="url(#glow)"/>
+  <circle cx="960" cy="330" r="300" fill="url(#orb)" stroke="${C.nebula}" stroke-opacity="0.6" stroke-width="1.5"/>
+  ${psiNet(798, 122, 2.7, 0.95)}
+  <rect width="760" height="${HEIGHT}" fill="url(#fade)"/>
+  <g transform="translate(${left} 60) scale(3)" fill="none" stroke="${C.acid}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="${PSI_ICON}"/></g>
   ${wordmark.svg}
   ${kicker.svg}
   ${headline}
-  <rect x="${left}" y="518" width="56" height="3" rx="1.5" fill="${C.amber}"/>
+  <rect x="${left}" y="516" width="64" height="4" rx="2" fill="${C.acid}"/>
   ${footer.svg}
 </svg>`;
 
@@ -191,7 +208,7 @@ function render(root: string, font: Font, card: Card): Buffer {
 }
 
 export async function renderOgImages(root: string): Promise<void> {
-  const font = await loadRecursive(root);
+  const fonts = await loadFonts(root);
   const cards: Card[] = [
     {
       out: 'apps/web/public/og/psyber.png',
@@ -204,7 +221,7 @@ export async function renderOgImages(root: string): Promise<void> {
       out: 'apps/web/public/og/checkliste.png',
       kicker: 'Checkliste zum Ausdrucken',
       lines: ['5 Warnsignale', 'für Online-Betrug'],
-      size: 92,
+      size: 84,
       footer: 'Pause statt Panik.  ·  psyber.tech/checkliste',
     },
     {
@@ -218,7 +235,7 @@ export async function renderOgImages(root: string): Promise<void> {
   for (const card of cards) {
     const target = resolve(root, card.out);
     mkdirSync(resolve(target, '..'), { recursive: true });
-    writeFileSync(target, render(root, font, card));
+    writeFileSync(target, render(fonts, card));
     console.log(`OG-Bild → ${card.out}`);
   }
 }

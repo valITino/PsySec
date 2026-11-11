@@ -3,7 +3,7 @@
  * Gemeinsamer <head> der drei Websites: Meta, Canonical, Open Graph, Favicons, Schrift-Preload.
  * Das CSP-Meta-Tag ergänzt Astro selbst (security.csp).
  */
-import { recursiveLatinUrl } from '../lib/font.ts';
+import { sansLatinUrl } from '../lib/font.ts';
 
 interface Props {
   title: string;
@@ -35,11 +35,11 @@ const {
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
 {noindex && <meta name="robots" content="noindex, nofollow" />}
-<meta name="theme-color" content="#140a29" />
+<meta name="theme-color" content="#08080b" />
 <meta name="color-scheme" content="dark" />
 <meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
 
-<link rel="preload" href={recursiveLatinUrl} as="font" type="font/woff2" crossorigin />
+<link rel="preload" href={sansLatinUrl} as="font" type="font/woff2" crossorigin />
 
 <link rel="icon" href={`${base}/favicon.ico`} sizes="32x32" />
 <link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />

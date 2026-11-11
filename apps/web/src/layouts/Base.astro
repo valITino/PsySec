@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import BaseHead from '@psyber/ui/components/BaseHead.astro';
 import PreviewNote from '@psyber/ui/components/PreviewNote.astro';
+import Chrome from '../components/Chrome.astro';
 import { absoluteUrl, basePath, contact, meta, sites } from '../config/site.ts';
 
 interface Props {
@@ -12,6 +13,8 @@ interface Props {
   noindex?: boolean;
   ogImage?: string;
   bodyClass?: string;
+  /** Fortschritts-Anzeige am Rand (Startseite) */
+  progress?: boolean;
 }
 
 const {
@@ -21,6 +24,7 @@ const {
   noindex = false,
   ogImage = meta.ogImage,
   bodyClass,
+  progress = false,
 } = Astro.props;
 ---
 
@@ -47,5 +51,6 @@ const {
       <slot />
     </main>
     <slot name="footer" />
+    <Chrome progress={progress} />
   </body>
 </html>

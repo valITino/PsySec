@@ -1,41 +1,68 @@
 /**
- * Header: Hintergrund nach 40 px Scroll, mobiles Vollbild-Menü mit Fokusfalle.
+ * Header: oben volle Leiste, nach dem Scrollen eine schwebende Kapsel; dazu das Vollbild-Menü
+ * mit Fokusfalle.
  */
+import { motionAllowed } from '@psyber/ui/motion';
+
 export interface ScrollLock {
   stop(): void;
   start(): void;
 }
 
+/** Ab hier wird die Leiste zur Kapsel, darunter wieder zur Leiste (Abstand gegen Flackern). */
+const CAPSULE_ON = 96;
+const CAPSULE_OFF = 40;
+const MORPH_MS = 150;
+
 export function initHeader(lock: () => ScrollLock | null): void {
   const header = document.querySelector<HTMLElement>('[data-header]');
   if (!header) return;
 
-  // --- Hintergrund nach 40 px ---
+  // --- Leiste oder Kapsel ---
+  let scrolled = false;
   let ticking = false;
-  const update = () => {
+  let morph = 0;
+  const update = (animate = true) => {
     ticking = false;
-    header.classList.toggle('is-scrolled', window.scrollY > 40);
+    const y = window.scrollY;
+    const next = scrolled ? y > CAPSULE_OFF : y > CAPSULE_ON;
+    if (next === scrolled) return;
+    scrolled = next;
+    window.clearTimeout(morph);
+    if (!animate || !motionAllowed()) {
+      header.classList.remove('is-morphing');
+      header.classList.toggle('is-scrolled', scrolled);
+      return;
+    }
+    // Kurz abtauchen, Form wechseln, wieder auftauchen.
+    header.classList.add('is-morphing');
+    morph = window.setTimeout(() => {
+      header.classList.toggle('is-scrolled', scrolled);
+      header.classList.remove('is-morphing');
+    }, MORPH_MS);
   };
   window.addEventListener(
     'scroll',
     () => {
       if (!ticking) {
         ticking = true;
-        requestAnimationFrame(update);
+        requestAnimationFrame(() => update());
       }
     },
     { passive: true },
   );
-  update();
+  update(false);
 
-  // --- Mobiles Menü ---
+  // --- Vollbild-Menü ---
   const toggle = header.querySelector<HTMLButtonElement>('[data-menu-toggle]');
   const menu = header.querySelector<HTMLElement>('[data-menu]');
   const label = header.querySelector<HTMLElement>('[data-menu-label]');
   if (!toggle || !menu || !label) return;
 
   const outside = () => [
-    ...document.querySelectorAll<HTMLElement>('main, footer, .skip-link, [data-preview-note]'),
+    ...document.querySelectorAll<HTMLElement>(
+      'main, footer, .skip-link, [data-preview-note], [data-chrome]',
+    ),
   ];
   const focusables = () =>
     [...header.querySelectorAll<HTMLElement>('a[href], button:not([disabled])')].filter(
@@ -55,6 +82,7 @@ export function initHeader(lock: () => ScrollLock | null): void {
     if (open) {
       lock()?.stop();
       document.documentElement.classList.add('scroll-locked');
+      menu.scrollTop = 0;
       menu.querySelector<HTMLElement>('[data-menu-link]')?.focus({ preventScroll: true });
     } else {
       document.documentElement.classList.remove('scroll-locked');
@@ -91,10 +119,5 @@ export function initHeader(lock: () => ScrollLock | null): void {
       event.preventDefault();
       first.focus();
     }
-  });
-
-  // Wechsel auf Desktop-Breite: Menü schliessen.
-  window.matchMedia('(min-width: 64rem)').addEventListener('change', (event) => {
-    if (event.matches) setOpen(false, false);
   });
 }

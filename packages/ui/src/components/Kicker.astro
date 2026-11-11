@@ -1,14 +1,25 @@
 ---
-/** Kicker als Code-Kommentar: «// So arbeiten wir». Die Schrägstriche sind Dekoration. */
+/**
+ * Kicker als Code-Kommentar in gesperrten Versalien: «0x01 // SO ARBEITEN WIR».
+ * Nummer und Schrägstriche sind Dekoration. `raw` lässt die Schreibweise unverändert (Befehle).
+ */
 interface Props {
   class?: string;
   as?: 'p' | 'span' | 'div';
+  /** Abschnittsnummer in Hex, z. B. '0x01' */
+  num?: string;
+  raw?: boolean;
 }
 
-const { class: className, as: Tag = 'p' } = Astro.props;
+const { class: className, as: Tag = 'p', num, raw = false } = Astro.props;
 ---
 
-<Tag class:list={['kicker', className]}>
+<Tag class:list={['kicker', { 'kicker-raw': raw }, className]}>
+  {num && (
+    <span class="hexnum" aria-hidden="true">
+      {num}{' '}
+    </span>
+  )}
   <span aria-hidden="true">// </span>
   <slot />
 </Tag>

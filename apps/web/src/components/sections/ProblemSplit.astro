@@ -1,9 +1,10 @@
 ---
 /**
  * 0x01 Problem-Split: zwei Einfallstore, darunter das Zahlenband.
+ * Violetter Bogen direkt nach dem Hero. Die Linie zwischen Überschrift und Spalten zeigt die
+ * acht Schichten: Layer 8 (der Mensch) links, darunter die sieben technischen.
  * Zahlen nur aus Abschnitt 5.17 des Auftrags, jeweils mit Quellenlink.
  */
-import Card from '@psyber/ui/components/Card.astro';
 import Icon from '@psyber/ui/components/Icon.astro';
 import Tag from '@psyber/ui/components/Tag.astro';
 import { sources } from '../../config/site.ts';
@@ -54,30 +55,43 @@ const stats = [
 ];
 ---
 
-<section class="section" aria-labelledby="problem-title">
+<section class="sheet sheet-space on-space problem" aria-labelledby="problem-title">
   <div class="wrap">
     <SectionHead
       num="0x01"
       kicker="Wo Familien angreifbar sind"
       title="Zwei Einfallstore. Derselbe Schaden."
       id="problem-title"
+      size="xl"
     />
+
+    <div class="osi" aria-hidden="true">
+      <div class="osi-human">
+        <span class="osi-dot"></span>
+        <span class="osi-pill">Layer 8</span>
+      </div>
+      <ol class="osi-tech">
+        {[7, 6, 5, 4, 3, 2, 1].map((layer) => (
+          <li>{layer}</li>
+        ))}
+      </ol>
+    </div>
 
     <div class="split">
       {cards.map((card) => (
-        <Card as="article" hover class="split-card">
-          <p class="split-layer mono">
-            <Icon name={card.icon} size={18} />
+        <article class="split-col">
+          <p class="label-up split-layer">
+            <Icon name={card.icon} size={16} />
             {card.layer}
           </p>
-          <h3 class="h3 split-title">{card.title}</h3>
+          <h3 class="display split-title">{card.title}</h3>
           <p class="split-text">{card.text}</p>
           <ul class="split-tags" aria-label="Themen">
             {card.tags.map((tag) => (
               <Tag as="li">{tag}</Tag>
             ))}
           </ul>
-        </Card>
+        </article>
       ))}
     </div>
 
@@ -98,7 +112,7 @@ const stats = [
             </span>
             <span class="stat-text">{stat.text}</span>
           </p>
-          <p class="stat-source mono">
+          <p class="kicker stat-source">
             <span aria-hidden="true">// </span>Quelle:{' '}
             <a class="link" href={stat.source.url} target="_blank" rel="noopener">
               {stat.source.label}
@@ -112,13 +126,79 @@ const stats = [
 </section>
 
 <style>
-  .split {
+  /* ---------- Die acht Schichten als Linie ---------- */
+
+  .osi {
     display: grid;
-    gap: 1.5rem;
-    margin-top: clamp(2.5rem, 6vw, 4.5rem);
+    grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+    margin-top: clamp(2.5rem, 6vw, 5rem);
+    border-top: 1px solid var(--border-strong);
+    color: var(--fg-muted);
+    font-family: var(--ff-mono);
+    font-size: var(--fs-micro);
+    font-weight: 500;
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
   }
 
-  .split :global(.split-card) {
+  .osi-human {
+    position: relative;
+    height: 3.5rem;
+  }
+
+  .osi-dot {
+    position: absolute;
+    top: -0.5625rem;
+    left: 0;
+    width: 1.0625rem;
+    height: 1.0625rem;
+    border-radius: 50%;
+    background-color: var(--acid);
+    box-shadow: 0 0 18px rgb(201 251 82 / 0.7);
+  }
+
+  .osi-pill {
+    position: absolute;
+    top: 0.875rem;
+    left: 0;
+    padding: 0.125rem 0.625rem;
+    border: 1px solid var(--bone);
+    border-radius: var(--r-pill);
+    color: var(--bone);
+    white-space: nowrap;
+  }
+
+  .osi-tech {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+
+  .osi-tech li {
+    position: relative;
+    padding-top: 1.125rem;
+    text-align: right;
+  }
+
+  /* Marke auf der Linie */
+  .osi-tech li::before {
+    position: absolute;
+    top: 0;
+    right: 0.25em;
+    width: 1px;
+    height: 0.75rem;
+    background-color: var(--border-strong);
+    content: '';
+  }
+
+  /* ---------- Zwei Spalten ---------- */
+
+  .split {
+    display: grid;
+    gap: clamp(3rem, 8vw, 4rem);
+    margin-top: clamp(2rem, 4vw, 3.5rem);
+  }
+
+  .split-col {
     display: grid;
     align-content: start;
     gap: 1.25rem;
@@ -128,12 +208,20 @@ const stats = [
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
-    color: var(--lav);
-    font-size: var(--fs-meta);
+  }
+
+  .split-title {
+    font-size: clamp(2rem, 1rem + 4vw, 4.25rem);
+    letter-spacing: var(--ls-display);
+    max-width: 9em;
   }
 
   .split-text {
-    max-width: 34em;
+    max-width: 30em;
+    color: var(--fg-muted);
+    font-size: var(--fs-lead);
+    letter-spacing: -0.015em;
+    line-height: 1.36;
   }
 
   .split-tags {
@@ -143,23 +231,25 @@ const stats = [
     margin-top: 0.5rem;
   }
 
+  /* ---------- Zahlenband ---------- */
+
   .stats {
     display: grid;
     gap: 2.5rem;
-    margin-top: clamp(3.5rem, 8vw, 6rem);
-    padding-top: clamp(2.5rem, 5vw, 3.5rem);
-    border-top: 1px solid var(--line);
+    margin-top: clamp(4rem, 9vw, 8rem);
+    padding-top: clamp(2rem, 4vw, 3rem);
+    border-top: 1px solid var(--border);
   }
 
   .stat {
     display: grid;
     align-content: start;
-    gap: 1rem;
+    gap: 1.25rem;
   }
 
   .stat-body {
     display: grid;
-    gap: 1rem;
+    gap: 1.25rem;
   }
 
   .stat-num {
@@ -171,28 +261,29 @@ const stats = [
     max-width: 22em;
   }
 
-  .stat-source {
-    color: var(--lav);
-    font-size: var(--fs-micro);
-  }
-
   .stat-source .link {
-    color: var(--lav);
+    color: var(--fg-strong);
   }
 
   @media (min-width: 48rem) {
     .split {
       grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(2rem, 5vw, 5rem);
+    }
+
+    .osi {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: clamp(2rem, 5vw, 5rem);
     }
 
     .stats {
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: clamp(1.5rem, 4vw, 3.5rem);
+      gap: clamp(1.5rem, 4vw, 4rem);
     }
 
     .stat + .stat {
-      padding-left: clamp(1.5rem, 4vw, 3.5rem);
-      border-left: 1px solid var(--line);
+      padding-left: clamp(1.5rem, 4vw, 4rem);
+      border-left: 1px solid var(--border);
     }
   }
 </style>
