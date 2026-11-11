@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 import { FORMS, SURPRISE, WEB } from '../playwright.config.ts';
-import { API, collectErrors, horizontalOverflow, mockApi } from './helpers.ts';
+import { API, collectErrors, horizontalOverflow, layOutAll, mockApi } from './helpers.ts';
 
 /**
  * Härtung (Auftrag, Abschnitt 9): Diese Prüfungen laufen über alle Seiten der drei Websites.
@@ -68,6 +68,7 @@ for (const entry of PAGES) {
         const page = await context.newPage();
         await mockApi(page);
         await page.goto(entry.url, { waitUntil: 'networkidle' });
+        await layOutAll(page);
         await page.waitForTimeout(300);
         expect(await horizontalOverflow(page)).toBe(0);
         await context.close();

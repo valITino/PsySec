@@ -20,3 +20,15 @@ html.scroll-locked {
 .ln-mask {
   overflow-clip-margin: 0.2em;
 }
+
+/*
+ * Lange Startseite: Was weit unter dem ersten Bildschirm liegt (data-lazy), rechnet der Browser
+ * erst, wenn es gebraucht wird. Das hält das erste Bild schnell, auch auf schwachen Geräten.
+ * home.ts holt diese Teile nach (data-laid): der Reihe nach ab der ersten Interaktion und
+ * sofort, bevor zu einer Sprungmarke gescrollt wird. Ohne Skript rechnet der Browser beim
+ * Scrollen nach.
+ */
+[data-lazy]:not([data-laid]) {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 64rem;
+}

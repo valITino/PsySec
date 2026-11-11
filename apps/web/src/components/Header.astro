@@ -10,7 +10,7 @@ import Button from '@psyber/ui/components/Button.astro';
 import Icon from '@psyber/ui/components/Icon.astro';
 import Logo from '@psyber/ui/components/Logo.astro';
 import PsiNet from '@psyber/ui/components/PsiNet.astro';
-import { contact, href, isTodo, nav, primaryCta } from '../config/site.ts';
+import { contact, href, isTodo, nav, primaryCta, sites } from '../config/site.ts';
 
 interface Props {
   /** Auf der Startseite sind die Navigationspunkte Ankerlinks ohne Seitenwechsel. */
@@ -22,7 +22,7 @@ const cta = primaryCta(home);
 const link = (hash: string) => (home ? hash : href(`/${hash}`));
 ---
 
-<header class="site-header" data-header>
+<header class:list={['site-header', { 'has-note': sites.preview }]} data-header>
   <div class="bar">
     <Logo href={href('/')} class="bar-logo" />
 
@@ -135,7 +135,7 @@ const link = (hash: string) => (home ? hash : href(`/${hash}`));
   }
 
   /* In der Vorschau steht oben ein schmaler Hinweis: Die Leiste rückt darunter. */
-  :global(body:has([data-preview-note])) .site-header {
+  .site-header.has-note {
     top: 1.75rem;
   }
 

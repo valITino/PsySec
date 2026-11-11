@@ -158,7 +158,15 @@ const cta = primaryCta(true);
     width: 150vw;
     aspect-ratio: 1;
     transform: translateX(-50%);
-    mask-image: linear-gradient(to bottom, #000 22%, transparent 52%);
+  }
+
+  /* Die Kugel läuft nach unten ins Schwarz aus (ein Verlauf statt einer Maske: viel billiger) */
+  .hero-globe::after {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgb(8 8 11 / 0) 22%, var(--void) 50%);
+    content: '';
+    pointer-events: none;
   }
 
   /* Die Kugel: Radius 44 % der Fläche, passend zu RADIUS in globe.ts */
@@ -293,7 +301,10 @@ const cta = primaryCta(true);
       left: auto;
       width: min(46vw, 80svh, 46rem);
       transform: translateY(-52%) scale(calc(1 + var(--hero-p) * 0.07));
-      mask-image: none;
+    }
+
+    .hero-globe::after {
+      content: none;
     }
 
     .hero-inner {

@@ -48,3 +48,15 @@ export async function horizontalOverflow(page: Page): Promise<number> {
     () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
   );
 }
+
+/**
+ * Die Startseite stellt Sektionen weit unter dem ersten Bildschirm zurück (data-lazy) und rechnet
+ * sie erst bei der ersten Interaktion. Für Prüfungen der ganzen Seite hier sofort nachholen.
+ */
+export async function layOutAll(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    for (const element of document.querySelectorAll<HTMLElement>('[data-lazy]')) {
+      element.dataset.laid = '';
+    }
+  });
+}

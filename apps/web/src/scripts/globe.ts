@@ -113,24 +113,6 @@ function links(nodes: NetNode[]): [number, number][] {
   return [...pairs.values()];
 }
 
-/** Weicher Lichtpunkt als Sprite (schneller als shadowBlur pro Knoten) */
-function glowSprite(size: number): HTMLCanvasElement {
-  const sprite = document.createElement('canvas');
-  sprite.width = size;
-  sprite.height = size;
-  const context = sprite.getContext('2d');
-  if (context) {
-    const half = size / 2;
-    const gradient = context.createRadialGradient(half, half, 0, half, half, half);
-    gradient.addColorStop(0, `rgba(${ACID}, 0.85)`);
-    gradient.addColorStop(0.28, `rgba(${ACID}, 0.3)`);
-    gradient.addColorStop(1, `rgba(${ACID}, 0)`);
-    context.fillStyle = gradient;
-    context.fillRect(0, 0, size, size);
-  }
-  return sprite;
-}
-
 export function initGlobe(canvas: HTMLCanvasElement): Globe {
   const context = canvas.getContext('2d');
   if (!context) return { setProgress: () => undefined, destroy: () => undefined };
@@ -140,7 +122,6 @@ export function initGlobe(canvas: HTMLCanvasElement): Globe {
   const points = surface(small ? 420 : 760);
   const nodes = network(small ? 34 : 52, random);
   const pairs = links(nodes);
-  const sprite = glowSprite(64);
   const animate = motionAllowed();
 
   let width = 0;
@@ -156,11 +137,17 @@ export function initGlobe(canvas: HTMLCanvasElement): Globe {
   let paused = motionPaused();
   let frame = 0;
   let last = 0;
+  let drawn = 0;
+  /** Die Dauerdrehung beginnt erst, wenn die Seite geladen ist und der Browser Luft hat. */
+  let ready = false;
   let target = Math.round(nodes.length * PATCHED_START);
+  /** Kleine Bildschirme: 30 Bilder pro Sekunde reichen für die langsame Drehung. */
+  const interval = small ? 1000 / 30 : 0;
 
   const resize = () => {
     const rect = canvas.getBoundingClientRect();
-    ratio = Math.min(window.devicePixelRatio || 1, 2);
+    // Weiche Lichtpunkte brauchen keine volle Auflösung: Das spart auf Handys viel Rechenzeit.
+    ratio = Math.min(window.devicePixelRatio || 1, small ? 1 : 1.5);
     width = Math.max(1, Math.round(rect.width));
     height = Math.max(1, Math.round(rect.height));
     canvas.width = Math.round(width * ratio);
@@ -234,14 +221,20 @@ export function initGlobe(canvas: HTMLCanvasElement): Globe {
         const age = Math.min(1, (now - node.since) / 600);
         if (age < 1) busy = true;
         const pulse = 1 + (1 - age) * (1 - age) * 1.6;
-        const glow = (18 + p.z * 22) * pulse;
-        context.globalAlpha = 0.35 + p.z * 0.65;
-        context.drawImage(sprite, x - glow / 2, y - glow / 2, glow, glow);
-        context.fillStyle = `rgb(${ACID})`;
+        const core = 2 + p.z * 1.8;
+        // Lichthof aus zwei weichen Scheiben, darauf der Kern
+        context.fillStyle = `rgba(${ACID}, ${(0.07 + p.z * 0.09).toFixed(3)})`;
         context.beginPath();
-        context.arc(x, y, 2 + p.z * 1.8, 0, Math.PI * 2);
+        context.arc(x, y, core * 3.6 * pulse, 0, Math.PI * 2);
         context.fill();
-        context.globalAlpha = 1;
+        context.fillStyle = `rgba(${ACID}, ${(0.12 + p.z * 0.16).toFixed(3)})`;
+        context.beginPath();
+        context.arc(x, y, core * 2.1 * pulse, 0, Math.PI * 2);
+        context.fill();
+        context.fillStyle = `rgba(${ACID}, ${(0.45 + p.z * 0.55).toFixed(3)})`;
+        context.beginPath();
+        context.arc(x, y, core, 0, Math.PI * 2);
+        context.fill();
       } else {
         context.strokeStyle = `rgba(${BONE}, ${(0.3 + p.z * 0.55).toFixed(3)})`;
         context.beginPath();
@@ -263,14 +256,21 @@ export function initGlobe(canvas: HTMLCanvasElement): Globe {
     }
   };
 
-  const running = () => inView && ((animate && !paused) || dragging || Math.abs(velocity) > 0.0002);
+  const spinning = () => animate && ready && !paused;
+  const running = () => inView && (spinning() || dragging || Math.abs(velocity) > 0.0002);
 
   const tick = (now: number) => {
     frame = 0;
-    const delta = Math.min(0.05, (now - last) / 1000 || 0);
+    // Bildrate begrenzen (beim Ziehen immer volle Rate)
+    if (interval && !dragging && now - drawn < interval - 2) {
+      frame = requestAnimationFrame(tick);
+      return;
+    }
+    drawn = now;
+    const delta = Math.min(0.1, (now - last) / 1000 || 0);
     last = now;
     if (!dragging) {
-      if (animate && !paused) yaw += AUTO_SPEED * delta;
+      if (spinning()) yaw += AUTO_SPEED * delta;
       yaw += velocity;
       velocity *= 0.94;
       // Die Neigung kehrt langsam in die Grundstellung zurück
@@ -334,6 +334,18 @@ export function initGlobe(canvas: HTMLCanvasElement): Globe {
   });
 
   resize();
+
+  // Erst das Standbild, dann die Drehung: nach dem Laden, wenn der Browser nichts Dringendes tut.
+  const begin = () => {
+    const go = () => {
+      ready = true;
+      schedule();
+    };
+    if ('requestIdleCallback' in window) window.requestIdleCallback(go, { timeout: 2500 });
+    else setTimeout(go, 600);
+  };
+  if (document.readyState === 'complete') begin();
+  else window.addEventListener('load', begin, { once: true });
 
   return {
     setProgress(progress) {

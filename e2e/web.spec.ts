@@ -1,7 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { WEB } from '../playwright.config.ts';
-import { collectErrors, horizontalOverflow, mockApi } from './helpers.ts';
+import { collectErrors, horizontalOverflow, layOutAll, mockApi } from './helpers.ts';
 
 /**
  * Wartet, bis die Skripte der Startseite gelaufen sind: Der Simulator meldet sich bereit, und
@@ -10,6 +10,7 @@ import { collectErrors, horizontalOverflow, mockApi } from './helpers.ts';
 const ready = async (page: Page) => {
   await page.locator('[data-sim][data-ready]').waitFor();
   await page.locator('html[data-scroll="ready"]').waitFor();
+  await layOutAll(page);
 };
 
 test.describe('psyber.tech', () => {
@@ -86,6 +87,45 @@ test.describe('psyber.tech', () => {
     await expect(page.locator('#mobile-menu')).toBeHidden();
     // Die Seite steht noch dort, wo sie war.
     expect(await page.evaluate(() => window.scrollY)).toBeGreaterThan(3000);
+  });
+
+  test('Sektionen weiter unten: erst bei Bedarf berechnet, Sprungmarken treffen trotzdem', async ({
+    page,
+    isMobile,
+  }) => {
+    await page.goto(`${WEB}/`);
+    await page.locator('[data-sim][data-ready]').waitFor();
+    await page.locator('html[data-scroll="ready"]').waitFor();
+    const waiting = page.locator('[data-lazy]:not([data-laid])');
+    expect(await waiting.count()).toBeGreaterThan(5);
+
+    // Sprung zu einer Marke: vorher wird alles berechnet, das Ziel steht unter der Leiste.
+    if (isMobile) await page.getByRole('button', { name: 'Menü' }).click();
+    const scope = isMobile ? page.locator('#mobile-menu') : page.getByLabel('Hauptnavigation');
+    await scope.getByRole('link', { name: /Kontakt/ }).click();
+    await expect(waiting).toHaveCount(0);
+    await expect
+      .poll(
+        () => page.evaluate(() => document.querySelector('#kontakt')!.getBoundingClientRect().top),
+        {
+          timeout: 8000,
+        },
+      )
+      .toBeLessThan(130);
+    expect(
+      await page.evaluate(() => document.querySelector('#kontakt')!.getBoundingClientRect().top),
+    ).toBeGreaterThan(-40);
+  });
+
+  test('Sektionen weiter unten: nach der ersten Interaktion der Reihe nach berechnet', async ({
+    page,
+  }) => {
+    await page.goto(`${WEB}/`);
+    await page.locator('html[data-scroll="ready"]').waitFor();
+    const waiting = page.locator('[data-lazy]:not([data-laid])');
+    expect(await waiting.count()).toBeGreaterThan(5);
+    await page.keyboard.press('Shift');
+    await expect(waiting).toHaveCount(0, { timeout: 8000 });
   });
 
   test('Klick-Simulator lässt sich per Tastatur bedienen', async ({ page }) => {
@@ -280,6 +320,7 @@ test.describe('psyber.tech', () => {
       const context = await browser.newContext({ reducedMotion: 'reduce' });
       const page = await context.newPage();
       await page.goto(`${WEB}${path}`);
+      await layOutAll(page);
       const results = await new AxeBuilder({ page })
         .withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa'])
         .analyze();

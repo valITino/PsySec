@@ -2,7 +2,8 @@
  * Schriften, selbst gehostet über Fontsource (beide SIL Open Font License):
  *   Manrope (Variable Font, wght 200–800): Überschriften und Fliesstext
  *   Geist Mono (Variable Font, wght 100–900): Labels, Code, Terminal
- * Nur Manrope Latin wird vorgeladen (siehe Head-Komponente); alles andere lädt der Browser bei Bedarf.
+ * Die beiden Latin-Dateien werden vorgeladen (siehe Head-Komponente), Latin Extended lädt der
+ * Browser bei Bedarf.
  */
 
 @font-face {
@@ -57,13 +58,15 @@
 
 /*
  * Fallback mit angepassten Metriken, damit beim Schriftwechsel nichts springt.
- * Manrope: 2000 upm, Ascent 2132, Descent 600. Gemessen mit fontkit an deutschem Beispieltext:
- * im Fliesstext (wght 400) rund 2 % breiter als Arial, in Versal-Überschriften (wght 650)
- * rund 6 % schmaler als Arial Bold.
+ * Manrope: 2000 upm, Ascent 2132, Descent 600. Gemessen mit fontkit an deutschem Beispieltext,
+ * je nach Verwendung des Schnitts:
+ *   bis 549: Fliesstext, rund 2 % breiter als Arial
+ *   550–649: Titel in normaler Schreibweise (600), rund 1 % schmaler als Arial Bold
+ *   ab 650:  Versalien (Überschriften 650, Buttons 700), rund 6,5 % schmaler als Arial Bold
  */
 @font-face {
   font-family: 'Manrope Fallback';
-  font-weight: 200 599;
+  font-weight: 200 549;
   src:
     local('Arial'), local('ArialMT'), local('Liberation Sans'), local('Helvetica Neue'),
     local('Roboto');
@@ -75,12 +78,24 @@
 
 @font-face {
   font-family: 'Manrope Fallback';
-  font-weight: 600 800;
+  font-weight: 550 649;
   src:
     local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'),
     local('Helvetica Neue Bold'), local('Roboto Bold');
-  size-adjust: 95%;
-  ascent-override: 112.2%;
-  descent-override: 31.6%;
+  size-adjust: 99%;
+  ascent-override: 107.7%;
+  descent-override: 30.3%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Manrope Fallback';
+  font-weight: 650 800;
+  src:
+    local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'),
+    local('Helvetica Neue Bold'), local('Roboto Bold');
+  size-adjust: 93.5%;
+  ascent-override: 114%;
+  descent-override: 32.1%;
   line-gap-override: 0%;
 }

@@ -8,13 +8,24 @@
  */
 import { motionAllowed } from '@psyber/ui/motion';
 import { startClock } from './clock.ts';
-import { initGlobe } from './globe.ts';
+import { initGlobe, type Globe } from './globe.ts';
 
 export function initHero(root: HTMLElement): void {
   const track = root.querySelector<HTMLElement>('[data-hero-track]');
   const canvas = root.querySelector<HTMLCanvasElement>('[data-globe]');
   const readout = root.querySelector<HTMLElement>('[data-hero-patch]');
-  const globe = canvas ? initGlobe(canvas) : null;
+  let globe: Globe | null = null;
+  let progress = 0;
+
+  // Der Globus ist Dekoration: Er entsteht in einem eigenen, ruhigen Moment nach dem Start.
+  if (canvas) {
+    const create = () => {
+      globe = initGlobe(canvas);
+      globe.setProgress(progress);
+    };
+    if ('requestIdleCallback' in window) window.requestIdleCallback(create, { timeout: 1000 });
+    else setTimeout(create, 100);
+  }
 
   startClock(root.querySelector<HTMLElement>('[data-zurich-time]'));
   if (!track) return;
@@ -38,7 +49,7 @@ export function initHero(root: HTMLElement): void {
     if (rect.bottom < 0) return;
     // Angepinnt: die Strecke, auf der der Hero steht. Sonst: gut die halbe Höhe des Heros.
     const range = 'pinned' in root.dataset ? rect.height - window.innerHeight : rect.height * 0.6;
-    const progress = Math.max(0, Math.min(1, -rect.top / Math.max(1, range)));
+    progress = Math.max(0, Math.min(1, -rect.top / Math.max(1, range)));
     root.style.setProperty('--hero-p', progress.toFixed(3));
     globe?.setProgress(progress);
     const percent = Math.round(12 + 88 * progress);

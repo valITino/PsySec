@@ -45,7 +45,7 @@ const signals = [
       </p>
       <Kicker>Checkliste zum Ausdrucken</Kicker>
       <h1 class="display h1 checklist-title">5 Warnsignale für Online-Betrug</h1>
-      <button type="button" class="btn btn-secondary no-print" data-print hidden>
+      <button type="button" class="btn btn-secondary no-print print-button" data-print>
         <Icon name="printer" size={18} />
         <span>Als PDF speichern</span>
       </button>
@@ -111,7 +111,6 @@ const signals = [
   const root = document.querySelector<HTMLElement>('[data-checklist]');
   const printButton = root?.querySelector<HTMLButtonElement>('[data-print]');
   if (printButton) {
-    printButton.hidden = false;
     printButton.addEventListener('click', () => window.print());
   }
 
@@ -150,6 +149,13 @@ const signals = [
 
   .print-brand {
     display: none;
+  }
+
+  /* Der Button steht von Anfang an da (nichts verschiebt sich); ohne Skripte entfällt er. */
+  @media (scripting: none) {
+    .print-button {
+      display: none;
+    }
   }
 
   .signals {

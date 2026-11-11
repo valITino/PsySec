@@ -18,7 +18,7 @@ const featured = all.find((entry) => entry.data.featured) ?? all[0];
 const rest = all.filter((entry) => entry !== featured);
 ---
 
-<section class="sheet maschen" id="maschen" aria-labelledby="maschen-title">
+<section data-lazy class="sheet maschen" id="maschen" aria-labelledby="maschen-title">
   <div class="wrap">
     <SectionHead
       num="0x04"

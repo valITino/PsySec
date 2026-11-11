@@ -21,20 +21,37 @@ export function initScroll(): SmoothScroll {
     return smooth;
   }
 
-  const drehbuch = document.querySelector<HTMLElement>('[data-drehbuch]');
-  if (drehbuch) initDrehbuch(drehbuch);
-
-  const haltung = document.querySelector<HTMLElement>('[data-haltung]');
-  if (haltung) initHaltung(haltung);
-
-  // Schrift und spät geladene Inhalte verschieben Positionen: danach neu vermessen.
-  // Die Überschriften werden erst mit der richtigen Schrift in Zeilen geteilt.
-  void document.fonts.ready.then(() => {
-    initReveals();
-    ScrollTrigger.refresh();
-    markReady();
-  });
-  window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
+  // Schritt für Schritt (je ein eigener Task), damit der Browser dazwischen reagieren kann.
+  // Die Reihenfolge folgt der Seite: ScrollTrigger rechnet angepinnte Strecken von oben nach unten.
+  const steps = [
+    () => {
+      const drehbuch = document.querySelector<HTMLElement>('[data-drehbuch]');
+      if (drehbuch) initDrehbuch(drehbuch);
+    },
+    () => {
+      const haltung = document.querySelector<HTMLElement>('[data-haltung]');
+      if (haltung) initHaltung(haltung);
+    },
+    () => {
+      // Schrift und spät geladene Inhalte verschieben Positionen: danach neu vermessen.
+      // Die Überschriften werden erst mit der richtigen Schrift in Zeilen geteilt.
+      void document.fonts.ready.then(() => {
+        initReveals();
+        ScrollTrigger.refresh();
+        markReady();
+      });
+      if (document.readyState !== 'complete') {
+        window.addEventListener('load', () => ScrollTrigger.refresh(), { once: true });
+      }
+    },
+  ];
+  const run = () => {
+    const step = steps.shift();
+    if (!step) return;
+    step();
+    setTimeout(run, 0);
+  };
+  setTimeout(run, 0);
 
   return smooth;
 }
