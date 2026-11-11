@@ -1,7 +1,6 @@
 import type { Answers, MultiQuestion, SingleQuestion } from '@psyber/survey';
-import { validationMessages } from '@psyber/survey';
 import { Icon } from '../Icon.tsx';
-import { current, draft, hint, next, setAnswer } from '../state.ts';
+import { current, draft, next, setAnswer, showHint } from '../state.ts';
 
 /** Tastenkürzel A, B, C … */
 export const letter = (index: number) => String.fromCharCode(65 + index);
@@ -34,7 +33,7 @@ export function toggleMulti(question: MultiQuestion, value: string): void {
     selected.delete(value);
   } else {
     if (question.max !== undefined && selected.size >= question.max) {
-      hint.value = validationMessages.too_many;
+      showHint('too_many');
       return;
     }
     selected.add(value);

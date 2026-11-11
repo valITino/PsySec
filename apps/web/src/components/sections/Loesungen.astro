@@ -92,8 +92,8 @@ const cards = [
     padding: clamp(1.5rem, 1rem + 2.4vw, 3rem);
     border-radius: var(--r-panel);
     background-image:
-      radial-gradient(26rem 18rem at 100% 0%, rgb(182 120 247 / 0.2), transparent 70%),
-      linear-gradient(165deg, rgb(244 244 239 / 0.045) 0%, transparent 45%);
+      radial-gradient(26rem 18rem at 100% 0%, rgb(var(--nebula-rgb) / 0.2), transparent 70%),
+      linear-gradient(165deg, rgb(var(--bone-rgb) / 0.045) 0%, transparent 45%);
   }
 
   /* Grosse Nummer als Kontur in der Ecke */
@@ -107,7 +107,7 @@ const cards = [
     letter-spacing: -0.06em;
     line-height: 1;
     pointer-events: none;
-    -webkit-text-stroke: 1px rgb(244 244 239 / 0.14);
+    -webkit-text-stroke: 1px rgb(var(--bone-rgb) / 0.14);
   }
 
   .solution-label {

@@ -56,6 +56,8 @@ export interface ExportData {
   waitlist: { total: number; founding: number };
   /** Erfundene Beispieldaten (`pnpm analyze --demo`) */
   demo?: boolean;
+  /** Lokale Testdatenbank von «wrangler dev» (`pnpm export --local`) statt der Umfrage */
+  local?: boolean;
 }
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
@@ -101,6 +103,7 @@ export function parseExport(input: unknown, fallbackDay = ''): ExportData {
       founding: Number(waitlist.founding ?? 0) || 0,
     },
     demo: data.demo === true,
+    local: data.source === 'local',
   };
 }
 
@@ -409,6 +412,8 @@ function criterion(
 export interface Analysis {
   exportedDay: string;
   demo: boolean;
+  /** Daten aus der lokalen Testdatenbank, nicht aus der Umfrage */
+  local: boolean;
   n: number;
   period: { first: string; last: string } | null;
   bySource: Share[];
@@ -531,6 +536,7 @@ export function analyze(data: ExportData): Analysis {
   return {
     exportedDay: data.exportedDay,
     demo: data.demo === true,
+    local: data.local === true,
     n,
     period: days.length > 0 ? { first: days[0] ?? '', last: days[days.length - 1] ?? '' } : null,
     bySource: countSingle(

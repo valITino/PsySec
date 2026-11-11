@@ -5,6 +5,7 @@
  * Farben: Marken-Violett für Einzelreihen, vier geprüfte Farben für die Kurven
  * (auch bei Farbfehlsichtigkeit unterscheidbar), Statusfarben nur mit Icon und Text.
  */
+import { readFileSync } from 'node:fs';
 import type {
   Analysis,
   Criterion,
@@ -168,16 +169,32 @@ const empty = (text: string) => `<p class="empty">${esc(text)}</p>`;
 
 // ---------------------------------------------------------------- Ampel
 
-function criterionValue(entry: Criterion): { value: string; target: string } {
+/**
+ * Rundet für die Anzeige, ohne ein verfehltes Ziel als erreicht zu zeigen: 59,96 bei Ziel 60
+ * wird 59,9 und nicht 60,0. Sonst stünde «60 %, Ziel ≥ 60 %, knapp» in der Ampel.
+ */
+const roundBelowTarget = (value: number, target: number): number => {
+  const rounded = Math.round(value);
+  return value < target && rounded >= target ? Math.floor(value) : rounded;
+};
+
+/** Wert und Ziel eines Kriteriums als Text. Anteile mit einer Nachkommastelle. */
+export function criterionValue(entry: Criterion): { value: string; target: string } {
   if (entry.unit === 'share') {
     return {
-      value: entry.value === null ? '–' : fmtPct(entry.value),
+      value:
+        entry.value === null
+          ? '–'
+          : fmtPct(roundBelowTarget(entry.value * 1000, entry.target * 1000) / 1000, 1),
       target: fmtPct(entry.target),
     };
   }
   if (entry.unit === 'chf') {
     return {
-      value: entry.value === null ? 'nicht berechenbar' : fmtChf(whole(entry.value)),
+      value:
+        entry.value === null
+          ? 'nicht berechenbar'
+          : fmtChf(roundBelowTarget(entry.value, entry.target)),
       target: fmtChf(entry.target),
     };
   }
@@ -594,11 +611,12 @@ html{-webkit-text-size-adjust:100%}
 body{margin:0;background:var(--page);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 .wrap{width:min(100% - 2rem,66rem);margin-inline:auto}
 header.top{background:var(--night);color:#fff;padding:1.75rem 0 2rem}
-.brand{display:flex;align-items:center;gap:.5rem;margin:0 0 1.25rem;font-weight:800;letter-spacing:-.01em}
-.brand svg{color:#ad9bf6}
+.brand{margin:0 0 1.25rem;line-height:0}
+.brand svg{width:auto;height:2.5rem}
+.brand .logo-light{display:none}
 h1{margin:0;font-size:clamp(1.75rem,1.2rem + 2.4vw,2.75rem);line-height:1.1;letter-spacing:-.02em}
 .top p.meta{margin:.75rem 0 0;color:#e7e1fb;max-width:46rem}
-.demo{margin:0;padding:.6rem 1rem;background:var(--warning);color:var(--ink);font-weight:700;text-align:center}
+.demo{margin:0;padding:.6rem 1rem;background:var(--warning);color:var(--ink);font-weight:700;text-align:center;print-color-adjust:exact;-webkit-print-color-adjust:exact}
 main{padding:2rem 0 3rem}
 h2{margin:2.75rem 0 .25rem;font-size:1.5rem;line-height:1.2;letter-spacing:-.015em}
 h2+p.lead{margin:0 0 1rem;color:var(--ink-2);max-width:46rem}
@@ -683,7 +701,7 @@ footer{padding:1.5rem 0 3rem;color:var(--ink-2);font-size:.875rem}
 #tip .row i{display:inline-block;width:12px;border-top:3px solid var(--c);border-radius:2px}
 #tip .head{font-weight:700;margin-bottom:.125rem}
 @media (min-width:44rem){.ampel-row{grid-template-columns:minmax(0,17rem) minmax(6rem,1fr) minmax(0,13rem) 5.5rem}}
-@media print{body{background:#fff}header.top{background:#fff;color:var(--ink)}.top p.meta{color:var(--ink-2)}.card,.ampel,.tile{break-inside:avoid}.table-view,#tip{display:none}}
+@media print{body{background:#fff}header.top{background:#fff;color:var(--ink)}.brand .logo-dark{display:none}.brand .logo-light{display:inline}.top p.meta{color:var(--ink-2)}.card,.ampel,.tile{break-inside:avoid}.table-view,#tip{display:none}}
 `;
 
 const SCRIPT = `
@@ -773,7 +791,11 @@ const SCRIPT = `
 })();
 `;
 
-const PSI = 'M2 2.2 C2 7 4 9.2 6 9.2 C8 9.2 10 7 10 2.2 M6 0.8 V13.2';
+/** Logo aus dem Logo-Kit, direkt eingebettet: Der Bericht bleibt eine Datei ohne Abhängigkeiten. */
+const logo = (name: 'dark' | 'light'): string =>
+  readFileSync(new URL(`../../packages/ui/src/brand/logo-${name}.svg`, import.meta.url), 'utf8')
+    .trim()
+    .replace('<svg ', `<svg class="logo-${name}" width="115" height="40" `);
 
 export function renderReport(analysis: Analysis, generatedAt: Date = new Date()): string {
   const { n, counters } = analysis;
@@ -1045,18 +1067,24 @@ export function renderReport(analysis: Analysis, generatedAt: Date = new Date())
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>PSYber Umfrage: Auswertung vom ${esc(fmtDay(analysis.exportedDay))}${analysis.demo ? ' (Demo)' : ''}</title>
+<title>PSYber Umfrage: Auswertung vom ${esc(fmtDay(analysis.exportedDay))}${
+    analysis.demo ? ' (Demo)' : analysis.local ? ' (Testdaten)' : ''
+  }</title>
 <style>${STYLE}</style>
 </head>
 <body>
 <header class="top"><div class="wrap">
-<p class="brand"><svg width="19" height="22" viewBox="0 0 12 14" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${PSI}"/></svg>PSYber</p>
+<p class="brand">${logo('dark')}${logo('light')}</p>
 <h1>Umfrage: Auswertung</h1>
 <p class="meta">Stand der Daten: ${esc(fmtDay(analysis.exportedDay))}. ${fmtInt(n)} Antworten${
     analysis.period ? `, eingegangen ${esc(period)}` : ''
   }. Erstellt am ${esc(stamp)} mit <code>pnpm analyze</code>.</p>
 </div></header>
-${analysis.demo ? '<p class="demo">Demo: Diese Zahlen sind frei erfunden und kein Ergebnis der Umfrage.</p>' : ''}
+${analysis.demo ? '<p class="demo">Demo: Diese Zahlen sind frei erfunden und kein Ergebnis der Umfrage.</p>' : ''}${
+    analysis.local
+      ? '<p class="demo">Testdaten: Dieser Bericht stammt aus der lokalen Datenbank, nicht aus der Umfrage.</p>'
+      : ''
+  }
 <main class="wrap">
 ${sections.join('\n')}
 </main>

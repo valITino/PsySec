@@ -28,7 +28,6 @@ export interface Globe {
   destroy(): void;
 }
 
-const BONE = '244, 244, 239';
 /** Radius der Kugel relativ zur kürzeren Kante der Zeichenfläche (muss zum CSS passen) */
 const RADIUS = 0.44;
 const BASE_PITCH = -0.34;
@@ -116,13 +115,12 @@ export function initGlobe(canvas: HTMLCanvasElement): Globe {
   const context = canvas.getContext('2d');
   if (!context) return { setProgress: () => undefined, destroy: () => undefined };
 
-  // Akzentfarbe aus dem Designsystem (--acid-rgb: «201 251 82») als Liste für rgba()
-  const ACID =
-    getComputedStyle(document.documentElement)
-      .getPropertyValue('--acid-rgb')
-      .trim()
-      .split(/\s+/)
-      .join(', ') || '201, 251, 82';
+  // Farben aus dem Designsystem (z. B. --acid-rgb: «201 251 82») als Liste für rgba()
+  const tokens = getComputedStyle(document.documentElement);
+  const channels = (name: string, fallback: string) =>
+    tokens.getPropertyValue(name).trim().split(/\s+/).join(', ') || fallback;
+  const ACID = channels('--acid-rgb', '201, 251, 82');
+  const BONE = channels('--bone-rgb', '244, 244, 239');
 
   const random = prng(8);
   const small = window.matchMedia('(max-width: 47.99rem)').matches;
@@ -258,7 +256,8 @@ export function initGlobe(canvas: HTMLCanvasElement): Globe {
       const should = node.order < target;
       if (should !== node.patched) {
         node.patched = should;
-        node.since = should ? now : -1e6;
+        // Das kurze Aufleuchten beim Patchen ist Bewegung: bei reduzierter Bewegung entfällt es.
+        node.since = should && animate ? now : -1e6;
       }
     }
   };

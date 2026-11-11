@@ -14,19 +14,23 @@ export const EASE = 'power3.out';
 export interface SmoothScroll {
   /** Lenis-Instanz; `null` bei reduzierter Bewegung (dann scrollt der Browser nativ) */
   readonly lenis: Lenis | null;
-  scrollTo(target: string | number | HTMLElement, options?: { immediate?: boolean }): void;
   /** Scrollen sperren, z. B. solange ein Vollbild-Overlay offen ist */
   stop(): void;
   start(): void;
-  destroy(): void;
 }
+
+/** Klasse am <html>, solange ein Vollbild-Overlay (Menü, Terminal) die Seite sperrt */
+const LOCKED = 'scroll-locked';
 
 /**
  * Lenis-Smooth-Scroll (lerp 0.1), synchron zu ScrollTrigger.
  * Bei `prefers-reduced-motion` wird Lenis gar nicht erst gestartet.
  *
- * Der Abstand für den Sticky-Header kommt aus CSS (`scroll-padding-top` am <html>);
+ * Der Abstand für den festen Header kommt aus CSS (`scroll-padding-top` am <html>);
  * Lenis und der Browser werten denselben Wert aus.
+ *
+ * Overlays mit eigenem Scrollen (Menü, Terminal) tragen `data-lenis-prevent`: Ein gestopptes
+ * Lenis schluckt sonst jedes Rad- und Wischereignis, und das Overlay liesse sich nicht scrollen.
  */
 export function initSmoothScroll(): SmoothScroll {
   const root = document.documentElement;
@@ -34,23 +38,8 @@ export function initSmoothScroll(): SmoothScroll {
   if (!motionAllowed()) {
     return {
       lenis: null,
-      scrollTo(target) {
-        if (typeof target === 'number') {
-          window.scrollTo({ top: target, behavior: 'auto' });
-          return;
-        }
-        const element = typeof target === 'string' ? document.querySelector(target) : target;
-        element?.scrollIntoView({ behavior: 'auto', block: 'start' });
-      },
-      stop() {
-        root.classList.add('scroll-locked');
-      },
-      start() {
-        root.classList.remove('scroll-locked');
-      },
-      destroy() {
-        root.classList.remove('scroll-locked');
-      },
+      stop: () => root.classList.add(LOCKED),
+      start: () => root.classList.remove(LOCKED),
     };
   }
 
@@ -60,6 +49,8 @@ export function initSmoothScroll(): SmoothScroll {
     anchors: true,
     stopInertiaOnNavigate: true,
   });
+  // Ist schon ein Overlay offen (jemand war schneller als das Nachladen), bleibt die Seite stehen.
+  if (root.classList.contains(LOCKED)) lenis.stop();
 
   lenis.on('scroll', ScrollTrigger.update);
   const tick = (time: number) => lenis.raf(time * 1000);
@@ -68,21 +59,13 @@ export function initSmoothScroll(): SmoothScroll {
 
   return {
     lenis,
-    scrollTo(target, scrollOptions) {
-      lenis.scrollTo(target, { immediate: scrollOptions?.immediate ?? false });
-    },
     stop() {
       lenis.stop();
-      root.classList.add('scroll-locked');
+      root.classList.add(LOCKED);
     },
     start() {
-      root.classList.remove('scroll-locked');
+      root.classList.remove(LOCKED);
       lenis.start();
-    },
-    destroy() {
-      gsap.ticker.remove(tick);
-      lenis.destroy();
-      root.classList.remove('scroll-locked');
     },
   };
 }

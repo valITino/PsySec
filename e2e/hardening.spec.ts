@@ -1,6 +1,14 @@
 import { expect, test } from '@playwright/test';
 import { FORMS, SURPRISE, WEB } from '../playwright.config.ts';
-import { API, collectErrors, horizontalOverflow, layOutAll, mockApi } from './helpers.ts';
+import {
+  API,
+  brokenWords,
+  collectErrors,
+  cutOff,
+  horizontalOverflow,
+  layOutAll,
+  mockApi,
+} from './helpers.ts';
 
 /**
  * Härtung (Auftrag, Abschnitt 9): Diese Prüfungen laufen über alle Seiten der drei Websites.
@@ -74,6 +82,27 @@ for (const entry of PAGES) {
         await context.close();
       });
     }
+
+    test('nichts ragt über den Bildrand, kein Wort bricht mittendrin um (320 bis 1920 px)', async ({
+      browser,
+    }, testInfo) => {
+      test.skip(testInfo.project.name !== 'desktop', 'Die Breiten setzt dieser Test selbst.');
+      // Reduzierte Bewegung: Alles steht im Endzustand, nichts ist gerade unterwegs.
+      const context = await browser.newContext({ reducedMotion: 'reduce' });
+      const page = await context.newPage();
+      await mockApi(page);
+      await page.setViewportSize({ width: 1440, height: 900 });
+      await page.goto(entry.url, { waitUntil: 'networkidle' });
+      await layOutAll(page);
+      await page.evaluate(() => document.fonts.ready);
+      for (const width of [320, 360, 390, 600, 640, 768, 960, 1024, 1152, 1280, 1440, 1920]) {
+        await page.setViewportSize({ width, height: 900 });
+        await page.waitForTimeout(150);
+        expect(await cutOff(page), `${width} px`).toEqual([]);
+        expect(await brokenWords(page), `${width} px`).toEqual([]);
+      }
+      await context.close();
+    });
 
     test('Struktur: Sprache, ein H1, lückenlose Überschriften, ein main', async ({ page }) => {
       await page.goto(entry.url);

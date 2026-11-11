@@ -45,7 +45,6 @@ export function initSimulator(root: HTMLElement): void {
   const range = root.querySelector<HTMLInputElement>('[data-sim-range]');
   if (!range) return;
   const buttons = [...root.querySelectorAll<HTMLButtonElement>('[data-sim-step]')];
-  const stations = [...root.querySelectorAll<HTMLElement>('[data-sim-station]')];
   const animate = motionAllowed();
 
   let value = 0;
@@ -63,9 +62,6 @@ export function initSimulator(root: HTMLElement): void {
     const station = value >= STATION_2_START ? 2 : 1;
     for (const button of buttons) {
       button.setAttribute('aria-pressed', String(Number(button.dataset.simStep) === station));
-    }
-    for (const item of stations) {
-      item.classList.toggle('is-active', Number(item.dataset.simStation) === station);
     }
     range.setAttribute('aria-valuetext', valueText(value));
   };

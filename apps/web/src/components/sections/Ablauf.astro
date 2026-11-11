@@ -153,13 +153,16 @@ const handshake = [
     letter-spacing: 0.04em;
   }
 
+  /* minmax(0, 1fr): Ein langes Wort darf die Spalte nicht breiter machen als den Bildschirm. */
   .process-body {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 0.875rem;
   }
 
+  /* Untergrenze so, dass «Kennenlernen» auch bei 320 px auf eine Zeile passt */
   .process-title {
-    font-size: clamp(2.125rem, 0.9rem + 4.6vw, 5.5rem);
+    font-size: clamp(1.875rem, 0.9rem + 4.6vw, 5.5rem);
   }
 
   .process-text {
@@ -180,7 +183,7 @@ const handshake = [
     border-radius: var(--r-stage);
     background-image: radial-gradient(
       36rem 24rem at 100% 0%,
-      rgb(182 120 247 / 0.18),
+      rgb(var(--nebula-rgb) / 0.18),
       transparent 70%
     );
   }

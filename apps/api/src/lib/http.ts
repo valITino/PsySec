@@ -88,18 +88,69 @@ export const cors: MiddlewareHandler<AppEnv> = async (c, next) => {
   return undefined;
 };
 
-/** Rate Limit pro IP. Die IP dient nur als flüchtiger Schlüssel und wird nirgends gespeichert. */
+/**
+ * Schlüssel eines Anschlusses für das Rate Limit. Ein IPv6-Anschluss bekommt in der Regel ein
+ * ganzes /64-Netz: Wer darin die Adresse wechselt, bliebe sonst unter jedem Limit. Bei IPv6
+ * zählt darum nur das Netz, bei IPv4 die Adresse.
+ */
+export function clientKey(ip: string | undefined): string {
+  if (!ip) return 'unknown';
+  if (!ip.includes(':')) return ip;
+  // IPv4 in IPv6-Schreibweise (::ffff:203.0.113.7)
+  const mapped = /^::ffff:(\d{1,3}(?:\.\d{1,3}){3})$/i.exec(ip);
+  if (mapped?.[1]) return mapped[1];
+  const [head = '', tail = ''] = ip.toLowerCase().split('::');
+  const left = head ? head.split(':') : [];
+  const right = tail ? tail.split(':') : [];
+  const missing = ip.includes('::') ? Math.max(0, 8 - left.length - right.length) : 0;
+  const groups = [...left, ...Array<string>(missing).fill('0'), ...right];
+  const network = groups.slice(0, 4).map((group) => group.replace(/^0+(?=.)/, ''));
+  return `${network.join(':')}::/64`;
+}
+
+/** Fehlt ein Limit in Produktion, soll das auffallen: Die API läuft sonst still ohne Schutz. */
+function reportMissingLimit(c: Context<AppEnv>, binding: string): void {
+  if (c.env.ENVIRONMENT === 'production') console.error('rate_limit_not_configured', binding);
+}
+
+const tooMany = (c: Context<AppEnv>) => {
+  c.header('Retry-After', '60');
+  return fail(c, 'rate_limited', 429);
+};
+
+/**
+ * Rate Limit pro Anschluss. Die IP dient nur als flüchtiger Schlüssel und wird nirgends
+ * gespeichert.
+ */
 export const rateLimit =
   (binding: 'RL_FORMS' | 'RL_EVENTS'): MiddlewareHandler<AppEnv> =>
   async (c, next) => {
     const limiter = c.env[binding];
     if (limiter) {
-      const ip = c.req.header('CF-Connecting-IP') ?? 'unknown';
-      const { success } = await limiter.limit({ key: `${c.req.path}:${ip}` });
-      if (!success) {
-        c.header('Retry-After', '60');
-        return fail(c, 'rate_limited', 429);
-      }
+      const key = `${c.req.path}:${clientKey(c.req.header('CF-Connecting-IP'))}`;
+      const { success } = await limiter.limit({ key });
+      if (!success) return tooMany(c);
+    } else {
+      reportMissingLimit(c, binding);
+    }
+    await next();
+    return undefined;
+  };
+
+/**
+ * Gesamtbudget eines Pfads, unabhängig vom Anschluss. Für die Zähler ohne Turnstile: Auch eine
+ * Flut aus sehr vielen Adressen kann so weder die Statistik noch das Schreibkontingent der
+ * Datenbank aufbrauchen.
+ */
+export const budget =
+  (binding: 'RL_EVENTS_ALL'): MiddlewareHandler<AppEnv> =>
+  async (c, next) => {
+    const limiter = c.env[binding];
+    if (limiter) {
+      const { success } = await limiter.limit({ key: c.req.path });
+      if (!success) return tooMany(c);
+    } else {
+      reportMissingLimit(c, binding);
     }
     await next();
     return undefined;

@@ -1,5 +1,9 @@
 /**
  * Tastatur wie bei Typeform: Enter = weiter, Ziffern 1–5 bei Skalen, Buchstaben A, B, C … bei Optionen.
+ *
+ * Die Kürzel mit Buchstaben und Ziffern gelten nur, solange der Fokus in der Frage steht (dorthin
+ * wandert er bei jedem Wechsel von selbst). So löst niemand Antworten aus, der gerade «Zurück»
+ * fokussiert hat oder per Sprachsteuerung diktiert (WCAG 2.1.4).
  */
 import type { Scale } from '@psyber/survey';
 import { chooseSingle, toggleMulti } from './fields/Options.tsx';
@@ -13,9 +17,20 @@ function isTyping(target: HTMLElement): boolean {
   return target.tagName === 'INPUT' && TEXT_INPUTS.has((target as HTMLInputElement).type);
 }
 
+/** Letzte Frage: Enter im E-Mail-Feld verlässt nur das Feld (zum Häkchen oder zu «Absenden»). */
+function leaveEmail(): void {
+  const checkbox = document.querySelector<HTMLInputElement>(
+    '.sv-waitlist .checkbox:not(:disabled)',
+  );
+  (checkbox ?? document.querySelector<HTMLElement>('.sv-next'))?.focus();
+}
+
 export function onKeyDown(event: KeyboardEvent): void {
   if (event.defaultPrevented || event.metaKey || event.ctrlKey || event.altKey) return;
   if (event.isComposing) return;
+  // Eine gehaltene Taste zählt einmal: Sonst blättert Enter durch alle freiwilligen Fragen bis
+  // zum Absenden, und eine gehaltene Ziffer füllt die ganze Matrix.
+  if (event.repeat) return;
   const target = event.target as HTMLElement;
   const activates = target.tagName === 'BUTTON' || target.tagName === 'A';
 
@@ -39,11 +54,16 @@ export function onKeyDown(event: KeyboardEvent): void {
       if (event.shiftKey || coarse) return;
     }
     event.preventDefault();
+    if (question.type === 'waitlist' && target.id === 'sv-email') {
+      // Nicht absenden: Das Häkchen «Founding Family» steht erst nach der Adresse zur Wahl.
+      leaveEmail();
+      return;
+    }
     next();
     return;
   }
 
-  if (isTyping(target)) return;
+  if (isTyping(target) || !target.closest('.sv-question')) return;
 
   if (/^[1-5]$/.test(event.key)) {
     const value = Number(event.key) as Scale;

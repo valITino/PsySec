@@ -21,8 +21,12 @@ export function initFirstStep(form: HTMLFormElement): void {
   }
 
   const base = form.dataset.base ?? cta.href;
-  form.addEventListener('change', () => {
+  const sync = () => {
     const fokus = selected()?.value;
     cta.href = fokus ? `${base}&fokus=${encodeURIComponent(fokus)}` : base;
-  });
+  };
+  form.addEventListener('change', sync);
+  // Nach «Zurück» stellt der Browser die gewählte Karte wieder her, ohne «change» zu melden.
+  window.addEventListener('pageshow', sync);
+  sync();
 }

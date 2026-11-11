@@ -4,8 +4,23 @@
  * Bei reduzierter Bewegung erscheinen alle Ausgaben sofort.
  */
 import { motionAllowed } from '@psyber/ui/motion';
-import '../styles/terminal.css';
+import styleUrl from '../styles/terminal.css?url';
 import type { ScrollLock } from './header.ts';
+
+/**
+ * Das Stylesheet lädt erst mit dem Terminal. Als normaler Import hinge es auf jeder Seite als
+ * erstes Stylesheet im <head> und würde dort das erste Bild aufhalten.
+ */
+let styled: Promise<void> | null = null;
+const loadStyle = (): Promise<void> =>
+  (styled ??= new Promise((resolve) => {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = styleUrl;
+    link.addEventListener('load', () => resolve(), { once: true });
+    link.addEventListener('error', () => resolve(), { once: true });
+    document.head.append(link);
+  }));
 
 const PROMPT = 'gast@psyber:~$';
 
@@ -108,7 +123,7 @@ function build(lock: () => ScrollLock | null): HTMLDialogElement {
           <span>Schliessen</span><kbd aria-hidden="true">Esc</kbd>
         </button>
       </div>
-      <div class="term-body" data-term-body>
+      <div class="term-body" data-term-body data-lenis-prevent>
         <div class="term-log" role="log" aria-live="polite" data-term-log></div>
         <div class="term-line">
           <span class="term-prompt" aria-hidden="true">${PROMPT}</span>
@@ -217,7 +232,8 @@ function build(lock: () => ScrollLock | null): HTMLDialogElement {
   return element;
 }
 
-export function openTerminal(lock: () => ScrollLock | null = () => null): void {
+export async function openTerminal(lock: () => ScrollLock | null = () => null): Promise<void> {
+  await loadStyle();
   dialog ??= build(lock);
   if (dialog.open) return;
   lock()?.stop();

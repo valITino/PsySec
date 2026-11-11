@@ -1,5 +1,6 @@
 /*
- * Konami-Terminal (Easter Egg). Wird zusammen mit scripts/terminal.ts erst bei Bedarf geladen.
+ * Konami-Terminal (Easter Egg). Lädt erst bei Bedarf: scripts/terminal.ts hängt die Datei ein,
+ * sobald jemand den Code eingibt.
  * Tiefe Fläche (--pit), Schrift in Mono, Fokus in Acid wie überall.
  */
 .term {
@@ -12,7 +13,7 @@
   border: 1px solid var(--steel);
   border-radius: var(--r-panel);
   background-color: var(--pit);
-  box-shadow: 0 0 60px rgb(182 120 247 / 0.22);
+  box-shadow: 0 0 60px rgb(var(--nebula-rgb) / 0.22);
   color: var(--bone);
   font-family: var(--ff-mono);
 }

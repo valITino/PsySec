@@ -77,13 +77,25 @@ const fields = {
       </div>
 
       <div class="kontakt-panel">
+        {/*
+          method="post": Ohne Skript (oder solange es noch lädt) würde ein Formular ohne Angabe per
+          GET senden, und die Eingaben stünden in der Adresse. home.ts fängt das Absenden zusätzlich
+          von Anfang an ab.
+        */}
         <form
           class="kontakt-form"
+          method="post"
           novalidate
           data-contact
           data-api={sites.api}
           data-turnstile-key={useTurnstile ? turnstileSiteKey : undefined}
         >
+          <noscript>
+            <p class="form-noscript">
+              Das Formular braucht JavaScript. Ohne erreichen Sie uns direkt per E-Mail:
+              {contact.email}
+            </p>
+          </noscript>
           <p class="form-note">
             Felder mit <span aria-hidden="true">*</span>
             <span class="sr-only">Stern</span> sind Pflicht.
@@ -207,7 +219,7 @@ const fields = {
               aria-describedby="kontakt-nachricht-count"
             ></textarea>
             <p class="form-count mono" id="kontakt-nachricht-count">
-              <span data-count-current>0</span> / 2000 Zeichen
+              <span data-count-current>0</span> / {CONTACT_LIMITS.nachricht.max} Zeichen
             </p>
             <p
               class="field-error"
@@ -444,6 +456,24 @@ const fields = {
   .form-preview {
     color: var(--ash);
     font-size: var(--fs-micro);
+  }
+
+  /* Ohne JavaScript: Hinweis statt eines Buttons, der nichts senden könnte */
+  .form-noscript {
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--amber);
+    border-radius: var(--r-input);
+    background-color: var(--carbon);
+    color: var(--bone);
+    font-size: var(--fs-small);
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+  }
+
+  @media (scripting: none) {
+    .form-actions {
+      display: none;
+    }
   }
 
   .form-status {

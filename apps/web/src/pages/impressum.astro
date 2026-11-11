@@ -73,10 +73,10 @@ import Page from '../layouts/Page.astro';
     <h2>Sicherheitslücke gefunden?</h2>
     <p>
       Bitte melden Sie sie an{' '}
-      <a class="link" href={`mailto:${contact.security}`}>
-        {contact.security}
-      </a>
-      . Danke, dass Sie uns helfen.
+      {/* Auf einer Zeile: Ein Umbruch vor dem Punkt würde als Leerzeichen sichtbar. */}
+      {/* prettier-ignore */}
+      <span><a class="link" href={`mailto:${contact.security}`}>{contact.security}</a>.</span>{' '}
+      Danke, dass Sie uns helfen.
     </p>
   </Legal>
 </Page>

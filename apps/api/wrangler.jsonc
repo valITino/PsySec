@@ -11,9 +11,12 @@
 
   // Eigene Meldungen ja, automatische Request-Logs nein: so landen weder IP-Adressen
   // noch Header in den Logs. Request-Bodies loggt der Code nie.
+  // Traces sind ausdrücklich aus: Sie halten zu jeder Anfrage Angaben wie URL und User-Agent
+  // fest. So bleibt es dabei, auch wenn der Sammelschalter «enabled» sie einmal mit einschaltet.
   "observability": {
     "enabled": true,
-    "logs": { "invocation_logs": false }
+    "logs": { "enabled": true, "invocation_logs": false },
+    "traces": { "enabled": false }
   },
 
   // D1 mit EU-Jurisdiktion: wrangler d1 create psyber --jurisdiction=eu
@@ -27,10 +30,13 @@
     }
   ],
 
-  // Rate Limits pro IP: Formulare 5 pro Minute, Zähler 30 pro Minute.
+  // Rate Limits pro Anschluss: Formulare 5 pro Minute, Zähler 30 pro Minute.
+  // Dazu ein Gesamtbudget für die Zähler (600 pro Minute, unabhängig von der Adresse): Es
+  // schützt Statistik und Schreibkontingent der Datenbank vor einer Flut aus vielen Adressen.
   "ratelimits": [
     { "name": "RL_FORMS", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } },
-    { "name": "RL_EVENTS", "namespace_id": "1002", "simple": { "limit": 30, "period": 60 } }
+    { "name": "RL_EVENTS", "namespace_id": "1002", "simple": { "limit": 30, "period": 60 } },
+    { "name": "RL_EVENTS_ALL", "namespace_id": "1003", "simple": { "limit": 600, "period": 60 } }
   ],
 
   // Benachrichtigung bei Kontaktanfragen (Email Routing muss aktiv sein).

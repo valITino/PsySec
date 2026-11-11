@@ -43,7 +43,8 @@ const columns = [
 ];
 ---
 
-<footer class="site-footer" data-lazy>
+{/* Zurückgestellt wird nur auf der Startseite: Nur dort legt home.ts die Teile später aus. */}
+<footer class="site-footer" data-lazy={home ? '' : undefined}>
   <div class="wrap">
     <div class="stage footer-stage">
       <div class="footer-top">
@@ -137,8 +138,8 @@ const columns = [
     padding: clamp(1.5rem, 0.6rem + 3.6vw, 4.5rem);
     padding-bottom: 0;
     background-image:
-      radial-gradient(46rem 30rem at 100% 0%, rgb(182 120 247 / 0.2), transparent 70%),
-      radial-gradient(50rem 26rem at 30% 100%, rgb(61 30 134 / 0.55), transparent 70%);
+      radial-gradient(46rem 30rem at 100% 0%, rgb(var(--nebula-rgb) / 0.2), transparent 70%),
+      radial-gradient(50rem 26rem at 30% 100%, rgb(var(--space-rgb) / 0.55), transparent 70%);
   }
 
   .footer-top {
@@ -182,13 +183,14 @@ const columns = [
     gap: 0.125rem;
   }
 
+  /* 5vw: Auf den schmalsten Handys passt so auch «Datenschutz» in eine der zwei Spalten. */
   .footer-nav a,
   .footer-nav span {
     display: inline-flex;
     align-items: center;
     min-height: 2.5rem;
     color: var(--bone);
-    font-size: var(--fs-h4);
+    font-size: min(var(--fs-h4), 5vw);
     font-weight: 500;
     letter-spacing: -0.02em;
     text-decoration: none;
@@ -251,7 +253,8 @@ const columns = [
     }
   }
 
-  @media (min-width: 40rem) {
+  /* Vier Spalten erst, wenn jede breit genug für ihr längstes Wort ist */
+  @media (min-width: 48rem) {
     .footer-nav {
       grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.5fr);
     }
@@ -261,16 +264,13 @@ const columns = [
     }
   }
 
-  /* Ab Tablet schweben unten die Knöpfe: Platz lassen */
-  @media (min-width: 48rem) {
-    .site-footer {
-      padding-bottom: 5.5rem;
-    }
-  }
-
-  @media (min-width: 64rem) {
+  /*
+   * Marke links, Spalten rechts: erst ab hier, und mit etwas mehr Platz für die Spalten. Darunter
+   * wären sie so schmal, dass «Datenschutz» mitten im Wort umbräche.
+   */
+  @media (min-width: 72rem) {
     .footer-top {
-      grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+      grid-template-columns: minmax(0, 3.5fr) minmax(0, 8.5fr);
     }
   }
 

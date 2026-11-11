@@ -2,7 +2,7 @@
 /**
  * Phishing-Ticker: zwei gegenläufige Reihen aus Pillen (Satz plus Hebel).
  * CSS-Animation über transform; die Kopie für den Loop ist aria-hidden.
- * Pausiert bei Hover, bei Fokus und über den Pause-Button. Reduced motion: statisch, umbrechend.
+ * Pausiert bei Hover und über den Pause-Button. Reduced motion: statisch, umbrechend.
  */
 import Icon from '@psyber/ui/components/Icon.astro';
 
@@ -39,7 +39,8 @@ const rows = [phrases.slice(0, 6), phrases.slice(6)];
         Sätze, bei denen Sie stutzig werden sollten.
       </h2>
     </div>
-    <button type="button" class="ticker-toggle" aria-pressed="false" data-ticker-toggle>
+    {/* Der Name sagt, was der Button tut; er wechselt mit dem Zustand (darum kein aria-pressed). */}
+    <button type="button" class="ticker-toggle" data-ticker-toggle>
       <span class="ticker-icon ticker-icon-pause">
         <Icon name="pause" size={16} />
       </span>
@@ -121,11 +122,11 @@ const rows = [phrases.slice(0, 6), phrases.slice(6)];
   }
 
   .ticker-icon-play,
-  .ticker-toggle[aria-pressed='true'] .ticker-icon-pause {
+  .ticker:global(.is-paused) .ticker-icon-pause {
     display: none;
   }
 
-  .ticker-toggle[aria-pressed='true'] .ticker-icon-play {
+  .ticker:global(.is-paused) .ticker-icon-play {
     display: grid;
   }
 
@@ -184,9 +185,12 @@ const rows = [phrases.slice(0, 6), phrases.slice(6)];
     text-transform: uppercase;
   }
 
-  /* Pausiert bei Hover, bei Fokus und wenn der Button gedrückt ist */
+  /*
+   * Pausiert bei Hover, bei Fokus im Band und wenn der Button es anhält. Der Fokus auf dem Button
+   * selbst zählt nicht: Sonst stünde das Band nach «Band fortsetzen» weiter still.
+   */
   .ticker:global(.is-paused) .ticker-row,
-  .ticker:focus-within .ticker-row {
+  .ticker-rows:focus-within .ticker-row {
     animation-play-state: paused;
   }
 

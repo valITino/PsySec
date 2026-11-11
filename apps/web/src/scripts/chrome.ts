@@ -67,7 +67,6 @@ export function initMotionToggle(hasMotion: boolean): void {
   toggle.addEventListener('click', () => {
     const paused = !motionPaused();
     setMotionPaused(paused);
-    toggle.setAttribute('aria-pressed', String(paused));
     label.textContent = paused ? 'Bewegung fortsetzen' : 'Bewegung pausieren';
   });
 }

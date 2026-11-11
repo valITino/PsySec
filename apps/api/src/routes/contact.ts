@@ -28,7 +28,11 @@ function notificationText(data: ContactPayload): string {
 
 /** Benachrichtigung per send_email-Binding. Fehler hier dürfen die Anfrage nicht scheitern lassen. */
 async function notify(env: Env, data: ContactPayload): Promise<void> {
-  if (!env.NOTIFY || !env.NOTIFY_TO || !env.NOTIFY_FROM) return;
+  if (!env.NOTIFY || !env.NOTIFY_TO || !env.NOTIFY_FROM) {
+    // Die Anfrage ist gespeichert, aber niemand erfährt davon: Das soll in den Logs auffallen.
+    console.error('notify_not_configured');
+    return;
+  }
   try {
     await env.NOTIFY.send({
       from: { email: env.NOTIFY_FROM, name: 'PSYber Website' },

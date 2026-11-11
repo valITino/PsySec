@@ -49,10 +49,39 @@ if (firstStep) initFirstStep(firstStep);
 // --- Kontaktformular: erst laden, wenn es in Sicht kommt ---
 const contact = document.querySelector<HTMLFormElement>('[data-contact]');
 if (contact) {
+  let loading: Promise<void> | null = null;
+  let ready = false;
+  const loadContact = () =>
+    (loading ??= import('./contact.ts').then((module) => {
+      module.initContact(contact);
+      ready = true;
+    }));
+
+  /*
+   * Bis das Skript des Formulars da ist, darf «Anfrage senden» nie den Browser selbst senden
+   * lassen. Wer so früh klickt, wartet kurz: Sobald das Skript geladen ist, läuft das Absenden
+   * normal weiter. Lädt es gar nicht, erscheint die Fehlermeldung mit der E-Mail-Adresse.
+   */
+  contact.addEventListener('submit', (event) => {
+    if (ready) return; // contact.ts hat übernommen
+    event.preventDefault();
+    loadContact().then(
+      () => contact.requestSubmit(),
+      () => {
+        loading = null;
+        const failure = contact.querySelector<HTMLElement>('[data-form-error]');
+        if (failure) failure.hidden = false;
+      },
+    );
+  });
+
   onceInView(
     contact,
     () => {
-      void import('./contact.ts').then((module) => module.initContact(contact));
+      loadContact().catch(() => {
+        // Beim Absenden wird es nochmals versucht (siehe oben).
+        loading = null;
+      });
     },
     { rootMargin: '800px 0px' },
   );
@@ -97,7 +126,6 @@ idle(() => {
   if (ticker && tickerToggle && tickerLabel) {
     tickerToggle.addEventListener('click', () => {
       const paused = ticker.classList.toggle('is-paused');
-      tickerToggle.setAttribute('aria-pressed', String(paused));
       tickerLabel.textContent = paused ? 'Band fortsetzen' : 'Band anhalten';
     });
   }

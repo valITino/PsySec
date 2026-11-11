@@ -1,15 +1,19 @@
 import { surveySubmissionSchema } from '@psyber/survey';
 import type { Context } from 'hono';
 import type { AppEnv } from '../env.ts';
-import { bumpCounter } from '../lib/db.ts';
+import { bumpCounterIfChanged } from '../lib/db.ts';
 import { fail, isHoneypotFilled, readJson } from '../lib/http.ts';
-import { swissDay } from '../lib/time.ts';
+import { monthStart, swissDay } from '../lib/time.ts';
 import { verifyTurnstile } from '../lib/turnstile.ts';
 
 /**
  * POST /v1/survey
  * Speichert eine anonyme Antwort. Eine freiwillige E-Mail landet getrennt in `waitlist`:
- * keine gemeinsame ID, kein Fremdschlüssel, beide nur mit Datum.
+ * keine gemeinsame ID, kein Fremdschlüssel; die Antwort trägt nur den Tag, die Warteliste nur
+ * den Monat.
+ *
+ * Schickt der Browser eine `submissionId` mit, ist die Einsendung wiederholbar: Ein zweiter
+ * Versuch mit derselben Kennung (nach einer verlorenen Antwort) schreibt und zählt nichts mehr.
  */
 export async function postSurvey(c: Context<AppEnv>) {
   const body = await readJson(c);
@@ -20,7 +24,8 @@ export async function postSurvey(c: Context<AppEnv>) {
 
   const parsed = surveySubmissionSchema.safeParse(body.data);
   if (!parsed.success) return fail(c, 'invalid_payload', 400);
-  const { answers, waitlist, quelle, fokus, schemaVersion, turnstileToken } = parsed.data;
+  const { answers, waitlist, quelle, fokus, schemaVersion, turnstileToken, submissionId } =
+    parsed.data;
 
   const turnstile = await verifyTurnstile(c.env, turnstileToken);
   if (turnstile === 'unavailable') return fail(c, 'turnstile_unavailable', 503);
@@ -41,10 +46,11 @@ export async function postSurvey(c: Context<AppEnv>) {
            ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?14,
            ?15, ?16, ?17, ?18,
            ?19, ?20, ?21, ?22, ?23
-         )`,
+         )
+         ON CONFLICT (id) DO NOTHING`,
       )
       .bind(
-        crypto.randomUUID(),
+        submissionId ?? crypto.randomUUID(),
         day,
         schemaVersion,
         quelle,
@@ -68,7 +74,8 @@ export async function postSurvey(c: Context<AppEnv>) {
         answers.q11?.d ?? null,
         answers.q15 ?? null,
       ),
-    bumpCounter(db, 'survey_completed', day, answers.q4),
+    // Muss direkt auf die Antwort folgen: zählt nur, wenn sie eben geschrieben wurde.
+    bumpCounterIfChanged(db, 'survey_completed', day, answers.q4),
   ];
 
   if (waitlist) {
@@ -82,7 +89,7 @@ export async function postSurvey(c: Context<AppEnv>) {
         )
         .bind(
           crypto.randomUUID(),
-          day,
+          monthStart(day),
           waitlist.email.trim().toLowerCase(),
           waitlist.foundingFamily ? 1 : 0,
         ),

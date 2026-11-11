@@ -120,13 +120,10 @@ const icons = Object.keys(iconData) as IconName[];
       <div class="sg-row">
         <p class="label-up">Fliesstext · 400 · 16–18 px · 1.55</p>
         <p class="measure">
-          Ein Anruf der ‹Polizei›, eine Deepfake-Werbung, eine Online-Liebe, die plötzlich Geld
+          Ein Anruf der «Polizei», eine Deepfake-Werbung, eine Online-Liebe, die plötzlich Geld
           braucht. Solche Angriffe zielen auf Gefühle, nicht auf Technik. <strong>Fett</strong> und
-          ein{' '}
-          <a class="link" href="#sg-typo">
-            Link im Text
-          </a>
-          .
+          ein {/* prettier-ignore */}
+          <span><a class="link" href="#sg-typo">Link im Text</a>.</span>
         </p>
       </div>
       <div class="sg-row">
@@ -146,7 +143,8 @@ const icons = Object.keys(iconData) as IconName[];
       </div>
       <div class="sg-row">
         <p class="label-up">Code · Mono · tabular-nums</p>
-        <p class="mono tabular">$ ping familie.local · 64’733 Meldungen · CHF 190.–</p>
+        <p class="mono tabular">$ ping familie.local · 12’345 · 15,9 % · CHF 1’250.–</p>
+        <p class="sg-note">Nur Beispiele für die Schreibweise von Zahlen, keine echten Werte.</p>
       </div>
     </div>
   </section>
@@ -441,6 +439,11 @@ const icons = Object.keys(iconData) as IconName[];
     gap: 0.75rem;
   }
 
+  .sg-note {
+    color: var(--ash);
+    font-size: var(--fs-small);
+  }
+
   .sg-brand {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
@@ -492,7 +495,7 @@ const icons = Object.keys(iconData) as IconName[];
     background-color: var(--space);
     background-image: radial-gradient(
       30rem 20rem at 88% 0%,
-      rgb(182 120 247 / 0.42),
+      rgb(var(--nebula-rgb) / 0.42),
       transparent 70%
     );
   }

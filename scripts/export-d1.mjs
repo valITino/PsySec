@@ -5,6 +5,9 @@
 //         pnpm export --local    (lokale Datenbank von «wrangler dev», zum Ausprobieren)
 // Danach: pnpm analyze
 //
+// Der lokale Export bekommt einen eigenen Namen (export-local-YYYY-MM-DD.json): Er überschreibt
+// nie den Export der Umfrage vom selben Tag, und «pnpm analyze» nimmt ihn nicht von selbst.
+//
 // Datenschutz: E-Mail-Adressen und Kontaktanfragen werden NICHT exportiert. Von der Warteliste
 // kommen nur zwei Zahlen (Einträge gesamt, davon Founding Families).
 import { spawnSync } from 'node:child_process';
@@ -72,11 +75,13 @@ const data = {
 };
 
 mkdirSync('reports', { recursive: true });
-const file = resolve('reports', `export-${day}.json`);
+const name = local ? `export-local-${day}.json` : `export-${day}.json`;
+const file = resolve('reports', name);
 writeFileSync(file, `${JSON.stringify(data, null, 2)}\n`);
 console.log(
-  `✓ ${data.responses.length} Antworten, ${data.counters.length} Zählerzeilen, ` +
+  `✓ ${local ? 'Lokale Testdaten' : 'Umfrage'}: ${data.responses.length} Antworten, ` +
+    `${data.counters.length} Zählerzeilen, ` +
     `Warteliste ${data.waitlist.total} (davon ${data.waitlist.founding} Founding Families)`,
 );
 console.log(`  ${file}`);
-console.log('  Weiter mit: pnpm analyze');
+console.log(`  Weiter mit: pnpm analyze${local ? ` reports/${name}` : ''}`);

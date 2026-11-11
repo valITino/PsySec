@@ -1,6 +1,8 @@
 /**
- * Zod-Schemas für Umfrage, Kontaktformular und Zähler.
- * Client und API nutzen exakt dieselben Schemas. Unbekannte Felder werden abgelehnt.
+ * Zod-Schemas für Umfrage, Kontaktformular und Zähler. Unbekannte Felder werden abgelehnt.
+ * Die API prüft damit jede Einsendung, das Kontaktformular prüft damit schon im Browser.
+ * Die Umfrage prüft im Browser Frage für Frage mit `validateQuestion()` (logic.ts); die fertige
+ * Einsendung muss diesem Schema genügen (Tests in packages/survey halten beides deckungsgleich).
  *
  * Wir nutzen `zod/mini` (Teil von Zod 4): gleiche Schemas, aber so gebaut, dass der Bundler
  * Ungenutztes entfernt. Das spart im Browser rund 20 KB (gzip) gegenüber der klassischen API.
@@ -44,6 +46,14 @@ const multi = <T extends Record<string, string>>(options: T, max = keys(options)
 const scale = z.int().check(z.gte(1), z.lte(5));
 const chf = z.int().check(z.gte(VW_MIN), z.lte(VW_MAX));
 const token = z.string().check(z.minLength(1), z.maxLength(2048));
+/**
+ * Zufällige Kennung einer Einsendung (UUID). Der Browser erzeugt sie einmal pro Umfrage: Geht die
+ * Antwort der API verloren und jemand sendet erneut, entsteht so keine zweite Zeile. Sie ist
+ * reiner Zufall und verbindet die Antwort mit nichts (die Warteliste bekommt eine eigene ID).
+ */
+const submissionId = z.optional(
+  z.string().check(z.regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/)),
+);
 /** Honeypot: Menschen lassen das Feld leer. Die API verwirft befüllte Einsendungen still. */
 const honeypot = z.optional(z.string().check(z.maxLength(200)));
 const text = (min: number, max: number) =>
@@ -100,6 +110,7 @@ export const waitlistSchema = z.strictObject({
 
 export const surveySubmissionSchema = z.strictObject({
   schemaVersion: z.literal(SCHEMA_VERSION),
+  submissionId,
   quelle: z.enum(QUELLEN_STORED),
   fokus: z.optional(z.enum(FOKUS)),
   answers: answersSchema,

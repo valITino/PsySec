@@ -32,8 +32,9 @@ const steps = [
   >
     <div class="sim-screen">
       <div class="sim-status mono">
-        <span class="sim-time" data-sim-time aria-label="Uhrzeit in der Schweiz">
-          --:--
+        <span class="sim-time">
+          <span class="sr-only">Uhrzeit in der Schweiz: </span>
+          <span data-sim-time>--:--</span>
         </span>
         <span class="sim-island" aria-hidden="true"></span>
         <span class="sim-place">
@@ -57,23 +58,13 @@ const steps = [
 
           <div class="sim-messages">
             <p class="sim-bubble">
-              Ihr Paket konnte nicht zugestellt werden. Zollgebühr
-              <mark class="sim-mark" data-mark="betrag">
-                CHF 2.40
-              </mark>
-              <mark class="sim-mark" data-mark="zeit">
-                bis heute 23:59
-              </mark>
-              bezahlen:
-              <span class="sim-url">
-                <mark class="sim-mark" data-mark="adresse">
-                  paket-zustellung-ch.info
-                </mark>
-                /z/8812
-                <span class="sim-tap" aria-hidden="true">
-                  <Icon name="pointer" size={20} strokeWidth={2} />
-                </span>
-              </span>
+              Ihr Paket konnte nicht zugestellt werden. Zollgebühr{' '}
+              {/* Auf je einer Zeile: Die Marker schliessen sonst ein Leerzeichen mit ein. */}
+              {/* prettier-ignore */}
+              <mark class="sim-mark" data-mark="betrag">CHF 2.40</mark> {/* prettier-ignore */}
+              <mark class="sim-mark" data-mark="zeit">bis heute 23:59</mark> bezahlen:{' '}
+              {/* prettier-ignore */}
+              <span class="sim-url"><mark class="sim-mark" data-mark="adresse">paket-zustellung-ch.info</mark>/z/8812<span class="sim-tap" aria-hidden="true"><Icon name="pointer" size={20} strokeWidth={2} /></span></span>
             </p>
 
             <ul class="sim-signals" aria-label="Warnsignale in dieser Nachricht">
@@ -163,7 +154,7 @@ const steps = [
     />
   </div>
 
-  <div class="sim-controls" data-sim-controls>
+  <div class="sim-controls">
     <ol class="sim-steps">
       {steps.map((item) => (
         <li>
@@ -171,7 +162,6 @@ const steps = [
             type="button"
             class="sim-step"
             data-sim-step={item.step}
-            data-sim-station={item.step}
             aria-pressed={item.step === 1 ? 'true' : 'false'}
           >
             <span class="sim-step-num mono" aria-hidden="true">

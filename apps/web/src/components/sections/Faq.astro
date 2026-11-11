@@ -63,10 +63,10 @@ const faqs = [
           Erstens: Bank oder Kartenherausgeber sofort anrufen und die Karte sperren. Zweitens:
           Passwörter ändern und den Zwei-Faktor-Login einschalten. Drittens: Anzeige bei der
           Kantonspolizei. Viertens: Meldung ans{' '}
-          <a class="link" href={sources.bacsMelden.url} target="_blank" rel="noopener">
-            BACS<span class="sr-only"> (Meldeformular, externer Link)</span>
-          </a>
-          . Und: Es ist keine Schande. Betrug trifft Menschen jeden Alters.
+          {/* Auf einer Zeile: Ein Umbruch vor dem Punkt würde als Leerzeichen sichtbar. */}
+          {/* prettier-ignore */}
+          <span><a class="link" href={sources.bacsMelden.url} target="_blank" rel="noopener">BACS<span class="sr-only"> (Meldeformular, externer Link)</span></a>.</span>{' '}
+          Und: Es ist keine Schande. Betrug trifft Menschen jeden Alters.
         </p>
       </details>
     </div>

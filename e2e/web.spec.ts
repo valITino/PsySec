@@ -548,6 +548,245 @@ test.describe('psyber.tech', () => {
     await context.close();
   });
 
+  // ------------------------------------------------------------------ Befunde aus dem Review
+
+  test('offenes Menü lässt sich scrollen, auch wenn das sanfte Scrollen läuft', async ({
+    browser,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop', 'Prüfung mit dem Mausrad.');
+    // Niedriges Fenster: Das Menü ist höher als der Bildschirm.
+    const context = await browser.newContext({ viewport: { width: 1280, height: 520 } });
+    const page = await context.newPage();
+    await page.goto(`${WEB}/`);
+    await ready(page);
+    await page.mouse.move(640, 300);
+    await page.mouse.wheel(0, 700);
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(300);
+    await page.waitForTimeout(700); // das sanfte Scrollen kommt zur Ruhe
+    const before = await page.evaluate(() => Math.round(window.scrollY));
+
+    await page.getByRole('button', { name: 'Menü' }).click();
+    const menu = page.locator('[data-menu]');
+    await expect(menu).toBeVisible();
+    expect(await menu.evaluate((element) => element.scrollHeight > element.clientHeight)).toBe(
+      true,
+    );
+    // Der Zeiger steht nach dem Klick noch auf dem Button: erst über das Menü bewegen.
+    await page.mouse.move(640, 320);
+    await page.mouse.wheel(0, 300);
+    await expect.poll(() => menu.evaluate((element) => element.scrollTop)).toBeGreaterThan(50);
+    // Die Seite dahinter bleibt stehen (ein, zwei Pixel läuft das sanfte Scrollen noch aus).
+    const after = await page.evaluate(() => Math.round(window.scrollY));
+    expect(Math.abs(after - before)).toBeLessThanOrEqual(3);
+    await context.close();
+  });
+
+  test('Kontaktformular sendet nie am Skript vorbei: keine Eingaben in der Adresse', async ({
+    page,
+  }) => {
+    const calls = await mockApi(page);
+    // Das Skript des Formulars lädt nicht (Funkloch, blockierter Abruf).
+    await page.route('**/_astro/contact.*.js', (route) => route.abort());
+    await page.goto(`${WEB}/#kontakt`);
+    await expect(page.locator('[data-contact]')).toHaveAttribute('method', 'post');
+    const submit = page.getByRole('button', { name: 'Anfrage senden' });
+    await submit.scrollIntoViewIfNeeded();
+    await page.getByLabel('Name').fill('Familie Muster');
+    await page.getByLabel('E-Mail').fill('familie@example.ch');
+    await submit.click();
+
+    await expect(page.getByRole('alert')).toContainText('Das hat nicht geklappt.');
+    expect(new URL(page.url()).search).toBe('');
+    await expect(page.getByLabel('Name')).toHaveValue('Familie Muster');
+    expect(calls).toEqual([]);
+  });
+
+  test('Kontaktformular: Wer vor dem Skript klickt, wird danach normal bedient', async ({
+    page,
+  }) => {
+    await mockApi(page);
+    // Das Skript des Formulars kommt erst mit Verspätung an.
+    await page.route('**/_astro/contact.*.js', async (route) => {
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await route.continue();
+    });
+    await page.goto(`${WEB}/#kontakt`);
+    const submit = page.getByRole('button', { name: 'Anfrage senden' });
+    await submit.scrollIntoViewIfNeeded();
+    await submit.click();
+    expect(new URL(page.url()).search).toBe('');
+    // Sobald das Skript da ist, läuft das Absenden weiter: hier mit den Hinweisen an den Feldern.
+    await expect(page.getByText('Bitte geben Sie Ihren Namen ein.')).toBeVisible();
+    expect(new URL(page.url()).search).toBe('');
+  });
+
+  test('Drehbuch: Die angepinnte Bühne passt auch in ein niedriges Fenster', async ({
+    browser,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop', 'Angepinnt wird nur auf breiten Bildschirmen.');
+    for (const viewport of [
+      { width: 1280, height: 740 },
+      { width: 1440, height: 790 },
+      { width: 1920, height: 740 },
+    ]) {
+      const context = await browser.newContext({ viewport });
+      const page = await context.newPage();
+      await page.goto(`${WEB}/#ablauf`);
+      await ready(page);
+      const measured = await page.evaluate(async () => {
+        const root = document.querySelector<HTMLElement>('.drehbuch')!;
+        const top = root.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top: top + window.innerHeight * 1.7, behavior: 'instant' });
+        await new Promise((resolve) => setTimeout(resolve, 900));
+        const bottoms = [...root.querySelectorAll('.fix')].map(
+          (card) => card.getBoundingClientRect().bottom,
+        );
+        return {
+          pinned: 'pinned' in root.dataset,
+          stage: root.querySelector('.drehbuch-stage')!.getBoundingClientRect().height,
+          cards: Math.max(...bottoms),
+        };
+      });
+      const name = `${viewport.width}×${viewport.height}`;
+      expect(measured.pinned, name).toBe(true);
+      expect(Math.round(measured.stage), name).toBe(viewport.height);
+      expect(measured.cards, name).toBeLessThanOrEqual(viewport.height - 8);
+      await context.close();
+    }
+  });
+
+  test('Ticker: «Band fortsetzen» lässt das Band wirklich weiterlaufen', async ({ page }) => {
+    await page.goto(`${WEB}/`);
+    await ready(page);
+    const ticker = page.locator('[data-ticker]');
+    await ticker.scrollIntoViewIfNeeded();
+    const state = () =>
+      ticker
+        .locator('.ticker-row')
+        .first()
+        .evaluate((row) => getComputedStyle(row).animationPlayState);
+    const toggle = ticker.getByRole('button');
+    await expect(toggle).toHaveAccessibleName('Band anhalten');
+    await page.mouse.move(5, 5); // der Zeiger liegt nicht über dem Band
+    expect(await state()).toBe('running');
+
+    await toggle.click();
+    await expect(toggle).toHaveAccessibleName('Band fortsetzen');
+    expect(await state()).toBe('paused');
+
+    // Der Fokus liegt weiter auf dem Button: Das Band läuft trotzdem wieder.
+    await toggle.click();
+    await page.mouse.move(5, 5);
+    await expect(toggle).toHaveAccessibleName('Band anhalten');
+    await expect(toggle).toBeFocused();
+    expect(await state()).toBe('running');
+  });
+
+  test('Reduzierte Bewegung: Im Hero hängt nichts am Scrollen', async ({ browser }, testInfo) => {
+    const context = await browser.newContext({ ...testInfo.project.use, reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    await page.goto(`${WEB}/`);
+    await page.locator('[data-sim][data-ready]').waitFor();
+    const hero = page.locator('[data-hero]');
+    const read = () =>
+      hero.evaluate((element) => ({
+        progress: element.style.getPropertyValue('--hero-p'),
+        question: getComputedStyle(element.querySelector('.q1')!).opacity,
+        pinned: 'pinned' in element.dataset,
+      }));
+    const before = await read();
+    await page.evaluate(() => window.scrollTo({ top: 400, behavior: 'instant' }));
+    await page.waitForTimeout(300);
+    expect(await read()).toEqual(before);
+    expect(before).toEqual({ progress: '', question: '1', pinned: false });
+    // Der Globus zeigt von Anfang an den Endzustand.
+    await expect(hero.locator('[data-hero-patch]')).toHaveText('100 %');
+    await context.close();
+  });
+
+  test('«Der erste Schritt»: Nach «Zurück» gilt die wiederhergestellte Auswahl', async ({
+    page,
+  }) => {
+    await page.goto(`${WEB}/`);
+    await ready(page);
+    const cta = page.getByRole('link', { name: 'Umfrage starten' });
+    // Der Browser stellt die gewählte Karte wieder her, ohne «change» zu melden.
+    await page.evaluate(() => {
+      const radio = document.querySelector<HTMLInputElement>('input[name="fokus"][value="vor"]')!;
+      radio.checked = true;
+      window.dispatchEvent(new PageTransitionEvent('pageshow', { persisted: false }));
+    });
+    await expect(cta).toHaveAttribute(
+      'href',
+      'https://forms.psyber.tech/?quelle=website&fokus=vor',
+    );
+  });
+
+  test('Einblenden klappt auch, wenn ein Teil höher ist als das Fenster', async ({
+    browser,
+  }, testInfo) => {
+    test.skip(testInfo.project.name !== 'desktop', 'Fenstergrösse setzt dieser Test selbst.');
+    // Handy im Querformat: Die Paket-Treppe ist viel höher als der Bildschirm.
+    const context = await browser.newContext({ viewport: { width: 568, height: 320 } });
+    const page = await context.newPage();
+    await page.goto(`${WEB}/`);
+    await ready(page);
+    const stairs = page.locator('[data-stairs]');
+    await expect(stairs).toHaveAttribute('data-animated', '');
+    await stairs.evaluate(async (element) => {
+      const top = element.getBoundingClientRect().top + window.scrollY;
+      for (let offset = -200; offset <= 600; offset += 100) {
+        window.scrollTo({ top: top + offset, behavior: 'instant' });
+        await new Promise((resolve) => setTimeout(resolve, 80));
+      }
+    });
+    await expect(stairs).toHaveClass(/is-in/);
+    await context.close();
+  });
+
+  test('Unterseiten: Der Schalter für Bewegung bleibt klein und liegt nicht über dem Text', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, 'Am Handy stehen die Knöpfe als Zeile am Seitenende');
+    await page.goto(`${WEB}/impressum`);
+    const motion = page.locator('[data-motion-toggle]');
+    await expect(motion).toBeVisible();
+    await page.mouse.move(700, 300);
+    expect((await motion.boundingBox())!.width).toBeLessThan(48);
+    await expect(motion).toHaveAccessibleName('Bewegung pausieren');
+    // Beide Knöpfe stehen in einem eigenen, benannten Bereich.
+    // (Der Bereich selbst hat keine Fläche: Die Knöpfe darin schweben.)
+    await expect(
+      page.getByRole('complementary', { name: 'Cookie-Hinweis und Bewegung' }),
+    ).toHaveCount(1);
+    // Im Footer wirken die Übergänge wie auf der Startseite (nichts ist dauerhaft abgeschaltet).
+    const transition = await page
+      .locator('footer nav a')
+      .first()
+      .evaluate((link) => getComputedStyle(link).transitionDuration);
+    expect(transition).not.toBe('0s');
+  });
+
+  test('Satzzeichen stehen ohne Lücke: FAQ, SMS-Adresse, Titel der Datenschutzerklärung', async ({
+    page,
+  }) => {
+    await page.goto(`${WEB}/`);
+    await layOutAll(page);
+    await expect(page.locator('.faq-a').last()).toContainText(
+      'Meldung ans BACS (Meldeformular, externer Link). Und: Es ist keine Schande.',
+    );
+    await expect(page.locator('.sim-url')).toHaveText(/^paket-zustellung-ch\.info\/z\/8812/);
+
+    await page.goto(`${WEB}/datenschutz`);
+    const title = page.getByRole('heading', { level: 1 });
+    // Mit weichem Trennzeichen, nicht mit einer sichtbaren «&shy;»-Zeichenfolge
+    await expect(title).toHaveText('Datenschutz­erklärung');
+    await expect(title).not.toContainText('&');
+    await page.goto(`${WEB}/impressum`);
+    await expect(page.getByText('security@psyber.tech. Danke, dass Sie uns helfen.')).toBeVisible();
+  });
+
   test('404, security.txt und Rechtliches', async ({ page, request }) => {
     const response = await page.goto(`${WEB}/gibt-es-nicht`);
     expect(response?.status()).toBe(404);

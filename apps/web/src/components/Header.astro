@@ -58,7 +58,8 @@ const link = (hash: string) => (home ? hash : href(`/${hash}`));
     </div>
   </div>
 
-  <div class="menu" id="mobile-menu" data-menu hidden>
+  {/* data-lenis-prevent: Das Menü scrollt selbst, auch wenn die Seite dahinter gesperrt ist. */}
+  <div class="menu" id="mobile-menu" data-menu data-lenis-prevent hidden>
     <div class="menu-owl" aria-hidden="true">
       <Owl mood="skeptisch" />
     </div>
@@ -219,9 +220,9 @@ const link = (hash: string) => (home ? hash : href(`/${hash}`));
     min-width: 2.75rem;
     min-height: 2.75rem;
     padding-inline: 1.125rem 1rem;
-    border: 1px solid rgb(244 244 239 / 0.42);
+    border: 1px solid rgb(var(--bone-rgb) / 0.42);
     border-radius: var(--r-pill);
-    background-color: rgb(8 8 11 / 0.5);
+    background-color: rgb(var(--void-rgb) / 0.5);
     color: var(--bone);
     font-size: var(--fs-meta);
     font-weight: 600;
@@ -279,7 +280,8 @@ const link = (hash: string) => (home ? hash : href(`/${hash}`));
     min-height: 0;
     padding: 0.375rem;
     border-color: var(--hairline);
-    background-color: rgb(17 17 21 / 0.78);
+    background-color: rgb(var(--carbon-rgb) / 0.78);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
     backdrop-filter: blur(16px) saturate(1.4);
   }
 
@@ -330,8 +332,8 @@ const link = (hash: string) => (home ? hash : href(`/${hash}`));
     overscroll-behavior: contain;
     background-color: var(--void);
     background-image:
-      radial-gradient(60rem 40rem at 100% 0%, rgb(182 120 247 / 0.3), transparent 70%),
-      radial-gradient(40rem 30rem at 0% 100%, rgb(61 30 134 / 0.5), transparent 70%);
+      radial-gradient(60rem 40rem at 100% 0%, rgb(var(--nebula-rgb) / 0.3), transparent 70%),
+      radial-gradient(40rem 30rem at 0% 100%, rgb(var(--space-rgb) / 0.5), transparent 70%);
   }
 
   /* Die Eule schaut im Menü zu (nur wo Platz ist) */

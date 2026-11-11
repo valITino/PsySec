@@ -44,7 +44,7 @@ const cta = primaryCta(true);
           </li>
           <li class="hud-hint">
             <span class="hud-drag">Ziehen zum Drehen</span>
-            <span>Scrollen zum Patchen</span>
+            <span class="hud-scroll">Scrollen zum Patchen</span>
           </li>
         </ul>
 
@@ -126,8 +126,12 @@ const cta = primaryCta(true);
     position: absolute;
     inset: 0;
     background-image:
-      linear-gradient(to bottom, rgb(8 8 11 / 0) 70%, var(--void) 100%),
-      radial-gradient(64% 60% at 76% 44%, rgb(61 30 134 / 0.42) 0%, rgb(61 30 134 / 0) 70%);
+      linear-gradient(to bottom, rgb(var(--void-rgb) / 0) 70%, var(--void) 100%),
+      radial-gradient(
+        64% 60% at 76% 44%,
+        rgb(var(--space-rgb) / 0.42) 0%,
+        rgb(var(--space-rgb) / 0) 70%
+      );
   }
 
   /*
@@ -142,26 +146,26 @@ const cta = primaryCta(true);
     height: 1.5px;
     border-radius: 50%;
     box-shadow:
-      7vw 18svh rgb(244 244 239 / 0.6),
-      21vw 9svh rgb(244 244 239 / 0.4),
-      33vw 27svh rgb(244 244 239 / 0.5),
-      44vw 12svh rgb(182 120 247 / 0.8),
-      58vw 6svh rgb(244 244 239 / 0.45),
-      67vw 21svh rgb(244 244 239 / 0.35),
-      88vw 11svh rgb(244 244 239 / 0.55),
-      95vw 34svh rgb(244 244 239 / 0.4),
-      12vw 44svh rgb(244 244 239 / 0.35),
-      27vw 58svh rgb(182 120 247 / 0.7),
-      39vw 71svh rgb(244 244 239 / 0.45),
-      52vw 49svh rgb(244 244 239 / 0.3),
-      63vw 83svh rgb(244 244 239 / 0.5),
-      79vw 64svh rgb(244 244 239 / 0.35),
-      91vw 77svh rgb(244 244 239 / 0.45),
-      4vw 81svh rgb(244 244 239 / 0.4),
-      18vw 92svh rgb(244 244 239 / 0.3),
-      47vw 90svh rgb(182 120 247 / 0.6),
-      72vw 39svh rgb(244 244 239 / 0.3),
-      84vw 52svh rgb(244 244 239 / 0.5);
+      7vw 18svh rgb(var(--bone-rgb) / 0.6),
+      21vw 9svh rgb(var(--bone-rgb) / 0.4),
+      33vw 27svh rgb(var(--bone-rgb) / 0.5),
+      44vw 12svh rgb(var(--nebula-rgb) / 0.8),
+      58vw 6svh rgb(var(--bone-rgb) / 0.45),
+      67vw 21svh rgb(var(--bone-rgb) / 0.35),
+      88vw 11svh rgb(var(--bone-rgb) / 0.55),
+      95vw 34svh rgb(var(--bone-rgb) / 0.4),
+      12vw 44svh rgb(var(--bone-rgb) / 0.35),
+      27vw 58svh rgb(var(--nebula-rgb) / 0.7),
+      39vw 71svh rgb(var(--bone-rgb) / 0.45),
+      52vw 49svh rgb(var(--bone-rgb) / 0.3),
+      63vw 83svh rgb(var(--bone-rgb) / 0.5),
+      79vw 64svh rgb(var(--bone-rgb) / 0.35),
+      91vw 77svh rgb(var(--bone-rgb) / 0.45),
+      4vw 81svh rgb(var(--bone-rgb) / 0.4),
+      18vw 92svh rgb(var(--bone-rgb) / 0.3),
+      47vw 90svh rgb(var(--nebula-rgb) / 0.6),
+      72vw 39svh rgb(var(--bone-rgb) / 0.3),
+      84vw 52svh rgb(var(--bone-rgb) / 0.5);
     content: '';
   }
 
@@ -181,7 +185,7 @@ const cta = primaryCta(true);
   .hero-globe::after {
     position: absolute;
     inset: 0;
-    background: linear-gradient(to bottom, rgb(8 8 11 / 0) 22%, var(--void) 50%);
+    background: linear-gradient(to bottom, rgb(var(--void-rgb) / 0) 22%, var(--void) 50%);
     content: '';
     pointer-events: none;
   }
@@ -192,7 +196,11 @@ const cta = primaryCta(true);
     inset: 6%;
     border-radius: 50%;
     background:
-      radial-gradient(circle at 68% 20%, rgb(182 120 247 / 0.36) 0%, rgb(182 120 247 / 0) 48%),
+      radial-gradient(
+        circle at 68% 20%,
+        rgb(var(--nebula-rgb) / 0.36) 0%,
+        rgb(var(--nebula-rgb) / 0) 48%
+      ),
       radial-gradient(
         circle at 50% 50%,
         var(--orb-core) 0%,
@@ -200,10 +208,10 @@ const cta = primaryCta(true);
         var(--orb-edge) 100%
       );
     box-shadow:
-      0 0 0 1px rgb(182 120 247 / 0.55),
-      0 0 90px 0 rgb(182 120 247 / 0.32),
-      inset 0 0 70px rgb(182 120 247 / 0.2),
-      inset -3rem -4rem 7rem rgb(8 8 11 / 0.8);
+      0 0 0 1px rgb(var(--nebula-rgb) / 0.55),
+      0 0 90px 0 rgb(var(--nebula-rgb) / 0.32),
+      inset 0 0 70px rgb(var(--nebula-rgb) / 0.2),
+      inset -3rem -4rem 7rem rgb(var(--void-rgb) / 0.8);
   }
 
   .hero-canvas {
@@ -309,13 +317,6 @@ const cta = primaryCta(true);
     margin-top: clamp(1rem, 4vw, 3rem);
   }
 
-  /* Ab Tablet schweben unten die Knöpfe: Platz lassen */
-  @media (min-width: 48rem) {
-    .hero-inner {
-      padding-bottom: 5.75rem;
-    }
-  }
-
   @media (min-width: 64rem) {
     .hero-globe {
       top: 50%;
@@ -407,6 +408,13 @@ const cta = primaryCta(true);
 
   @media (min-width: 64rem) and (hover: none) {
     .hud-drag {
+      display: none;
+    }
+  }
+
+  /* Reduzierte Bewegung: Nichts hängt am Scrollen, der Globus zeigt den Endzustand (hero.ts). */
+  @media (prefers-reduced-motion: reduce) {
+    .hud-scroll {
       display: none;
     }
   }

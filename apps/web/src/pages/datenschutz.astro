@@ -9,7 +9,8 @@ import Page from '../layouts/Page.astro';
   description="Welche Daten PSYber bearbeitet, wozu, wo sie liegen und wann sie gelöscht werden. Kurz gesagt: so wenig wie möglich, keine Cookies, kein Tracking."
   path="/datenschutz"
 >
-  <Legal kicker="Rechtliches" title="Datenschutz&shy;erklärung" stand="November 2026">
+  {/* Weiches Trennzeichen als Zeichen: Eine Entität in einem Attribut käme wörtlich an. */}
+  <Legal kicker="Rechtliches" title={'Datenschutz\u00ADerklärung'} stand="November 2026">
     <p>
       Diese Erklärung gilt für psyber.tech, forms.psyber.tech und surprise.psyber.tech. Sie richtet
       sich nach dem Schweizer Datenschutzgesetz (DSG). Unser Grundsatz: so wenig Daten wie möglich.
@@ -18,7 +19,10 @@ import Page from '../layouts/Page.astro';
     <h2>Das Wichtigste in Kürze</h2>
     <ul>
       <li>Wir setzen keine Cookies und nutzen kein Tracking.</li>
-      <li>Schriften und Skripte laden wir von unseren eigenen Adressen, nicht von Dritten.</li>
+      <li>
+        Schriften und Skripte laden wir von unseren eigenen Adressen. Einzige Ausnahme ist der
+        Spam-Schutz der Formulare (siehe unten).
+      </li>
       <li>Die Umfrage ist anonym. Wir speichern dazu keine IP-Adressen.</li>
       <li>
         Eine E-Mail-Adresse für die Warteliste ist freiwillig und liegt getrennt von den Antworten.
@@ -69,8 +73,8 @@ import Page from '../layouts/Page.astro';
     <h3>Warteliste</h3>
     <p>
       Am Ende der Umfrage können Sie freiwillig eine E-Mail-Adresse hinterlassen. Sie wird getrennt
-      von Ihren Antworten gespeichert, ohne Verbindung zueinander, und nur verwendet, um Sie über
-      den Start von PSYber zu informieren.
+      von Ihren Antworten gespeichert, ohne Verbindung zueinander und nur mit dem Monat der
+      Eintragung. Wir verwenden sie einzig, um Sie über den Start von PSYber zu informieren.
     </p>
 
     <h3>Anonyme Zähler</h3>
@@ -86,6 +90,12 @@ import Page from '../layouts/Page.astro';
       Damit Ihre Antworten bei einem versehentlichen Neuladen nicht verloren gehen, legt die Umfrage
       den Zwischenstand im Sitzungsspeicher Ihres Browsers ab. Er verlässt Ihr Gerät nicht und wird
       nach dem Absenden oder beim Schliessen des Tabs gelöscht. Das ist kein Cookie.
+    </p>
+    <p>
+      Nach dem Absenden bleibt dort bis zum Schliessen des Tabs nur ein kleiner Merker: Ihre
+      Selbsteinschätzung und Ihre Schwerpunkte. So steht die Danke-Seite mit Ihren Tipps auch nach
+      einem Neuladen noch da. Die Checkliste merkt sich im selben Speicher, dass ihr Aufruf schon
+      gezählt ist.
     </p>
     <p>
       Die Startseite merkt sich im Verlauf des Tabs, bei welchem Abschnitt Sie gerade sind. So

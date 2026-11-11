@@ -32,7 +32,7 @@ export function initEggs(lock: () => ScrollLock | null = () => null): void {
   const hello = document.body.dataset.hello ?? '';
   // eslint-disable-next-line no-console -- Easter Egg: diese Nachricht ist der Zweck
   console.log(
-    `%cΨ PSYber%c\nDu liest Quellcode? Layer 8 ist bei dir offensichtlich gepatcht.\nSag hallo: ${hello}%c\n// Noch nicht genug? ↑ ↑ ↓ ↓ ← → ← → B A`,
+    `%c🦉 PSYber%c\nDu liest Quellcode? Layer 8 ist bei dir offensichtlich gepatcht.\nSag hallo: ${hello}%c\n// Noch nicht genug? ↑ ↑ ↓ ↓ ← → ← → B A`,
     BADGE,
     TEXT,
     HINT,

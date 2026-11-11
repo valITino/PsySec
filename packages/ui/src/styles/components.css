@@ -15,12 +15,6 @@
     padding-block: var(--section-y);
   }
 
-  .grid-12 {
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    column-gap: clamp(1rem, 2vw, 1.5rem);
-  }
-
   .measure {
     max-width: 36em; /* rund 68 Zeichen in Manrope */
   }
@@ -76,8 +70,8 @@
   .sheet-space {
     background-image: radial-gradient(
       70rem 46rem at 88% 0%,
-      rgb(182 120 247 / 0.42) 0%,
-      rgb(182 120 247 / 0) 68%
+      rgb(var(--nebula-rgb) / 0.42) 0%,
+      rgb(var(--nebula-rgb) / 0) 68%
     );
   }
 
@@ -88,8 +82,8 @@
     background-color: var(--carbon);
     background-image: radial-gradient(
       46rem 30rem at 100% 0%,
-      rgb(182 120 247 / 0.26) 0%,
-      rgb(182 120 247 / 0) 70%
+      rgb(var(--nebula-rgb) / 0.26) 0%,
+      rgb(var(--nebula-rgb) / 0) 70%
     );
   }
 
@@ -103,7 +97,7 @@
     position: absolute;
     inset: 0;
     z-index: -1;
-    background-image: radial-gradient(rgb(244 244 239 / 0.16) 1px, transparent 1.5px);
+    background-image: radial-gradient(rgb(var(--bone-rgb) / 0.16) 1px, transparent 1.5px);
     background-size: 22px 22px;
     content: '';
     pointer-events: none;
@@ -353,9 +347,9 @@
   }
 
   .btn-secondary {
-    --btn-bg: rgb(244 244 239 / 0.06);
+    --btn-bg: rgb(var(--bone-rgb) / 0.06);
     --btn-fg: var(--bone);
-    --btn-border: rgb(244 244 239 / 0.42);
+    --btn-border: rgb(var(--bone-rgb) / 0.42);
   }
 
   /* Lichtkante: kurzer Acid-Strich auf der oberen Kante des sekundären Buttons */
@@ -397,7 +391,7 @@
     }
 
     .btn-secondary:hover:not(:disabled, [aria-disabled='true']) {
-      --btn-bg: rgb(244 244 239 / 0.1);
+      --btn-bg: rgb(var(--bone-rgb) / 0.1);
       --btn-border: var(--acid);
       box-shadow: 0 0 20px rgb(var(--acid-rgb) / 0.2);
     }
@@ -476,7 +470,7 @@
     border: 1px solid var(--border);
     border-radius: var(--r-card);
     background-color: var(--surface);
-    background-image: linear-gradient(165deg, rgb(244 244 239 / 0.045) 0%, transparent 45%);
+    background-image: linear-gradient(165deg, rgb(var(--bone-rgb) / 0.045) 0%, transparent 45%);
     color: var(--fg);
   }
 
@@ -503,7 +497,7 @@
     }
 
     .card-hover:hover {
-      border-color: rgb(244 244 239 / 0.4);
+      border-color: rgb(var(--bone-rgb) / 0.4);
       transform: translateY(-2px);
     }
   }
@@ -516,7 +510,7 @@
     gap: 0.375rem;
     min-height: 1.875rem;
     padding: 0.25rem 0.75rem;
-    border: 1px solid rgb(244 244 239 / 0.3);
+    border: 1px solid rgb(var(--bone-rgb) / 0.3);
     border-radius: var(--r-pill);
     color: var(--fg);
     font-size: var(--fs-micro);

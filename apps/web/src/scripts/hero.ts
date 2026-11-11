@@ -3,8 +3,9 @@
  *
  * Auf grossen Bildschirmen bleibt der Hero kurz stehen (CSS: sticky). Auf dieser Strecke
  * tritt die erste Frage zurück, und die Knoten auf dem Globus werden «gepatcht». Auf kleinen
- * Bildschirmen und bei reduzierter Bewegung scrollt der Hero normal; der Patch-Stand folgt
- * dann einfach dem Scrollen. Alles hier ist Dekoration: Die Inhalte stehen im Markup.
+ * Bildschirmen scrollt der Hero normal; der Patch-Stand folgt dann einfach dem Scrollen.
+ * Bei reduzierter Bewegung hängt nichts am Scrollen: Der Globus zeigt von Anfang an den
+ * Endzustand. Alles hier ist Dekoration: Die Inhalte stehen im Markup.
  */
 import { motionAllowed } from '@psyber/ui/motion';
 import { startClock } from './clock.ts';
@@ -15,7 +16,8 @@ export function initHero(root: HTMLElement): void {
   const canvas = root.querySelector<HTMLCanvasElement>('[data-globe]');
   const readout = root.querySelector<HTMLElement>('[data-hero-patch]');
   let globe: Globe | null = null;
-  let progress = 0;
+  // Reduzierte Bewegung: gleich der Endzustand, alles gepatcht.
+  let progress = motionAllowed() ? 0 : 1;
 
   // Der Globus ist Dekoration: Er entsteht in einem eigenen, ruhigen Moment nach dem Start.
   if (canvas) {
@@ -28,11 +30,15 @@ export function initHero(root: HTMLElement): void {
   }
 
   startClock(root.querySelector<HTMLElement>('[data-swiss-time]'));
+  if (!motionAllowed()) {
+    if (readout) readout.textContent = '100 %';
+    return;
+  }
   if (!track) return;
 
   const pin = window.matchMedia('(min-width: 64rem) and (min-height: 40rem)');
   const applyPin = () => {
-    if (motionAllowed() && pin.matches) root.dataset.pinned = '';
+    if (pin.matches) root.dataset.pinned = '';
     else delete root.dataset.pinned;
   };
   applyPin();

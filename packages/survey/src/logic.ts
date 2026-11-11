@@ -5,6 +5,8 @@
 import {
   FOKUS,
   QUELLEN,
+  QUELLEN_STORED,
+  SCALE_VALUES,
   VW_MAX,
   VW_MIN,
   q6Rows,
@@ -29,6 +31,16 @@ export function normalizeQuelle(raw: string | null | undefined): Quelle {
   const value = (raw ?? '').trim().toLowerCase();
   if (!value) return 'direkt';
   return (QUELLEN as readonly string[]).includes(value) ? (value as Quelle) : 'andere';
+}
+
+/**
+ * Quelle aus einem gespeicherten Zwischenstand. Sie ist schon normalisiert und wird darum nur
+ * geprüft: `direkt` und `andere` bleiben, was sie sind (unlesbar → `direkt`).
+ */
+export function storedQuelle(value: unknown): Quelle {
+  return typeof value === 'string' && (QUELLEN_STORED as readonly string[]).includes(value)
+    ? (value as Quelle)
+    : 'direkt';
 }
 
 /** `?fokus=`: vor, nach, unklar; sonst leer */
@@ -86,6 +98,88 @@ export function parseChf(raw: string): number | null {
 }
 
 const Q11_FIELDS: readonly Q11Field[] = ['a', 'b', 'c', 'd'];
+
+// ---------------------------------------------------------------- Zwischenstand prüfen
+
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === 'object' && value !== null && !Array.isArray(value);
+
+const isScale = (value: unknown): value is Scale =>
+  typeof value === 'number' && (SCALE_VALUES as readonly number[]).includes(value);
+
+/** Aus einem Objekt nur die Zeilen von Frage 6 mit gültigem Wert */
+function q6From(value: unknown): NonNullable<Answers['q6']> {
+  const out: NonNullable<Answers['q6']> = {};
+  if (!isRecord(value)) return out;
+  for (const row of Object.keys(q6Rows) as Q6Row[]) {
+    const given = value[row];
+    if (isScale(given)) out[row] = given;
+  }
+  return out;
+}
+
+/**
+ * Zwischenstand aus dem Speicher des Browsers: übernimmt nur, was zur Umfrage passt. Alles andere
+ * (älterer Stand, beschädigter Eintrag) fällt weg, statt später beim Anzeigen zu stolpern oder
+ * bei jedem Absenden von der API abgelehnt zu werden.
+ */
+export function sanitizeDraft(value: unknown): Draft {
+  const draft = emptyDraft();
+  if (!isRecord(value)) return draft;
+
+  const raw = isRecord(value.answers) ? value.answers : {};
+  const answers: Record<string, unknown> = {};
+  for (const question of questions) {
+    const given = raw[question.id];
+    switch (question.type) {
+      case 'single':
+        if (typeof given === 'string' && Object.hasOwn(question.options, given)) {
+          answers[question.id] = given;
+        }
+        break;
+      case 'multi': {
+        if (!Array.isArray(given)) break;
+        // Reihenfolge wie in der Frage, höchstens so viele wie erlaubt
+        const valid = Object.keys(question.options).filter((option) => given.includes(option));
+        const kept = question.max === undefined ? valid : valid.slice(0, question.max);
+        if (kept.length > 0) answers[question.id] = kept;
+        break;
+      }
+      case 'scale':
+        if (isScale(given)) answers[question.id] = given;
+        break;
+      case 'matrix_scale': {
+        const rows = q6From(given);
+        if (Object.keys(rows).length > 0) answers[question.id] = rows;
+        break;
+      }
+      case 'text':
+        if (typeof given === 'string' && given) {
+          answers[question.id] = given.slice(0, question.maxLength);
+        }
+        break;
+      case 'van_westendorp':
+      case 'waitlist':
+        // Liegen als Rohwerte ausserhalb von `answers` (siehe unten).
+        break;
+    }
+  }
+  draft.answers = answers as Answers;
+
+  if (isRecord(value.q11)) {
+    for (const field of Q11_FIELDS) {
+      const amount = value.q11[field];
+      if (typeof amount === 'string') draft.q11[field] = amount.slice(0, 7);
+    }
+  }
+  if (isRecord(value.waitlist)) {
+    const { email, foundingFamily } = value.waitlist;
+    if (typeof email === 'string') draft.waitlist.email = email.slice(0, 254);
+    // Das Häkchen gilt nur zusammen mit einer gültigen Adresse.
+    draft.waitlist.foundingFamily = foundingFamily === true && isValidEmail(draft.waitlist.email);
+  }
+  return draft;
+}
 
 // ---------------------------------------------------------------- Validierung je Frage
 
@@ -234,10 +328,13 @@ export function buildSubmission(input: {
   fokus?: Fokus | undefined;
   turnstileToken: string;
   honeypot?: string | undefined;
+  /** Zufällige Kennung dieser Einsendung, siehe schema.ts */
+  submissionId?: string | undefined;
 }): SurveySubmission {
   const waitlist = cleanWaitlist(input.draft);
   return {
     schemaVersion: SCHEMA_VERSION,
+    ...(input.submissionId ? { submissionId: input.submissionId } : {}),
     quelle: input.quelle,
     ...(input.fokus ? { fokus: input.fokus } : {}),
     answers: cleanAnswers(input.draft) as SurveySubmission['answers'],
@@ -254,6 +351,35 @@ export interface Schwerpunkt {
   label: string;
   value: Scale;
   tip: string;
+}
+
+/**
+ * Was der Danke-Screen nach dem Absenden noch braucht: die Selbsteinschätzung (für den Test-Link)
+ * und die gezeigten Schwerpunkte. Mehr bleibt von den Antworten nicht im Browser.
+ */
+export interface DoneMarker {
+  s?: Scale;
+  q6?: NonNullable<Answers['q6']>;
+}
+
+export function doneMarker(answers: Answers): DoneMarker {
+  const top = pickSchwerpunkte(answers.q6);
+  const marker: DoneMarker = {};
+  if (answers.q4) marker.s = answers.q4;
+  if (top.length > 0) {
+    marker.q6 = Object.fromEntries(top.map((item) => [item.topic, item.value]));
+  }
+  return marker;
+}
+
+/** Liest einen gespeicherten Merker; `null`, wenn es keiner ist. */
+export function parseDoneMarker(value: unknown): DoneMarker | null {
+  if (!isRecord(value)) return null;
+  const marker: DoneMarker = {};
+  if (isScale(value.s)) marker.s = value.s;
+  const rows = q6From(value.q6);
+  if (Object.keys(rows).length > 0) marker.q6 = rows;
+  return marker;
 }
 
 /**

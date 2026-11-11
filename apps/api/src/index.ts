@@ -6,7 +6,7 @@
  */
 import { Hono } from 'hono';
 import type { AppEnv, Env } from './env.ts';
-import { cors, fail, rateLimit, securityHeaders } from './lib/http.ts';
+import { budget, cors, fail, rateLimit, securityHeaders } from './lib/http.ts';
 import { postContact } from './routes/contact.ts';
 import { postEvent } from './routes/event.ts';
 import { postSurvey } from './routes/survey.ts';
@@ -20,7 +20,7 @@ app.use('/v1/*', cors);
 app.get('/v1/health', (c) => c.json({ ok: true }));
 app.post('/v1/survey', rateLimit('RL_FORMS'), postSurvey);
 app.post('/v1/contact', rateLimit('RL_FORMS'), postContact);
-app.post('/v1/event', rateLimit('RL_EVENTS'), postEvent);
+app.post('/v1/event', rateLimit('RL_EVENTS'), budget('RL_EVENTS_ALL'), postEvent);
 
 app.notFound((c) => fail(c, 'not_found', 404));
 app.onError((error, c) => {

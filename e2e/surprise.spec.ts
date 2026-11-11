@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { readFileSync } from 'node:fs';
 import { SURPRISE } from '../playwright.config.ts';
-import { collectErrors, horizontalOverflow, mockApi } from './helpers.ts';
+import { collectErrors, cutOff, horizontalOverflow, mockApi } from './helpers.ts';
 
 const URL = `${SURPRISE}/gewinn`;
 
@@ -179,7 +179,7 @@ test.describe('surprise.psyber.tech', () => {
     await expect(fakePanel).toBeVisible();
     await expect(fakePanel).toContainText('https://psyber.tech.gutschein-sofort.ch/gewinn');
     await expect(fakePanel).toContainText(
-      'Echte Website: gutschein-sofort.ch. Eine fremde Seite, auch wenn ‹psyber.tech› in der Adresse vorkommt.',
+      'Echte Website: gutschein-sofort.ch. Eine fremde Seite, auch wenn «psyber.tech» in der Adresse vorkommt.',
     );
     await expect(echtPanel).toBeHidden();
 
@@ -258,8 +258,26 @@ test.describe('surprise.psyber.tech', () => {
     await ready(page);
     await page.keyboard.press('Shift');
     expect(await horizontalOverflow(page)).toBe(0);
+    expect(await cutOff(page)).toEqual([]);
     await page.getByRole('button', { name: 'Fälschung' }).click();
     expect(await horizontalOverflow(page)).toBe(0);
+    expect(await cutOff(page)).toEqual([]);
+
+    // Die angeklickte Adresse bleibt in ihrer Spalte und bricht nur vor dem Pfad um.
+    const [box, column] = await Promise.all([
+      page.locator('.sp-url').boundingBox(),
+      page.locator('.sp-clicked').boundingBox(),
+    ]);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(column!.x + column!.width + 0.5);
+    await expect(page.locator('.sp-url')).toHaveText(
+      /https:\/\/surprise\.\s*psyber\.tech\s*\/gewinn/,
+    );
+    // Der Rabattcode bleibt in der Angebotskarte.
+    const [code, offer] = await Promise.all([
+      page.locator('.code').boundingBox(),
+      page.locator('.offer').boundingBox(),
+    ]);
+    expect(code!.x + code!.width).toBeLessThanOrEqual(offer!.x + offer!.width);
     await context.close();
   });
 

@@ -2,7 +2,8 @@
 --
 -- Datenschutz by Design:
 --   * keine IP-Adressen, keine User-Agents, keine Fingerprints
---   * Umfrage und Warteliste nur mit Datum (YYYY-MM-DD), ohne Uhrzeit
+--   * Umfrage nur mit Datum (YYYY-MM-DD), ohne Uhrzeit; Warteliste nur mit dem Monat
+--     (als Monatserster), damit sich Antwort und E-Mail auch an ruhigen Tagen nicht zuordnen lassen
 --   * Umfrage und Warteliste haben keine gemeinsame ID und keinen Fremdschlüssel
 --   * WITHOUT ROWID: SQLite führt keine fortlaufende Zeilennummer mit, aus der sich die
 --     Reihenfolge der Einträge (und damit eine Zuordnung) ablesen liesse
@@ -40,7 +41,8 @@ CREATE TABLE survey_responses (
 
 CREATE INDEX idx_survey_day ON survey_responses (created_day);
 
--- Freiwillige E-Mail für die Warteliste, getrennt von den Antworten
+-- Freiwillige E-Mail für die Warteliste, getrennt von den Antworten.
+-- created_day enthält bewusst nur den Monat (YYYY-MM-01).
 CREATE TABLE waitlist (
   id              TEXT PRIMARY KEY,
   created_day     TEXT NOT NULL CHECK (created_day GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'),

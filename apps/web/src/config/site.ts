@@ -97,40 +97,15 @@ export const sources = {
     label: 'BACS-Jahresrückblick 2025',
     url: 'https://www.netzwoche.ch/news/2026-01-06/cybervorfaelle-nehmen-2025-nur-leicht-zu-aber-das-ist-kein-grund-zur-entwarnung',
   },
-  kriminalstatistik: {
-    label: 'Polizeiliche Kriminalstatistik 2025',
-    url: 'https://www.tcs.ch/de/testberichte-ratgeber/ratgeber/sicherheit-internet/',
-  },
-  kapoRomance: {
-    label: 'Kantonspolizei Zürich',
-    url: 'https://www.zh.ch/de/news-uebersicht/mitteilungen/2022/sicherheit-justiz/kantonspolizei/220214-romance_scam.html',
-  },
-  crimeSurveyMobbing: {
-    label: 'Crime Survey 2025',
-    url: 'https://www.cash.ch/news/starker-anstieg-von-betrugsdelikten-in-der-schweiz-976819',
-  },
   bacsMelden: {
     label: 'Meldeformular des BACS',
     url: 'https://www.report.ncsc.admin.ch/de/',
-  },
-  finma: {
-    label: 'Warnliste der FINMA',
-    url: 'https://www.finma.ch/de/finma-public/warnungen/warnliste/',
-  },
-  skppsc: {
-    label: 'Schweizerische Kriminalprävention',
-    url: 'https://www.skppsc.ch/de/themen/internet/',
-  },
-  cybercrimepolice: {
-    label: 'Warnungen der Kantonspolizei Zürich',
-    url: 'https://www.cybercrimepolice.ch',
   },
 } as const;
 
 // ---------------------------------------------------------------- Meta
 
 export const meta = {
-  name: 'PSYber',
   /** Slogan zur Eule (Logo-Kit) */
   slogan: 'Betrüger hassen diesen Blick.',
   claim: 'Wir patchen Layer 8.',

@@ -18,7 +18,13 @@ interface Props {
 const { progress = false } = Astro.props;
 ---
 
-<div class="chrome" data-chrome>
+{/* data-home: Nur auf der Startseite ist die Ecke oben frei für den ausgeklappten Schalter. */}
+<aside
+  class="chrome"
+  aria-label="Cookie-Hinweis und Bewegung"
+  data-chrome
+  data-home={progress ? '' : undefined}
+>
   {progress && (
     <>
       <div class="progress-bar" aria-hidden="true">
@@ -60,7 +66,8 @@ const { progress = false } = Astro.props;
     </div>
   </div>
 
-  <button type="button" class="chrome-motion" data-motion-toggle aria-pressed="false" hidden>
+  {/* Der Name sagt, was der Button tut; er wechselt mit dem Zustand (darum kein aria-pressed). */}
+  <button type="button" class="chrome-motion" data-motion-toggle hidden>
     <span class="chrome-motion-label" data-motion-label>
       Bewegung pausieren
     </span>
@@ -71,7 +78,7 @@ const { progress = false } = Astro.props;
       <i></i>
     </span>
   </button>
-</div>
+</aside>
 
 <style>
   /* ---------- Fortschritt ---------- */
@@ -112,7 +119,7 @@ const { progress = false } = Astro.props;
       display: block;
       width: 1px;
       height: 44svh;
-      background-color: rgb(244 244 239 / 0.28);
+      background-color: rgb(var(--bone-rgb) / 0.28);
       pointer-events: none;
     }
 
@@ -121,7 +128,7 @@ const { progress = false } = Astro.props;
       left: -3px;
       width: 7px;
       height: 1px;
-      background-color: rgb(244 244 239 / 0.5);
+      background-color: rgb(var(--bone-rgb) / 0.5);
     }
 
     .rail-dot {
@@ -162,7 +169,8 @@ const { progress = false } = Astro.props;
     height: 2.75rem;
     border: 1px solid var(--steel);
     border-radius: var(--r-pill);
-    background-color: rgb(17 17 21 / 0.82);
+    background-color: rgb(var(--carbon-rgb) / 0.82);
+    -webkit-backdrop-filter: blur(12px);
     backdrop-filter: blur(12px);
     color: var(--ash);
     transition:
@@ -221,11 +229,13 @@ const { progress = false } = Astro.props;
     }
 
     /*
-     * Ganz oben steht der Schalter mit Beschriftung da (dort ist die Ecke frei). Nach dem
-     * Scrollen bleibt nur der runde Knopf; Zeiger oder Fokus klappen die Beschriftung wieder
-     * aus. Der Name bleibt für Screenreader immer erhalten.
+     * Auf der Startseite steht der Schalter ganz oben mit Beschriftung da (im Hero ist die Ecke
+     * frei). Nach dem Scrollen und auf allen Unterseiten bleibt nur der runde Knopf, damit er nie
+     * über Text liegt; Zeiger oder Fokus klappen die Beschriftung wieder aus. Der Name bleibt für
+     * Screenreader immer erhalten.
      */
-    :global([data-header].is-scrolled) ~ .chrome .chrome-motion:not(:hover, :focus-visible) {
+    :global([data-header].is-scrolled) ~ .chrome .chrome-motion:not(:hover, :focus-visible),
+    .chrome:not([data-home]) .chrome-motion:not(:hover, :focus-visible) {
       gap: 0;
       padding-inline: 0;
     }
@@ -233,7 +243,8 @@ const { progress = false } = Astro.props;
     :global([data-header].is-scrolled)
       ~ .chrome
       .chrome-motion:not(:hover, :focus-visible)
-      .chrome-motion-label {
+      .chrome-motion-label,
+    .chrome:not([data-home]) .chrome-motion:not(:hover, :focus-visible) .chrome-motion-label {
       position: absolute;
       width: 1px;
       height: 1px;
@@ -272,7 +283,7 @@ const { progress = false } = Astro.props;
     animation-delay: -0.15s;
   }
 
-  .chrome-motion[aria-pressed='true'] .eq i {
+  :global(html[data-motion='off']) .eq i {
     animation: none;
   }
 
@@ -300,7 +311,7 @@ const { progress = false } = Astro.props;
     background-color: var(--carbon);
     background-image: radial-gradient(
       18rem 12rem at 100% 0%,
-      rgb(182 120 247 / 0.22),
+      rgb(var(--nebula-rgb) / 0.22),
       transparent 70%
     );
     color: var(--bone);

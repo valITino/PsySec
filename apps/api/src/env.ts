@@ -5,6 +5,8 @@ export interface Env {
   RL_FORMS?: RateLimit;
   /** Rate Limit für /v1/event: 30 pro Minute und IP */
   RL_EVENTS?: RateLimit;
+  /** Gesamtbudget für /v1/event: 600 pro Minute, unabhängig von der IP */
+  RL_EVENTS_ALL?: RateLimit;
   /** send_email-Binding für die Benachrichtigung bei Kontaktanfragen */
   NOTIFY?: SendEmail;
 

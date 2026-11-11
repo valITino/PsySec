@@ -1,18 +1,22 @@
 /**
  * Auswertung der Umfrage (Auftrag 8.5).
  *
- * Aufruf: pnpm analyze                       neuester Export aus reports/
+ * Aufruf: pnpm analyze                       neuester Export der Umfrage aus reports/
  *         pnpm analyze reports/export-….json bestimmter Export
  *         pnpm analyze --demo                erfundene Beispieldaten (Bericht ist als Demo markiert)
  *
  * Eingabe:  reports/export-YYYY-MM-DD.json (aus «pnpm export», ohne E-Mail-Adressen)
  * Ausgabe:  reports/umfrage-YYYY-MM-DD.html (eine Datei, keine externen Ressourcen)
+ *
+ * Exporte der lokalen Testdatenbank (reports/export-local-….json aus «pnpm export --local»)
+ * nimmt die Auswertung nie von selbst: Sie müssen ausdrücklich angegeben werden, und der
+ * Bericht dazu (umfrage-local-….html) ist als Testdaten markiert.
  */
 import { mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { basename, resolve } from 'node:path';
 import { analyze, parseExport, type Analysis, type ExportData } from './analyze/compute.ts';
 import { demoExport } from './analyze/demo.ts';
-import { fmtChf, fmtPct, renderReport } from './analyze/report.ts';
+import { criterionValue, renderReport } from './analyze/report.ts';
 
 const args = process.argv.slice(2);
 const demo = args.includes('--demo');
@@ -53,20 +57,7 @@ function summary(analysis: Analysis): string[] {
   return [
     `Antworten: ${analysis.n}`,
     ...analysis.criteria.map((entry) => {
-      const value =
-        entry.value === null
-          ? 'nicht berechenbar'
-          : entry.unit === 'share'
-            ? fmtPct(entry.value)
-            : entry.unit === 'chf'
-              ? fmtChf(entry.value)
-              : String(entry.value);
-      const target =
-        entry.unit === 'share'
-          ? fmtPct(entry.target)
-          : entry.unit === 'chf'
-            ? fmtChf(entry.target)
-            : String(entry.target);
+      const { value, target } = criterionValue(entry);
       return `  ${state[entry.state]} ${entry.label}: ${value} (Ziel mindestens ${target})`;
     }),
     `Ampel: ${{ go: 'Go', almost: 'Fast', 'no-go': 'No-Go' }[analysis.verdict]}`,
@@ -79,9 +70,11 @@ const day =
   analysis.exportedDay ||
   new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Zurich' }).format(new Date());
 mkdirSync('reports', { recursive: true });
-const target = resolve('reports', demo ? 'umfrage-demo.html' : `umfrage-${day}.html`);
+const name = demo ? 'demo' : analysis.local ? `local-${day}` : day;
+const target = resolve('reports', `umfrage-${name}.html`);
 writeFileSync(target, renderReport({ ...analysis, exportedDay: day }));
 
 console.log(`Quelle: ${source}`);
+if (analysis.local) console.log('Achtung: lokale Testdaten, kein Ergebnis der Umfrage.');
 for (const line of summary(analysis)) console.log(line);
 console.log(`Bericht: ${target}`);

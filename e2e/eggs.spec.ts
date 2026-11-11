@@ -54,8 +54,15 @@ test.describe('Easter Eggs auf psyber.tech', () => {
 
     const terminal = page.getByRole('dialog', { name: 'PSYber-Terminal' });
     await expect(terminal).toHaveCount(0);
+    // Das Stylesheet des Terminals lädt erst mit dem Terminal, nicht mit jeder Seite.
+    const sheet = page.locator('link[rel="stylesheet"][href*="terminal"]');
+    await expect(sheet).toHaveCount(0);
     await konami(page);
     await expect(terminal).toBeVisible();
+    await expect(sheet).toHaveCount(1);
+    expect(await terminal.evaluate((element) => getComputedStyle(element).borderTopWidth)).toBe(
+      '1px',
+    );
     const input = terminal.getByRole('textbox', { name: 'Befehl eingeben' });
     await expect(input).toBeFocused();
     const log = terminal.getByRole('log');

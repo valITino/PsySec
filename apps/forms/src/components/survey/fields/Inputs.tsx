@@ -1,17 +1,26 @@
-import { Q15_MAX_LENGTH, isValidEmail } from '@psyber/survey';
+import { Q15_MAX_LENGTH, isValidEmail, parseChf } from '@psyber/survey';
 import type {
   Q11Field,
   TextQuestion,
   VanWestendorpQuestion,
   WaitlistQuestion,
 } from '@psyber/survey';
-import { draft, patchDraft, setAnswer } from '../state.ts';
+import { draft, patchDraft, problem, setAnswer } from '../state.ts';
 
 const VW_FIELDS: readonly Q11Field[] = ['a', 'b', 'c', 'd'];
 
 /** Frage 11: vier Beträge in CHF (Van Westendorp) */
 export function VanWestendorpField({ question }: { question: VanWestendorpQuestion }) {
   const values = draft.value.q11;
+  // Welche Felder meint der Hinweis? Sie werden markiert und für Screenreader als ungültig gemeldet.
+  const wrong = (field: Q11Field): boolean => {
+    const code = problem.value;
+    if (code === 'vw_partial') return values[field].trim() === '';
+    if (code === 'vw_invalid') return parseChf(values[field]) === null;
+    if (code !== 'vw_order') return false;
+    const before = VW_FIELDS[VW_FIELDS.indexOf(field) - 1];
+    return before !== undefined && (parseChf(values[field]) ?? 0) < (parseChf(values[before]) ?? 0);
+  };
   return (
     <div class="sv-vw">
       {VW_FIELDS.map((field) => (
@@ -32,6 +41,7 @@ export function VanWestendorpField({ question }: { question: VanWestendorpQuesti
               maxLength={7}
               value={values[field]}
               aria-describedby="sv-hint"
+              aria-invalid={wrong(field) ? 'true' : undefined}
               onInput={(event) =>
                 patchDraft({ q11: { ...draft.value.q11, [field]: event.currentTarget.value } })
               }
@@ -82,9 +92,11 @@ export function WaitlistField({ question }: { question: WaitlistQuestion }) {
           type="email"
           inputMode="email"
           autoComplete="email"
+          enterKeyHint="done"
           maxLength={254}
           value={email}
           aria-describedby="sv-waitlist-note sv-hint"
+          aria-invalid={problem.value === 'email_invalid' ? 'true' : undefined}
           onInput={(event) => {
             const value = event.currentTarget.value;
             patchDraft({

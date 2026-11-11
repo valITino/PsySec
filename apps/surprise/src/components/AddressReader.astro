@@ -43,7 +43,7 @@ const examples = [
       { kind: 'rest', text: 'gewinn' },
     ],
     site: 'gutschein-sofort.ch.',
-    note: 'Eine fremde Seite, auch wenn ‹psyber.tech› in der Adresse vorkommt.',
+    note: 'Eine fremde Seite, auch wenn «psyber.tech» in der Adresse vorkommt.',
   },
 ] satisfies {
   id: string;
@@ -140,7 +140,7 @@ const examples = [
 
   @media (hover: hover) {
     .reader-tab[aria-pressed='false']:hover {
-      background-color: rgb(244 244 239 / 0.1);
+      background-color: rgb(var(--bone-rgb) / 0.1);
       color: var(--bone);
     }
   }

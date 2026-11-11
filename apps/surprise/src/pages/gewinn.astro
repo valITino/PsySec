@@ -19,12 +19,11 @@ import noScriptCss from '../styles/no-js.css?url';
 
 const TITLE = 'Erwischt!';
 
-/** Der angeklickte Link; «psyber.tech» wird einmal mit dem Marker hervorgehoben. */
-const clicked = [
-  { text: 'https://surprise.', mark: false },
-  { text: 'psyber.tech', mark: true },
-  { text: '/gewinn', mark: false },
-];
+/**
+ * Der angeklickte Link; «psyber.tech» wird einmal mit dem Marker hervorgehoben.
+ * Reicht der Platz nicht für eine Zeile, bricht die Adresse nur vor dem Pfad um.
+ */
+const clicked = { before: 'https://surprise.', site: 'psyber.tech', path: '/gewinn' };
 
 const signals = [
   {
@@ -34,7 +33,7 @@ const signals = [
   },
   {
     icon: 'clock',
-    title: 'Zeitdruck: ‹nur heute›',
+    title: 'Zeitdruck: «nur heute»',
     text: 'Wer drängt, will verhindern, dass Sie nachdenken.',
   },
   {
@@ -90,16 +89,15 @@ const signals = [
                 />
               </div>
               <p class="label-up sp-clicked-label">Diesen Link haben Sie angeklickt:</p>
+              {/* Flex: Leerraum im Quelltext zählt nicht, die Teile stehen lückenlos. */}
               <p class="sp-url mono">
-                {clicked.map((part) =>
-                  part.mark ? (
-                    <span class="marker" data-text={part.text}>
-                      {part.text}
-                    </span>
-                  ) : (
-                    <span>{part.text}</span>
-                  ),
-                )}
+                <span class="sp-url-host">
+                  <span>{clicked.before}</span>
+                  <span class="marker" data-text={clicked.site}>
+                    {clicked.site}
+                  </span>
+                </span>
+                <span>{clicked.path}</span>
               </p>
             </div>
           </div>
@@ -152,8 +150,8 @@ const signals = [
 
             <div class="lesen-rule">
               <p class="lead sp-lead">
-                Lesen Sie die Adresse bis zum ersten einzelnen ‹/›. Entscheidend ist, was direkt
-                davor steht, zum Beispiel ‹psyber.tech›.
+                Lesen Sie die Adresse bis zum ersten einzelnen «/». Entscheidend ist, was direkt
+                davor steht, zum Beispiel «psyber.tech».
               </p>
               <p class="lesen-tip mono">
                 <Icon name="smartphone" size={20} />
@@ -230,8 +228,8 @@ const signals = [
       calc(clamp(3.5rem, 8vw, 7rem) + var(--r-sheet));
     background-image: radial-gradient(
       60rem 36rem at 86% 10%,
-      rgb(61 30 134 / 0.6) 0%,
-      rgb(61 30 134 / 0) 70%
+      rgb(var(--space-rgb) / 0.6) 0%,
+      rgb(var(--space-rgb) / 0) 70%
     );
   }
 
@@ -377,10 +375,12 @@ const signals = [
     color: var(--fg-muted);
   }
 
+  /* Container: Die Adresse darunter richtet ihre Schriftgrösse an dieser Spalte aus. */
   .sp-clicked {
     display: grid;
     gap: 0.875rem;
     align-content: start;
+    container-type: inline-size;
   }
 
   /* Die Eule hat es gesehen */
@@ -401,15 +401,30 @@ const signals = [
     margin-bottom: 0.5rem;
   }
 
+  /*
+   * Die Adresse hat 35 Zeichen. In der Mono-Schrift ist jedes 0.6em breit: Die Schrift wird so
+   * gewählt, dass alles auf eine Zeile passt (21.6 statt 21 als Reserve). Wird sie dafür zu
+   * klein, bleibt sie bei 13 px und die Adresse bricht vor dem Pfad um.
+   */
   .sp-url {
-    padding: 1.25rem clamp(1rem, 3.4vw, 1.5rem);
+    --url-pad: clamp(0.875rem, 4cqi, 1.5rem);
+    display: flex;
+    flex-wrap: wrap;
+    padding: 1.25rem var(--url-pad);
     border: 1px solid var(--steel);
     border-radius: var(--r-card);
     background-color: var(--pit);
     color: var(--ash);
-    font-size: clamp(0.8125rem, 0.43rem + 1.9vw, 1.1875rem);
+    font-size: clamp(0.8125rem, (100cqi - 2 * var(--url-pad) - 2px) / 21.6, 1.1875rem);
     font-weight: 500;
     line-height: 1.6;
+  }
+
+  .sp-url-host {
+    display: flex;
+  }
+
+  .sp-url span {
     white-space: nowrap;
   }
 
@@ -560,7 +575,11 @@ const signals = [
     position: absolute;
     inset: -60% -20%;
     z-index: -1;
-    background: radial-gradient(closest-side, rgb(61 30 134 / 0.5), rgb(61 30 134 / 0));
+    background: radial-gradient(
+      closest-side,
+      rgb(var(--space-rgb) / 0.5),
+      rgb(var(--space-rgb) / 0)
+    );
     content: '';
     pointer-events: none;
   }

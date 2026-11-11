@@ -13,7 +13,15 @@ import {
   type ResponseRow,
 } from './analyze/compute.ts';
 import { demoExport } from './analyze/demo.ts';
-import { esc, fmtChf, fmtDay, fmtInt, fmtPct, renderReport } from './analyze/report.ts';
+import {
+  criterionValue,
+  esc,
+  fmtChf,
+  fmtDay,
+  fmtInt,
+  fmtPct,
+  renderReport,
+} from './analyze/report.ts';
 
 const NBSP = ' ';
 
@@ -77,6 +85,13 @@ describe('parseExport', () => {
     });
     expect(data.waitlist).toEqual({ total: 7, founding: 2 });
     expect(data.demo).toBe(false);
+    expect(data.local).toBe(false);
+  });
+
+  it('erkennt den Export der lokalen Testdatenbank', () => {
+    const base = { exportedDay: '2026-12-21', responses: [], counters: [], waitlist: {} };
+    expect(parseExport({ ...base, source: 'local' }).local).toBe(true);
+    expect(parseExport({ ...base, source: 'remote' }).local).toBe(false);
   });
 
   it('liest die rohe Ausgabe von wrangler (drei Ergebnisse)', () => {
@@ -403,12 +418,61 @@ describe('Bericht', () => {
     expect(html).toContain('noindex');
   });
 
-  it('markiert Demo-Daten unübersehbar und echte Daten gar nicht', () => {
-    const demo = renderReport(analyze(demoExport()), new Date('2026-12-21T10:00:00Z'));
+  it('markiert Demo- und Testdaten unübersehbar und echte Daten gar nicht', () => {
+    const at = new Date('2026-12-21T10:00:00Z');
+    const demo = renderReport(analyze(demoExport()), at);
     expect(demo).toContain('Demo: Diese Zahlen sind frei erfunden');
     expect(demo).toContain('(Demo)</title>');
-    const real = renderReport(analyze(exportOf([row()])), new Date('2026-12-21T10:00:00Z'));
+    const local = renderReport(analyze(exportOf([row()], { local: true })), at);
+    expect(local).toContain('Testdaten: Dieser Bericht stammt aus der lokalen Datenbank');
+    expect(local).toContain('(Testdaten)</title>');
+    const real = renderReport(analyze(exportOf([row()])), at);
     expect(real).not.toContain('frei erfunden');
+    expect(real).not.toContain('Testdaten');
+    expect(real).not.toContain('class="demo"');
+  });
+
+  it('zeigt in der Ampel nie ein verfehltes Ziel als erreicht', () => {
+    const share = (value: number | null) =>
+      criterionValue({
+        id: 'zurichShare',
+        label: '',
+        value,
+        target: 0.6,
+        unit: 'share',
+        state: 'near',
+      }).value;
+    // Anteile mit einer Nachkommastelle
+    expect(share(0.598)).toBe(`59,8${NBSP}%`);
+    expect(share(0.7011)).toBe(`70,1${NBSP}%`);
+    // Knapp darunter: abrunden statt auf das Ziel aufrunden
+    expect(share(0.5996)).toBe(`59,9${NBSP}%`);
+    expect(share(0.59999)).toBe(`59,9${NBSP}%`);
+    // Erreicht ist erreicht
+    expect(share(0.6)).toBe(`60,0${NBSP}%`);
+    expect(share(0.6004)).toBe(`60,0${NBSP}%`);
+    expect(share(null)).toBe('–');
+
+    const chf = (value: number | null) =>
+      criterionValue({
+        id: 'setupUpper',
+        label: '',
+        value,
+        target: 490,
+        unit: 'chf',
+        state: 'near',
+      }).value;
+    expect(chf(489.6)).toBe(`CHF${NBSP}489`);
+    expect(chf(484.6)).toBe(`CHF${NBSP}485`);
+    expect(chf(490)).toBe(`CHF${NBSP}490`);
+    expect(chf(1490.4)).toBe(`CHF${NBSP}1’490`);
+    expect(chf(null)).toBe('nicht berechenbar');
+  });
+
+  it('trägt das Logo aus dem Logo-Kit, für Bildschirm und Druck', () => {
+    const html = renderReport(analyze(exportOf([row()])), new Date('2026-12-21T10:00:00Z'));
+    expect(html).toMatch(/<p class="brand"><svg class="logo-dark"[^>]*aria-label="PSYber"/);
+    expect(html).toContain('<svg class="logo-light"');
   });
 
   it('zeigt Ampel, Kurven mit Legende und zu jedem Diagramm eine Tabelle', () => {

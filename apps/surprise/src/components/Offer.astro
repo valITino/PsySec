@@ -74,6 +74,8 @@ const CODE = 'LAYER8';
     align-content: start;
     padding-top: clamp(1.5rem, 1rem + 2vw, 2.25rem);
     border-top: 1px solid var(--hairline);
+    /* Der Coupon darunter richtet sich nach dieser Spalte (siehe @container unten) */
+    container-type: inline-size;
   }
 
   .offer-code-text {
@@ -155,6 +157,25 @@ const CODE = 'LAYER8';
 
   .code:active {
     transform: translateY(1px);
+  }
+
+  /* Schmale Spalte (kleine Handys, zweispaltig bis etwa 1100 px): Code oben, Aktion darunter */
+  @container (max-width: 17.5rem) {
+    .code {
+      grid-template-columns: auto;
+    }
+
+    .code-value {
+      justify-content: center;
+      padding: 0.875rem 1.25rem;
+    }
+
+    .code-action {
+      justify-content: center;
+      min-height: 2.75rem;
+      border-top: 1px dashed var(--acid);
+      border-left: 0;
+    }
   }
 
   @media (min-width: 60rem) {

@@ -3,8 +3,8 @@ import { env } from 'cloudflare:workers';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Env } from '../src/env.ts';
 import worker from '../src/index.ts';
-import { MAX_BODY_BYTES } from '../src/lib/http.ts';
-import { swissDay } from '../src/lib/time.ts';
+import { clientKey, MAX_BODY_BYTES } from '../src/lib/http.ts';
+import { monthStart, swissDay } from '../src/lib/time.ts';
 import { purgeOldContacts } from '../src/scheduled.ts';
 
 const FORMS = 'https://forms.psyber.tech';
@@ -26,6 +26,7 @@ interface CallOptions {
 const open: Partial<Env> = {
   RL_FORMS: { limit: () => Promise.resolve({ success: true }) },
   RL_EVENTS: { limit: () => Promise.resolve({ success: true }) },
+  RL_EVENTS_ALL: { limit: () => Promise.resolve({ success: true }) },
 };
 
 async function call(path: string, options: CallOptions = {}): Promise<Response> {
@@ -100,7 +101,7 @@ const count = async (table: string) =>
   (await env.DB.prepare(`SELECT COUNT(*) AS n FROM ${table}`).first<{ n: number }>())?.n ?? 0;
 
 /** Turnstile-Prüfung simulieren; jeder andere ausgehende Request wäre ein Fehler. */
-let turnstile: 'ok' | 'failed' | 'down' = 'ok';
+let turnstile: 'ok' | 'failed' | 'down' | 'wrong-secret' = 'ok';
 let outbound: string[] = [];
 
 beforeEach(() => {
@@ -113,7 +114,11 @@ beforeEach(() => {
       throw new Error(`Unerwarteter Request: ${url}`);
     }
     if (turnstile === 'down') throw new Error('network');
-    return Response.json({ success: turnstile === 'ok' });
+    if (turnstile === 'ok') return Response.json({ success: true });
+    return Response.json({
+      success: false,
+      'error-codes': [turnstile === 'failed' ? 'invalid-input-response' : 'invalid-input-secret'],
+    });
   });
 });
 
@@ -230,7 +235,50 @@ describe('POST /v1/survey', () => {
     ]);
   });
 
-  it('speichert in Umfrage und Warteliste nur das Datum, keine Uhrzeit', async () => {
+  it('erneutes Senden mit derselben Kennung legt nichts doppelt an', async () => {
+    const body = validSurvey({
+      submissionId: '6f1c2f0e-8a54-4b7b-9d53-0c2a4d1e9b77',
+      waitlist: { email: 'familie@example.ch', foundingFamily: true },
+    });
+    const first = await call('/v1/survey', { body });
+    const second = await call('/v1/survey', { body });
+    // Beide Versuche sehen für den Browser gleich aus.
+    expect([first.status, second.status]).toEqual([200, 200]);
+    expect(await second.json()).toEqual({ ok: true });
+
+    expect(await rows('SELECT id FROM survey_responses')).toEqual([
+      { id: '6f1c2f0e-8a54-4b7b-9d53-0c2a4d1e9b77' },
+    ]);
+    expect(await rows('SELECT event, s_bucket, count FROM counters')).toEqual([
+      { event: 'survey_completed', s_bucket: 3, count: 1 },
+    ]);
+    expect(await count('waitlist')).toBe(1);
+
+    // Eine andere Kennung ist eine neue Antwort.
+    await call('/v1/survey', {
+      body: validSurvey({ submissionId: '0b9d7a3c-1f2e-4c6d-8e9f-a1b2c3d4e5f6' }),
+    });
+    expect(await count('survey_responses')).toBe(2);
+    expect(await rows('SELECT count FROM counters')).toEqual([{ count: 2 }]);
+  });
+
+  it('nimmt als Kennung nur eine UUID an und überschreibt nie eine bestehende Antwort', async () => {
+    for (const submissionId of ['1', 'x'.repeat(36), '6F1C2F0E-8A54-4B7B-9D53-0C2A4D1E9B77', 42]) {
+      const response = await call('/v1/survey', { body: validSurvey({ submissionId }) });
+      expect(response.status, String(submissionId)).toBe(400);
+    }
+    expect(await count('survey_responses')).toBe(0);
+
+    const submissionId = '6f1c2f0e-8a54-4b7b-9d53-0c2a4d1e9b77';
+    await call('/v1/survey', { body: validSurvey({ submissionId }) });
+    const changed = validSurvey({ submissionId });
+    changed.answers.q4 = 5;
+    await call('/v1/survey', { body: changed });
+    expect(await rows('SELECT q4 FROM survey_responses')).toEqual([{ q4: 3 }]);
+    expect(await rows('SELECT s_bucket, count FROM counters')).toEqual([{ s_bucket: 3, count: 1 }]);
+  });
+
+  it('speichert bei der Umfrage nur den Tag und bei der Warteliste nur den Monat', async () => {
     await call('/v1/survey', {
       body: validSurvey({ waitlist: { email: 'familie@example.ch', foundingFamily: true } }),
     });
@@ -239,6 +287,11 @@ describe('POST /v1/survey', () => {
     expect(String(response?.created_day)).toMatch(DAY);
     expect(String(entry?.created_day)).toMatch(DAY);
     expect(response?.created_day).toBe(swissDay());
+    // Die Warteliste trägt den Monatsersten: Am Tag allein lassen sich Antwort und E-Mail
+    // so nicht einander zuordnen.
+    expect(entry?.created_day).toBe(monthStart(swissDay()));
+    expect(String(entry?.created_day)).toMatch(/-01$/);
+    expect(monthStart('2026-11-30')).toBe('2026-11-01');
 
     // Kein Wert in beiden Zeilen sieht nach Uhrzeit oder Zeitstempel aus.
     const values = [...Object.values(response ?? {}), ...Object.values(entry ?? {})].map(String);
@@ -388,6 +441,17 @@ describe('POST /v1/survey', () => {
     expect(noSecret.status).toBe(503);
     expect(await count('survey_responses')).toBe(0);
   });
+
+  it('meldet ein falsches Turnstile-Secret als Störung und schreibt es ins Log', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    turnstile = 'wrong-secret';
+    const response = await call('/v1/survey', { body: validSurvey() });
+    // Kein «Token ungültig»: Die Besucherin kann nichts dafür, und im Log fällt es auf.
+    expect(response.status).toBe(503);
+    expect(await errorOf(response)).toBe('turnstile_unavailable');
+    expect(error).toHaveBeenCalledExactlyOnceWith('turnstile_misconfigured');
+    expect(await count('survey_responses')).toBe(0);
+  });
 });
 
 describe('Rate Limit', () => {
@@ -395,6 +459,24 @@ describe('Rate Limit', () => {
     RL_FORMS: { limit: () => Promise.resolve({ success: false }) },
     RL_EVENTS: { limit: () => Promise.resolve({ success: false }) },
   };
+
+  it('bildet den Schlüssel bei IPv4 aus der Adresse, bei IPv6 aus dem /64-Netz', () => {
+    expect(clientKey('203.0.113.77')).toBe('203.0.113.77');
+    expect(clientKey('::ffff:203.0.113.77')).toBe('203.0.113.77');
+    expect(clientKey(undefined)).toBe('unknown');
+    expect(clientKey('')).toBe('unknown');
+
+    // Derselbe Anschluss, andere Adresse im Netz: derselbe Schlüssel
+    const home = '2001:db8:12:3400::/64';
+    expect(clientKey('2001:db8:12:3400:1:2:3:4')).toBe(home);
+    expect(clientKey('2001:db8:12:3400:ffff:ffff:ffff:ffff')).toBe(home);
+    expect(clientKey('2001:0DB8:0012:3400::1')).toBe(home);
+    // Ein anderes Netz: ein anderer Schlüssel
+    expect(clientKey('2001:db8:12:3401::1')).toBe('2001:db8:12:3401::/64');
+    // Verkürzte Schreibweisen
+    expect(clientKey('2001:db8::1')).toBe('2001:db8:0:0::/64');
+    expect(clientKey('::1')).toBe('0:0:0:0::/64');
+  });
 
   it('antwortet mit 429 und rate_limited', async () => {
     for (const [path, body] of [
@@ -422,6 +504,71 @@ describe('Rate Limit', () => {
     await call('/v1/event', { body: { event: 'bait_click', s: 2 }, env: limits });
     expect(forms).toHaveBeenCalledExactlyOnceWith({ key: '/v1/survey:203.0.113.77' });
     expect(events).toHaveBeenCalledExactlyOnceWith({ key: '/v1/event:203.0.113.77' });
+
+    // IPv6: Wer im eigenen Netz die Adresse wechselt, bleibt im selben Limit.
+    for (const ip of ['2001:db8:12:3400::1', '2001:db8:12:3400:aaaa:bbbb:cccc:dddd']) {
+      await call('/v1/contact', {
+        origin: WEB,
+        body: validContact(),
+        env: limits,
+        headers: { 'CF-Connecting-IP': ip },
+      });
+    }
+    expect(forms.mock.calls.slice(1)).toEqual([
+      [{ key: '/v1/contact:2001:db8:12:3400::/64' }],
+      [{ key: '/v1/contact:2001:db8:12:3400::/64' }],
+    ]);
+  });
+
+  it('deckelt die Zähler zusätzlich insgesamt, unabhängig von der IP', async () => {
+    const all = vi.fn(() => Promise.resolve({ success: true }));
+    await call('/v1/event', {
+      body: { event: 'survey_started' },
+      env: { RL_EVENTS_ALL: { limit: all } },
+    });
+    // Der Schlüssel ist nur der Pfad: keine Adresse, kein Anschluss.
+    expect(all).toHaveBeenCalledExactlyOnceWith({ key: '/v1/event' });
+    expect(await count('counters')).toBe(1);
+
+    const full: Partial<Env> = {
+      RL_EVENTS_ALL: { limit: () => Promise.resolve({ success: false }) },
+    };
+    const response = await call('/v1/event', { body: { event: 'survey_started' }, env: full });
+    expect(response.status).toBe(429);
+    expect(await errorOf(response)).toBe('rate_limited');
+    expect(response.headers.get('Retry-After')).toBe('60');
+    expect(await count('counters')).toBe(1);
+
+    // Formulare haben Turnstile und ihr eigenes Limit: Das Budget der Zähler betrifft sie nicht.
+    const form = await call('/v1/survey', { body: validSurvey(), env: full });
+    expect(form.status).toBe(200);
+  });
+
+  it('meldet in Produktion ein fehlendes Limit im Log und arbeitet weiter', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const none: Partial<Env> = {
+      RL_FORMS: undefined,
+      RL_EVENTS: undefined,
+      RL_EVENTS_ALL: undefined,
+    };
+    expect((await call('/v1/survey', { body: validSurvey(), env: none })).status).toBe(200);
+    expect((await call('/v1/event', { body: { event: 'survey_started' }, env: none })).status).toBe(
+      200,
+    );
+    expect(error.mock.calls).toEqual([
+      ['rate_limit_not_configured', 'RL_FORMS'],
+      ['rate_limit_not_configured', 'RL_EVENTS'],
+      ['rate_limit_not_configured', 'RL_EVENTS_ALL'],
+    ]);
+
+    // Lokal (wrangler dev ohne Bindings) bleibt das Log still.
+    error.mockClear();
+    await call('/v1/event', {
+      origin: 'http://localhost:4321',
+      body: { event: 'survey_started' },
+      env: { ...none, ENVIRONMENT: 'development' },
+    });
+    expect(error).not.toHaveBeenCalled();
   });
 
   it('greift mit dem echten Binding nach fünf Formular-Requests pro Minute und IP', async () => {
@@ -565,6 +712,19 @@ describe('POST /v1/contact', () => {
     // Im Log steht nur der Fehlercode, kein Inhalt der Anfrage.
     expect(error).toHaveBeenCalledWith('notify_failed', 'E_TEST');
     expect(JSON.stringify(error.mock.calls)).not.toContain('Muster');
+  });
+
+  it('meldet im Log, wenn die Benachrichtigung nicht eingerichtet ist', async () => {
+    const error = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const response = await call('/v1/contact', {
+      origin: WEB,
+      body: validContact(),
+      env: { NOTIFY_TO: '' },
+    });
+    // Die Anfrage ist gespeichert; ohne die Meldung würde aber niemand davon erfahren.
+    expect(response.status).toBe(200);
+    expect(await count('contact_requests')).toBe(1);
+    expect(error).toHaveBeenCalledExactlyOnceWith('notify_not_configured');
   });
 
   it('lässt optionale Felder leer', async () => {

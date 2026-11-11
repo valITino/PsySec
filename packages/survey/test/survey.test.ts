@@ -5,6 +5,7 @@ import {
   buildSubmission,
   cleanAnswers,
   contactSchema,
+  doneMarker,
   emptyDraft,
   eventSchema,
   firstInvalid,
@@ -14,9 +15,12 @@ import {
   normalizeContact,
   normalizeFokus,
   normalizeQuelle,
+  storedQuelle,
   parseChf,
+  parseDoneMarker,
   pickSchwerpunkte,
   questions,
+  sanitizeDraft,
   surveySubmissionSchema,
   tips,
   validateContact,
@@ -270,6 +274,16 @@ describe('Whitelist für quelle und fokus', () => {
     expect(normalizeQuelle(undefined)).toBe('direkt');
   });
 
+  it('liest eine gespeicherte Quelle unverändert zurück', () => {
+    // Nach einem Neuladen kommt die Quelle aus dem Zwischenstand: «direkt» bleibt «direkt».
+    expect(storedQuelle('direkt')).toBe('direkt');
+    expect(storedQuelle('andere')).toBe('andere');
+    expect(storedQuelle('website')).toBe('website');
+    for (const broken of [undefined, null, 7, '', 'newsletter', '<script>']) {
+      expect(storedQuelle(broken)).toBe('direkt');
+    }
+  });
+
   it('kennt nur die drei Fokus-Werte', () => {
     expect(normalizeFokus('vor')).toBe('vor');
     expect(normalizeFokus('nach')).toBe('nach');
@@ -320,6 +334,98 @@ describe('Auswahl der Schwerpunkte', () => {
   });
 });
 
+describe('Merker für den Danke-Screen', () => {
+  it('behält nur die Selbsteinschätzung und die gezeigten Schwerpunkte', () => {
+    const answers: Answers = {
+      ...completeAnswers(),
+      q4: 2,
+      q15: 'Das soll nach dem Absenden nicht im Browser bleiben.',
+    };
+    const marker = doneMarker(answers);
+    expect(marker).toEqual({ s: 2, q6: { phishing: 5, cybermobbing: 4, heimnetz: 4 } });
+    // Aus dem Merker entstehen dieselben Schwerpunkte wie aus den Antworten.
+    expect(pickSchwerpunkte(marker.q6)).toEqual(pickSchwerpunkte(answers.q6));
+  });
+
+  it('bleibt leer, wenn es nichts zu merken gibt', () => {
+    expect(doneMarker({})).toEqual({});
+    expect(doneMarker({ q6: { phishing: 3 } })).toEqual({});
+  });
+
+  it('liest nur, was ein Merker sein kann', () => {
+    expect(parseDoneMarker({ s: 4, q6: { phishing: 5, erfunden: 5, romance: 7 } })).toEqual({
+      s: 4,
+      q6: { phishing: 5 },
+    });
+    expect(parseDoneMarker({ s: '4', q6: 'x' })).toEqual({});
+    expect(parseDoneMarker({})).toEqual({});
+    for (const broken of [null, undefined, 'fertig', 3, []]) {
+      expect(parseDoneMarker(broken)).toBeNull();
+    }
+  });
+});
+
+describe('Zwischenstand aus dem Browser', () => {
+  it('übernimmt einen gültigen Stand unverändert', () => {
+    const draft = draftWith(
+      {
+        ...completeAnswers(),
+        q3: 'ab_und_zu',
+        q8: 5,
+        q12: 'chf_15_24',
+        q14: ['preis'],
+        q15: 'Text',
+      },
+      {
+        q11: { a: '200', b: '400', c: '', d: '' },
+        waitlist: { email: 'familie@example.ch', foundingFamily: true },
+      },
+    );
+    expect(sanitizeDraft(JSON.parse(JSON.stringify(draft)))).toEqual(draft);
+  });
+
+  it('lässt fallen, was nicht zur Umfrage passt', () => {
+    const draft = sanitizeDraft({
+      answers: {
+        q1: 'gibt_es_nicht',
+        q2: 'kein Array',
+        q3: 'nein',
+        q4: 9,
+        q6: { phishing: 5, romance: 'x', erfunden: 3 },
+        q7: ['webinar', 'erfunden'],
+        q8: '4',
+        q14: ['datenschutz', 'preis', 'vertrauen'],
+        q15: 42,
+        q99: 'x',
+      },
+      q11: { a: 5, b: '400', c: null },
+      waitlist: { email: null, foundingFamily: 'ja' },
+    });
+    expect(draft.answers).toEqual({
+      q3: 'nein',
+      q6: { phishing: 5 },
+      q7: ['webinar'],
+      // höchstens zwei, in der Reihenfolge der Frage
+      q14: ['vertrauen', 'preis'],
+    });
+    expect(draft.q11).toEqual({ a: '', b: '400', c: '', d: '' });
+    expect(draft.waitlist).toEqual({ email: '', foundingFamily: false });
+  });
+
+  it('macht aus Unlesbarem einen leeren Stand und stolpert nie', () => {
+    for (const broken of [null, undefined, 'text', 7, [], { answers: [] }, { q11: 'x' }]) {
+      expect(sanitizeDraft(broken)).toEqual(emptyDraft());
+    }
+    // Das Häkchen gilt nur zusammen mit einer gültigen Adresse.
+    expect(
+      sanitizeDraft({ waitlist: { email: 'keine-adresse', foundingFamily: true } }).waitlist,
+    ).toEqual({ email: 'keine-adresse', foundingFamily: false });
+    // Der bereinigte Stand lässt sich immer prüfen, ohne dass etwas wirft.
+    const draft = sanitizeDraft({ answers: { q6: { phishing: 'x' } }, q11: { a: 1 } });
+    for (const question of questions) expect(() => validateQuestion(question, draft)).not.toThrow();
+  });
+});
+
 describe('Absenden', () => {
   it('baut eine gültige Einsendung', () => {
     const draft = draftWith(
@@ -359,6 +465,26 @@ describe('Absenden', () => {
       ok: false,
       code: 'email_invalid',
     });
+  });
+
+  it('gibt die Kennung der Einsendung mit, wenn es eine gibt', () => {
+    const base = {
+      draft: draftWith(completeAnswers()),
+      quelle: 'direkt',
+      turnstileToken: 'x',
+    } as const;
+    expect('submissionId' in buildSubmission(base)).toBe(false);
+
+    const id = '6f1c2f0e-8a54-4b7b-9d53-0c2a4d1e9b77';
+    const submission = buildSubmission({ ...base, submissionId: id });
+    expect(submission.submissionId).toBe(id);
+    expect(surveySubmissionSchema.safeParse(submission).success).toBe(true);
+    for (const broken of ['', 'abc', id.toUpperCase(), `${id}0`, 12]) {
+      expect(
+        surveySubmissionSchema.safeParse({ ...submission, submissionId: broken }).success,
+        String(broken),
+      ).toBe(false);
+    }
   });
 
   it('lehnt unbekannte Felder in der Einsendung ab', () => {

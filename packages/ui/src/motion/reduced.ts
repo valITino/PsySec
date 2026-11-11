@@ -16,13 +16,6 @@ export function motionAllowed(): boolean {
   return !prefersReducedMotion();
 }
 
-export function onReducedMotionChange(callback: (reduced: boolean) => void): () => void {
-  const query = window.matchMedia(QUERY);
-  const handler = (event: MediaQueryListEvent) => callback(event.matches);
-  query.addEventListener('change', handler);
-  return () => query.removeEventListener('change', handler);
-}
-
 /** Hat die Person laufende Bewegung über den Schalter pausiert? */
 export function motionPaused(): boolean {
   return document.documentElement.dataset.motion === 'off';
