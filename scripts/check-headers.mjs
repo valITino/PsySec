@@ -201,8 +201,23 @@ async function checkSite(site) {
   const robots = await get('/robots.txt');
   const robotsText = await robots.text();
   expect(robots.status === 200, `${site.app} robots.txt: Status ${robots.status}`);
+  // Seiten mit «noindex» dürfen für Suchmaschinen nicht gesperrt sein: Ihr «noindex» sähe sonst
+  // kein Crawler. surprise lässt darum Suchmaschinen herein und sperrt alle anderen aus.
   if (site.app === 'surprise') {
-    expect(robotsText.includes('Disallow: /'), 'surprise robots.txt: ohne Disallow: /');
+    expect(
+      /User-agent: Googlebot[\s\S]*?\nAllow: \/\n[\s\S]*User-agent: \*\nDisallow: \/\n/.test(
+        robotsText,
+      ),
+      'surprise robots.txt: Suchmaschinen müssen abrufen dürfen, alle anderen nicht',
+    );
+  } else {
+    expect(!/^Disallow:/m.test(robotsText), `${site.app} robots.txt: enthält Disallow`);
+  }
+  if (site.app === 'web') {
+    expect(
+      robotsText.includes('Sitemap: https://psyber.tech/sitemap-index.xml'),
+      'web robots.txt: Sitemap fehlt',
+    );
   }
 
   // _headers und _redirects sind Konfiguration, keine Dateien zum Abrufen.

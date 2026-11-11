@@ -40,8 +40,9 @@ pnpm --filter @psyber/api exec wrangler login
 6. Umgebungsvariablen
 7. Domain-Härtung
 8. Checks nach dem Go-Live
-9. Datenexport und Auswertung
-10. Umschalten auf `launch`
+9. Suchmaschinen: anmelden, Sitemap einreichen, KI-Crawler einstellen
+10. Datenexport und Auswertung
+11. Umschalten auf `launch`
 
 ---
 
@@ -190,12 +191,14 @@ pnpm --filter @psyber/api run deploy
 
 Astro schreibt alle `PUBLIC_`-Variablen beim Build fest in die Dateien. Sie gehören darum unter **Settings → Builds → Build variables and secrets** (nicht unter «Variables and Secrets» der Laufzeit). Nach jeder Änderung neu bauen (**Retry build** oder ein Push).
 
-| Variable                    | web | forms | surprise | Wert                                            |
-| --------------------------- | :-: | :---: | :------: | ----------------------------------------------- |
-| `PUBLIC_SITE_PHASE`         |  ✓  |   ✓   |    ✓     | `survey` (später `launch`, siehe Schritt 10)    |
-| `PUBLIC_TURNSTILE_SITE_KEY` |  ✓  |   ✓   |    –     | Site Key aus Schritt 3                          |
-| `NODE_VERSION`              |  ✓  |   ✓   |    ✓     | `22` (dieselbe Version wie lokal und in der CI) |
-| `PUBLIC_HSTS_PRELOAD`       |  –  |   –   |    –     | erst später: `true` (siehe Schritt 7)           |
+| Variable                          | web | forms | surprise | Wert                                               |
+| --------------------------------- | :-: | :---: | :------: | -------------------------------------------------- |
+| `PUBLIC_SITE_PHASE`               |  ✓  |   ✓   |    ✓     | `survey` (später `launch`, siehe Schritt 11)       |
+| `PUBLIC_TURNSTILE_SITE_KEY`       |  ✓  |   ✓   |    –     | Site Key aus Schritt 3                             |
+| `NODE_VERSION`                    |  ✓  |   ✓   |    ✓     | `22` (dieselbe Version wie lokal und in der CI)    |
+| `PUBLIC_HSTS_PRELOAD`             |  –  |   –   |    –     | erst später: `true` (siehe Schritt 7)              |
+| `PUBLIC_GOOGLE_SITE_VERIFICATION` | (✓) |  (✓)  |    –     | nur falls nicht per DNS bestätigt wird (Schritt 9) |
+| `PUBLIC_BING_SITE_VERIFICATION`   | (✓) |  (✓)  |    –     | nur falls nicht per DNS bestätigt wird (Schritt 9) |
 
 Nicht nötig sind `PUBLIC_API_BASE`, `PUBLIC_WEB_URL`, `PUBLIC_FORMS_URL` und `PUBLIC_SURPRISE_URL`: Ohne Angabe gelten die echten Adressen. Sie dienen nur der lokalen Entwicklung und der Vorschau.
 
@@ -295,7 +298,86 @@ Machen Sie diese Probe, **bevor** Sie den Link zur Umfrage verteilen. Dann lasse
 
 ---
 
-## Schritt 9: Datenexport und Auswertung
+## Schritt 9: Suchmaschinen
+
+Die Websites bringen alles mit, was sich im Code regeln lässt (Liste am Ende dieses Schritts). Was bleibt, braucht Ihre Konten. Rechnen Sie mit Tagen bis Wochen, bis neue Seiten in den Treffern stehen; das ist normal.
+
+### 9.1 KI-Crawler bei Cloudflare bewusst einstellen
+
+Cloudflare kann Crawler von KI-Anbietern von sich aus sperren und stellt dann der `robots.txt` der Website einen eigenen Block voran. Die Voreinstellung für neue Zonen hat Cloudflare mehrmals geändert. Stellen Sie sie darum bewusst ein, sonst entscheidet der Zufall über Ihre Sichtbarkeit.
+
+1. Zone `psyber.tech` → **Security → Settings**, nach «Bot traffic» filtern → **AI Crawler and Agent access policies**.
+2. Drei Schalter:
+
+   | Schalter     | Wirkung                                                                                  | Empfehlung                                                                                          |
+   | ------------ | ---------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- |
+   | **Search**   | KI-Suchen (ChatGPT-Suche, Perplexity, Claude) dürfen Seiten lesen und als Quelle nennen. | erlauben: Wer hier sperrt, fehlt in diesen Antworten.                                               |
+   | **Agent**    | Abrufe im Auftrag einer Person («lies mir diese Seite vor»).                             | erlauben                                                                                            |
+   | **Training** | Inhalte fliessen ins Training künftiger KI-Modelle (GPTBot, ClaudeBot, Google-Extended). | Ihre Entscheidung. Erlauben macht die Marke bei KI-Assistenten bekannter, sperren behält die Texte. |
+
+3. Kontrolle: `curl -s https://psyber.tech/robots.txt`. Beginnt die Datei mit «BEGIN Cloudflare Managed content», hat Cloudflare einen Block vorangestellt (Sie sehen dort, welche Crawler gesperrt sind). Darunter folgt unverändert die Datei der Website.
+
+Auf die Google- und Bing-Suche hat das keinen Einfluss: `Google-Extended` steuert nur das Training von Gemini, nicht die Suche.
+
+### 9.2 Google Search Console
+
+1. <https://search.google.com/search-console> → **Property hinzufügen** → Typ **Domain**, `psyber.tech`. Eine Domain-Property deckt alle Subdomains ab (auch forms und surprise).
+2. Bestätigen per DNS: Google zeigt einen `TXT`-Eintrag; ihn bei Cloudflare unter **DNS → Records** für `psyber.tech` anlegen. (Alternative ohne DNS: Property-Typ «URL-Präfix» und den Code als Build-Variable `PUBLIC_GOOGLE_SITE_VERIFICATION` setzen; er erscheint dann als Meta-Tag im Kopf jeder Seite. Der Code ist öffentlich, kein Geheimnis.)
+3. **Sitemaps** → `https://psyber.tech/sitemap-index.xml` einreichen.
+4. **URL-Prüfung** → `https://psyber.tech/` eingeben → **Indexierung beantragen**. Dasselbe für `/checkliste` und `https://forms.psyber.tech/`.
+5. Nach einigen Tagen im Bericht **Seiten** nachsehen. Erwartet: im Index sind die Startseite, `/checkliste`, `/impressum`, `/datenschutz` und die Umfrage. Unter «Durch ‹noindex› ausgeschlossen» stehen der Styleguide und alles von surprise.psyber.tech: Das ist gewollt.
+6. In den Einstellungen gibt es einen Schalter dafür, ob die Website in KI-Funktionen der Suche (AI Overviews, AI Mode) vorkommen darf. Prüfen Sie, dass er so steht, wie Sie es wollen: Für Sichtbarkeit muss er die Website einschliessen.
+7. Später regelmässig ansehen: **Leistung** (Suchanfragen und Klicks), **Core Web Vitals** und den Bericht zur Leistung in KI-Funktionen.
+
+### 9.3 Bing Webmaster Tools
+
+1. <https://www.bing.com/webmasters> → am einfachsten **Import from Google Search Console**. Sonst per DNS bestätigen oder den Code als Build-Variable `PUBLIC_BING_SITE_VERIFICATION` setzen.
+2. Sitemap einreichen: `https://psyber.tech/sitemap-index.xml`.
+
+Bing lohnt sich auch, weil andere Suchdienste auf seinem Index aufbauen. Optional: Mit IndexNow lassen sich geänderte Seiten sofort melden (Schlüssel in den Webmaster Tools erzeugen, als `<schlüssel>.txt` nach `apps/web/public/` legen). Bei vier Seiten genügt die Sitemap.
+
+### 9.4 Google-Unternehmensprofil
+
+Für die lokale Suche («Cyber-Prävention Zürich») zählt das Unternehmensprofil mehr als jede Angabe auf der Website: <https://business.google.com>. Ein Einzugsgebiet statt einer öffentlichen Adresse ist möglich. Name, Telefon und Website überall gleich schreiben (Profil, Impressum, Website).
+
+### 9.5 Prüfen
+
+```
+curl -s  https://psyber.tech/robots.txt                              # erlaubt alles, nennt die Sitemap
+curl -s  https://psyber.tech/sitemap-0.xml                           # vier Adressen
+curl -sI https://surprise.psyber.tech/gewinn | grep -i x-robots-tag  # noindex, nofollow
+curl -sI https://psyber.tech/styleguide      | grep -i x-robots-tag  # noindex, nofollow
+```
+
+Strukturierte Daten prüfen: <https://validator.schema.org> mit `https://psyber.tech/`. Erwartet sind `Organization`, `WebSite` und `WebPage`, ohne Fehler.
+
+### Was die Websites dafür mitbringen
+
+| Thema                | Umsetzung                                                                                                                                                                                                                                 |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Titel, Beschreibung  | je Seite eigen; die Startseite nennt zuerst das Thema, dann die Marke                                                                                                                                                                     |
+| Canonical            | absolut, ohne Parameter (`?quelle=`, `?ref=` erzeugen keine Dubletten)                                                                                                                                                                    |
+| Vorschau in Treffern | `max-image-preview:large`, Textauszug ohne Längengrenze; nachgestellte Betrugsnachrichten sind mit `data-nosnippet` vom Textauszug ausgenommen                                                                                            |
+| Strukturierte Daten  | `Organization` und `WebSite` auf der Startseite (Name der Website in den Treffern, Logo), `WebPage` und `BreadcrumbList` auf den Unterseiten. Nur belegte Angaben: E-Mail, Telefon und Adresse erscheinen, sobald sie in `site.ts` stehen |
+| robots.txt           | psyber.tech und forms: alles erlaubt, Sitemap genannt. surprise: nur Suchmaschinen dürfen abrufen (damit sie das `noindex` sehen), alle anderen Crawler nicht                                                                             |
+| Nicht im Index       | Styleguide, 404-Seiten, alles von surprise.psyber.tech, die API: `noindex` als Meta-Tag und als Header                                                                                                                                    |
+| Sitemap              | `sitemap-index.xml` mit den vier Seiten von psyber.tech                                                                                                                                                                                   |
+| Favicon, Vorschau    | ICO, SVG und PNG (Google nimmt kein SVG), OG-Bilder 1200×630                                                                                                                                                                              |
+| Tempo                | Lighthouse mobil 100, Seiten kommen als fertiges HTML ohne JavaScript beim Crawler an                                                                                                                                                     |
+
+Bewusst weggelassen: FAQ-Markup (Google zeigt dazu seit Mai 2026 keine Rich Results mehr), `llms.txt` (Google wertet die Datei nach eigener Angabe nicht aus) und `lastmod` in der Sitemap (bei vier Seiten wäre ein ungenaues Datum schlechter als keines).
+
+### Was danach am meisten bringt
+
+Technik öffnet die Tür, gefunden wird man mit Inhalt und Vertrauen:
+
+1. **Platzhalter füllen**: Name, Rolle, Foto, Adresse, Telefon. Ohne erkennbare Person dahinter stufen Suchmaschinen eine Sicherheits-Website vorsichtig ein.
+2. **Eigene Seiten je Thema**: Heute steht fast alles auf einer Seite. Wer «Paket-SMS Betrug» oder «Romance Scam erkennen» sucht, findet eher eine Seite, die genau das beantwortet. Die Fallakten (`apps/web/src/content/maschen/`) sind dafür der Ausgangspunkt; sie brauchen je einen ausführlichen Text aus Ihrer Erfahrung.
+3. **Erwähnungen von vertrauenswürdigen Stellen**: Schulen, Elternvereine, Gemeinden, lokale Medien, die auf psyber.tech verlinken.
+
+---
+
+## Schritt 10: Datenexport und Auswertung
 
 ```
 pnpm export     # schreibt reports/export-YYYY-MM-DD.json
@@ -320,7 +402,7 @@ Vollständige Sicherung (enthält Personendaten, also verschlüsselt ablegen und
 
 ---
 
-## Schritt 10: Umschalten auf `launch`
+## Schritt 11: Umschalten auf `launch`
 
 1. Die finalen Preise in `apps/web/src/config/site.ts` eintragen (`prices`) und committen.
 2. Offene `[TODO: …]`-Platzhalter erledigen (`docs/TODO.md`), Impressum und Datenschutz rechtlich prüfen lassen.

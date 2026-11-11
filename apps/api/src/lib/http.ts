@@ -49,6 +49,8 @@ export const securityHeaders: MiddlewareHandler<AppEnv> = async (c, next) => {
   c.header('X-Content-Type-Options', 'nosniff');
   c.header('Cache-Control', 'no-store');
   c.header('Referrer-Policy', 'no-referrer');
+  // Die API gehört in keine Suchmaschine.
+  c.header('X-Robots-Tag', 'noindex, nofollow');
   c.header('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'");
   c.header(
     'Strict-Transport-Security',

@@ -111,8 +111,13 @@ test.describe('surprise.psyber.tech', () => {
       page.getByText('Diese Seite setzt keine Cookies und fragt nichts ab.'),
     ).toBeVisible();
 
-    const robots = await page.request.get(`${SURPRISE}/robots.txt`);
-    expect(await robots.text()).toContain('Disallow: /');
+    // Suchmaschinen dürfen abrufen (nur so sehen sie das noindex), alle anderen Crawler nicht.
+    const robots = await (await page.request.get(`${SURPRISE}/robots.txt`)).text();
+    expect(robots).toMatch(/User-agent: Googlebot\n(User-agent: \S+\n)*Allow: \/\n/);
+    expect(robots).toMatch(/User-agent: \*\nDisallow: \/\n/);
+    // Ohne Canonical: «noindex» und Canonical zusammen wären widersprüchliche Signale.
+    await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
+    await expect(page.locator('script[type="application/ld+json"]')).toHaveCount(0);
 
     // Header, die Cloudflare aus der Datei _headers setzt
     const headers = readFileSync('apps/surprise/dist/_headers', 'utf8');

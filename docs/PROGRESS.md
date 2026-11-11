@@ -4,17 +4,19 @@ Neue Session? Zuerst `CLAUDE.md` lesen, dann diese Datei. Der Auftrag steht in `
 
 ## Stand je Phase
 
-| Phase | Inhalt                                         | Stand  |
-| ----- | ---------------------------------------------- | ------ |
-| 0     | Fundament, Tooling, `packages/ui`, Styleguide  | fertig |
-| 1     | psyber.tech (One-Pager und Unterseiten)        | fertig |
-| 2     | API (Cloudflare Worker)                        | fertig |
-| 3     | forms.psyber.tech (Umfrage)                    | fertig |
-| 4     | surprise.psyber.tech («Erwischt!»)             | fertig |
-| 5     | Härtung, E2E, DEPLOY.md                        | fertig |
-| 6     | Extras (Auswertung, Easter Eggs)               | fertig |
-| R     | Redesign (neuer Look, Logo-Kit, Slogan)        | fertig |
-| G     | Gesamt-Review (alles prüfen, vereinheitlichen) | fertig |
+| Phase | Inhalt                                          | Stand                     |
+| ----- | ----------------------------------------------- | ------------------------- |
+| 0     | Fundament, Tooling, `packages/ui`, Styleguide   | fertig                    |
+| 1     | psyber.tech (One-Pager und Unterseiten)         | fertig                    |
+| 2     | API (Cloudflare Worker)                         | fertig                    |
+| 3     | forms.psyber.tech (Umfrage)                     | fertig                    |
+| 4     | surprise.psyber.tech («Erwischt!»)              | fertig                    |
+| 5     | Härtung, E2E, DEPLOY.md                         | fertig                    |
+| 6     | Extras (Auswertung, Easter Eggs)                | fertig                    |
+| R     | Redesign (neuer Look, Logo-Kit, Slogan)         | fertig                    |
+| G     | Gesamt-Review (alles prüfen, vereinheitlichen)  | fertig                    |
+| S     | Sichtbarkeit in Suchmaschinen (SEO, robots.txt) | fertig                    |
+| T     | Tracking und Analysen                           | offen: Entscheidung nötig |
 
 ## Phase 0: Fundament (fertig)
 
@@ -133,6 +135,19 @@ Auftrag: alles prüfen, vereinheitlichen und dort verbessern, wo es nötig ist. 
 - **Neue Prüfungen:** Die Tests messen jetzt selbst, ob etwas über den Bildrand ragt oder ein Wort mitten im Wort umbricht (zehn Seiten, zwölf Breiten). Die bisherige Messung war dafür blind und hatte vier Stellen übersehen.
 - **Stand der Prüfkette:** 132 Unit-Tests, 270 E2E-Tests (38 übersprungen), 227 Header-Prüfungen, Lighthouse mobil 100 auf allen Seiten (surprise SEO 69 wegen `noindex`), JS gzip web 63,5 KB, forms 35,0 KB, surprise 0,9 KB.
 
+## Sichtbarkeit in Suchmaschinen (fertig)
+
+Grundlage: die aktuellen Dokumente von Google Search Central, OpenAI, Anthropic und Cloudflare (Stand November 2026). Gründe und Einzelheiten: `docs/DECISIONS.md`, Nummern 150 bis 159. Ihre Schritte (Search Console, Bing, Cloudflare-Einstellung für KI-Crawler, Unternehmensprofil): `docs/DEPLOY.md`, Schritt 9.
+
+- **robots.txt:** Zwei Regeln hebelten ihr eigenes `noindex` aus (Styleguide und surprise standen unter `Disallow`, ein Crawler hätte das `noindex` nie gesehen). Jetzt: psyber.tech und forms offen mit Sitemap; surprise lässt nur Suchmaschinen abrufen und sperrt alle anderen aus.
+- **Seitenkopf:** Titel und Beschreibung der Startseite nennen zuerst das Thema; Seiten im Index erlauben grosse Vorschauen; Seiten mit `noindex` tragen kein Canonical; Favicon auch als PNG; Bestätigungscodes für Google und Bing per Build-Variable möglich.
+- **Strukturierte Daten:** `Organization`, `WebSite`, `WebPage`, `BreadcrumbList`, nur mit belegten Angaben (`packages/ui/src/lib/structured-data.ts`).
+- **Textauszüge:** Nachgestellte Betrugsnachrichten sind mit `data-nosnippet` vom Textauszug in Treffern ausgenommen.
+- **Tests:** `e2e/seo.spec.ts` prüft das rohe HTML wie ein Crawler (Titel, Canonical, strukturierte Daten ohne Platzhalter, Sitemap passend zu robots.txt und zu den Seiten); dazu Unit-Tests für robots.txt und die Daten.
+- **Stand der Prüfkette:** 141 Unit-Tests, 278 E2E-Tests (46 übersprungen), 230 Header-Prüfungen, Lighthouse mobil 100 in allen Kategorien auf psyber.tech, der Checkliste und der Umfrage (surprise SEO 66, weil die Seite `noindex` trägt).
+
+**Offen (nächster Meilenstein): Tracking.** Noch nicht begonnen. Es berührt die Regeln «kein Tracking, keine Cookies» aus dem Auftrag, die Datenschutzerklärung, den Cookie-Hinweis und die CSP; vor dem Einbau braucht es Ihre Entscheidung für eine Variante.
+
 ## Abschluss
 
 Alle Phasen aus dem Auftrag sind umgesetzt. Deployt wurde nichts; es liegen keine Secrets im Repo.
@@ -180,3 +195,5 @@ Zum Testen: Sobald dieser Stand auf `main` liegt und GitHub Pages auf «GitHub A
 - CSS, das ein nachgeladenes Skript braucht, per `?url` importieren und als `<link>` einhängen (siehe `terminal.ts`). Ein normaler Import landet als blockierendes Stylesheet im `<head>` jeder Seite.
 - Elemente, die nur vor dem Hydrieren sichtbar sind, dürfen im Layout keinen Platz belegen (sonst verschiebt sich die Seite: CLS). Lighthouse nach solchen Änderungen laufen lassen.
 - Lokaler Export: `pnpm export --local` schreibt `reports/export-local-….json`; auswerten mit `pnpm analyze reports/export-local-….json`.
+- Suchmaschinen: Eine Seite mit `noindex` nie zusätzlich in der robots.txt sperren (der Crawler sähe das `noindex` nicht). Neue Seite im Index: Titel, Beschreibung und `crumb` am `<Page>` setzen; `e2e/seo.spec.ts` um die Seite ergänzen (Liste `INDEXED`), die Sitemap folgt von selbst. Neue Seite ausserhalb des Index: `noindex` am Layout und in `noindexPaths` der `astro.config.mjs` (Header).
+- Strukturierte Daten: nur Angaben, die in der Konfiguration stehen und stimmen. Was die Organisation zeigen darf, begrenzt ein Test (`allowed` in `e2e/seo.spec.ts`); neue Felder dort bewusst freigeben.

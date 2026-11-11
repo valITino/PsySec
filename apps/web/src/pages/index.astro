@@ -15,10 +15,11 @@ import Pakete from '../components/sections/Pakete.astro';
 import ProblemSplit from '../components/sections/ProblemSplit.astro';
 import Ticker from '../components/sections/Ticker.astro';
 import Ueber from '../components/sections/Ueber.astro';
+import { meta } from '../config/site.ts';
 import Base from '../layouts/Base.astro';
 ---
 
-<Base title="PSYber – Cyber-Prävention für Familien" path="/" progress>
+<Base title={meta.homeTitle} path="/" progress>
   <Header slot="header" home />
   <Hero />
   <ProblemSplit />

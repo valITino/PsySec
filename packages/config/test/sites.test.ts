@@ -38,6 +38,20 @@ describe('resolveSites', () => {
     const sites = resolveSites({ PUBLIC_WEB_URL: 'https://example.github.io/Repo/' });
     expect(sites.web).toBe('https://example.github.io/Repo');
   });
+
+  it('nimmt Bestätigungscodes der Suchmaschinen nur in der erwarteten Form an', () => {
+    expect(resolveSites({}).verification).toEqual({ google: '', bing: '' });
+    expect(
+      resolveSites({
+        PUBLIC_GOOGLE_SITE_VERIFICATION: ' abcDEF123_-xyz456 ',
+        PUBLIC_BING_SITE_VERIFICATION: '0123456789ABCDEF0123456789ABCDEF',
+      }).verification,
+    ).toEqual({ google: 'abcDEF123_-xyz456', bing: '0123456789ABCDEF0123456789ABCDEF' });
+    // Alles andere landet nicht im <head>: kein Markup, keine Leerzeichen, nichts zu Kurzes.
+    for (const bad of ['"><script>alert(1)</script>', 'zwei wörter', 'kurz', 'a'.repeat(200)]) {
+      expect(resolveSites({ PUBLIC_GOOGLE_SITE_VERIFICATION: bad }).verification.google).toBe('');
+    }
+  });
 });
 
 describe('splitSiteUrl und joinPath', () => {

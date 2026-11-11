@@ -132,3 +132,13 @@ Bei `prefers-reduced-motion` steht alles sofort im Endzustand: kein Lenis, kein 
 - Bilder aus dem Kit als `<img>` mit `width`, `height` und `alt` (leer, wenn Dekoration).
 - Startseite: Sektionen weit unter dem ersten Bildschirm tragen `data-lazy`; der Browser rechnet sie erst bei Bedarf (`content-visibility`). `home.ts` holt sie nach der ersten Interaktion nach und vor jedem Sprung zu einer Marke sofort. Frisch ausgelegt gelten sie zwei Bilder lang als `data-laid="new"` (darin kein Übergang), danach als `data-laid=""`.
 - Startseite: Ändert sich die Länge der Seite, während jemand schon weiter unten steht (Anpinnen im Drehbuch), bleibt der Abschnitt in der Bildmitte stehen (`keepInView` in `scroll.ts`). Die Leseposition für Neuladen und «Zurück» merkt `position.ts` im Verlaufseintrag (`history.state`), nie in Cookies oder Web-Speicher.
+
+## 8. Regeln für Suchmaschinen
+
+Was ein Crawler bekommt, steht im gemeinsamen Seitenkopf (`packages/ui/src/components/BaseHead.astro`); die Regeln prüft `e2e/seo.spec.ts` am rohen HTML.
+
+- **Titel und Beschreibung** je Seite eigen: zuerst das Thema, am Schluss « – PSYber». Keine Preise, keine Platzhalter.
+- **Im Index oder nicht** entscheidet `noindex` am Layout. Seiten im Index tragen ein absolutes Canonical ohne Parameter und erlauben grosse Vorschauen. Seiten mit `noindex` tragen weder Canonical noch strukturierte Daten und stehen nie zusätzlich unter `Disallow` in der robots.txt: Ein Crawler, der nicht abrufen darf, sieht das `noindex` nicht.
+- **Strukturierte Daten** (JSON-LD) entstehen aus der Konfiguration, nie von Hand im Markup. Nur Angaben, die stimmen: keine Bewertungen, keine Preise, keine Adresse, solange sie nicht eingetragen ist.
+- **Nachgestellte Betrugsnachrichten** tragen `data-nosnippet` (an `span` oder `div`): Sie sollen nie als Textauszug unter einem PSYber-Treffer stehen.
+- **Inhalte stehen im HTML**, nicht erst nach JavaScript: Jede Seite ist ohne Skript vollständig lesbar.

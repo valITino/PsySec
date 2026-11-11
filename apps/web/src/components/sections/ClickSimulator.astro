@@ -57,14 +57,20 @@ const steps = [
           </div>
 
           <div class="sim-messages">
+            {/*
+              data-nosnippet: Diese nachgestellte Betrugs-SMS soll nie als Textauszug unter
+              unserem Treffer in einer Suchmaschine stehen. Gelesen und indexiert wird sie trotzdem.
+            */}
             <p class="sim-bubble">
-              Ihr Paket konnte nicht zugestellt werden. Zollgebühr{' '}
-              {/* Auf je einer Zeile: Die Marker schliessen sonst ein Leerzeichen mit ein. */}
-              {/* prettier-ignore */}
-              <mark class="sim-mark" data-mark="betrag">CHF 2.40</mark> {/* prettier-ignore */}
-              <mark class="sim-mark" data-mark="zeit">bis heute 23:59</mark> bezahlen:{' '}
-              {/* prettier-ignore */}
-              <span class="sim-url"><mark class="sim-mark" data-mark="adresse">paket-zustellung-ch.info</mark>/z/8812<span class="sim-tap" aria-hidden="true"><Icon name="pointer" size={20} strokeWidth={2} /></span></span>
+              <span data-nosnippet>
+                Ihr Paket konnte nicht zugestellt werden. Zollgebühr{' '}
+                {/* Auf je einer Zeile: Die Marker schliessen sonst ein Leerzeichen mit ein. */}
+                {/* prettier-ignore */}
+                <mark class="sim-mark" data-mark="betrag">CHF 2.40</mark> {/* prettier-ignore */}
+                <mark class="sim-mark" data-mark="zeit">bis heute 23:59</mark> bezahlen:{' '}
+                {/* prettier-ignore */}
+                <span class="sim-url"><mark class="sim-mark" data-mark="adresse">paket-zustellung-ch.info</mark>/z/8812<span class="sim-tap" aria-hidden="true"><Icon name="pointer" size={20} strokeWidth={2} /></span></span>
+              </span>
             </p>
 
             <ul class="sim-signals" aria-label="Warnsignale in dieser Nachricht">
@@ -107,7 +113,7 @@ const steps = [
         <div class="sim-view sim-browser">
           <div class="sim-urlbar mono">
             <Icon name="triangle-alert" size={13} strokeWidth={2} />
-            <span>paket-zustellung-ch.info/z/8812</span>
+            <span data-nosnippet>paket-zustellung-ch.info/z/8812</span>
           </div>
 
           <div class="sim-error">

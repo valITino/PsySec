@@ -17,6 +17,22 @@ Sichtbare Platzhalter auf den Websites haben das Format `[TODO: …]`. Zentrale 
 - [ ] Warteliste: gespeichert wird nur noch der Monat der Eintragung, nicht der Tag (Entscheidung 128). Für die Auswertung genügt das; falls Sie den Tag brauchen, bitte melden.
 - [ ] Vor dem Verteilen des Umfrage-Links die Probe aus `docs/DEPLOY.md`, Schritt 8 machen und die Testdaten danach löschen (die Befehle dort sind neu gefasst).
 
+## Sichtbarkeit in Suchmaschinen: Ihre Schritte
+
+Die Technik ist vorbereitet (Entscheidungen 150 bis 159). Das Folgende geht nur mit Ihren Konten bzw. Ihrem Wissen; die Anleitung steht in `docs/DEPLOY.md`, Schritt 9.
+
+- [ ] Bei Cloudflare entscheiden, ob KI-Anbieter die Inhalte fürs Training verwenden dürfen (Schritt 9.1). KI-Suche («Search») erlauben, sonst fehlt PSYber in diesen Antworten.
+- [ ] Google Search Console einrichten, Sitemap einreichen, Indexierung der Startseite beantragen (Schritt 9.2)
+- [ ] Bing Webmaster Tools einrichten (Schritt 9.3)
+- [ ] Google-Unternehmensprofil anlegen (Schritt 9.4)
+- [ ] Profile auf anderen Plattformen (LinkedIn, Instagram usw.), falls vorhanden, melden: Sie kommen als `sameAs` in die strukturierten Daten (`apps/web/src/config/site.ts`, `brand`).
+- [ ] Ratgeber-Texte je Masche (je rund 300 bis 800 Wörter aus Ihrer Erfahrung). Das ist der grösste Hebel für Sichtbarkeit: Heute steht fast alles auf einer Seite, und die Fallakten sind für eigene Seiten zu kurz.
+- [ ] Titel und Beschreibung der Startseite gegenlesen (Entscheidung 155)
+
+## Tracking und Analysen: Entscheidung nötig
+
+Noch nicht eingebaut. Der Auftrag verbietet Tracking und Cookies; die Website sagt das an mehreren Stellen ausdrücklich («Kein Cookie-Banner. Weil wir keine Cookies setzen.», Datenschutzerklärung, `humans.txt`). Bevor etwas eingebaut wird, braucht es Ihre Wahl einer Variante (ohne Cookies und ohne Einwilligung möglich, oder klassisch mit Banner).
+
 ## Inhalte
 
 - [ ] Name (Terminal-Karte «Über», Impressum, Datenschutz)

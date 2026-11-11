@@ -1,18 +1,17 @@
+import { robotsTxt } from '@psyber/ui/lib/well-known';
 import type { APIRoute } from 'astro';
 import { absoluteUrl, sites } from '../config/site.ts';
 
-/** In der Vorschau wird nichts indexiert; in Produktion alles ausser dem Styleguide. */
-export const GET: APIRoute = () => {
-  const lines = sites.preview
-    ? ['User-agent: *', 'Disallow: /']
-    : [
-        'User-agent: *',
-        'Allow: /',
-        'Disallow: /styleguide',
-        '',
-        `Sitemap: ${absoluteUrl('/sitemap-index.xml')}`,
-      ];
-  return new Response(`${lines.join('\n')}\n`, {
-    headers: { 'Content-Type': 'text/plain; charset=utf-8' },
-  });
-};
+/**
+ * Alles darf gelesen werden. Der Styleguide und die 404-Seite tragen «noindex» (Meta-Tag und
+ * Header) und stehen darum nicht unter Disallow. In der Vorschau wird nichts indexiert.
+ */
+export const GET: APIRoute = () =>
+  new Response(
+    robotsTxt({
+      host: 'psyber.tech',
+      mode: sites.preview ? 'closed' : 'open',
+      sitemap: absoluteUrl('/sitemap-index.xml'),
+    }),
+    { headers: { 'Content-Type': 'text/plain; charset=utf-8' } },
+  );

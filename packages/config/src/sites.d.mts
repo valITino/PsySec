@@ -19,6 +19,8 @@ export interface Sites {
   turnstileSiteKey: string;
   /** HSTS-Header mit `preload` ausliefern */
   hstsPreload: boolean;
+  /** Bestätigungscodes für Search Console und Bing Webmaster Tools; leer, wenn nicht gesetzt */
+  verification: { google: string; bing: string };
 }
 
 export declare function resolveSites(

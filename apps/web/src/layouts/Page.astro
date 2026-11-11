@@ -12,6 +12,8 @@ interface Props {
   path: string;
   noindex?: boolean;
   ogImage?: string;
+  /** Name der Seite im Pfad «Startseite › …» (strukturierte Daten) */
+  crumb?: string;
 }
 
 const props = Astro.props;

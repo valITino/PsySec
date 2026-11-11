@@ -20,6 +20,15 @@ Komplette Umsetzung des Auftrags (`docs/BRIEF.md`) in sieben Phasen, danach das 
 - **Marke:** Logo, Eule in vier Mimiken, Wortmarke, Favicons, OG-Bilder und Sticker aus dem Logo-Kit (Runde 6 «Der Blick»). In «Über» schaut die Eule dem Zeiger nach. Leitsatz «Cyber-Prävention für Familien» (ohne «in Zürich»).
 - **Eigenes:** Von der Referenz stammen keine Texte, Bilder, Logos und kein Code. Regeln in [`DESIGN.md`](DESIGN.md), Gründe in [`DECISIONS.md`](DECISIONS.md) ab Nummer 100.
 
+## Sichtbarkeit in Suchmaschinen
+
+- **robots.txt:** psyber.tech und die Umfrage sind offen und nennen die Sitemap. surprise lässt nur Suchmaschinen abrufen (damit sie das `noindex` sehen) und sperrt alle anderen Crawler aus. Vorher standen Styleguide und surprise unter `Disallow`: Ein Crawler hätte ihr `noindex` nie gesehen.
+- **Seitenkopf:** je Seite eigener Titel und eigene Beschreibung, absolutes Canonical ohne Parameter, grosse Vorschauen erlaubt; Seiten mit `noindex` tragen kein Canonical.
+- **Strukturierte Daten:** `Organization`, `WebSite`, `WebPage`, `BreadcrumbList`, nur mit belegten Angaben (keine Bewertungen, keine Preise, keine Adresse, solange sie fehlt).
+- **Textauszüge:** Nachgestellte Betrugsnachrichten sind mit `data-nosnippet` ausgenommen.
+- **Bewusst nicht:** FAQ-Markup (von Google im Mai 2026 abgeschafft), `llms.txt`, eigene KI-Regeln in der robots.txt (regelt Cloudflare). Gründe in [`DECISIONS.md`](DECISIONS.md), Nummern 150 bis 159; Ihre Schritte in [`DEPLOY.md`](DEPLOY.md), Schritt 9.
+- **Noch offen:** Tracking und Analysen (eigener Meilenstein, braucht eine Entscheidung, siehe [`TODO.md`](TODO.md)).
+
 ## Screenshots
 
 ### psyber.tech
@@ -62,14 +71,14 @@ Die beiden Bilder der Auswertung zeigen erfundene Beispieldaten (`pnpm analyze -
 
 ## Geprüft
 
-| Prüfung                          | Ergebnis                                                                                                                                                                                                                                                                                      |
-| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm lint`, `pnpm typecheck`    | sauber                                                                                                                                                                                                                                                                                        |
-| `pnpm test`                      | 132 Unit-Tests (Umfrage-Logik, API in der Workers-Laufzeit, Header-Helfer, Auswertung, Wächter gegen Klassen-Kollisionen)                                                                                                                                                                     |
-| `pnpm e2e`                       | 270 Playwright-Tests in 390×844 und 1440×900, inklusive axe (WCAG 2.2 AA) auf allen Hauptansichten, Rand- und Wortbruch-Prüfung auf zehn Seiten in zwölf Breiten, Direktlinks und Neuladen; 38 übersprungen, weil sie nur mit Tastatur, nur mit Zeiger bzw. nur in einer Grösse sinnvoll sind |
-| `pnpm budgets`                   | JS gzip: web 63,5 von 120 KB, forms 35,0 von 60 KB, surprise 0,9 von 25 KB                                                                                                                                                                                                                    |
-| `pnpm check:headers`             | 227 Prüfungen von Security-Headern, Cache-Regeln, Weiterleitungen und 404 in der Workers-Laufzeit                                                                                                                                                                                             |
-| `pnpm lighthouse` (mobil, lokal) | 100 bei Performance, Barrierefreiheit und Best Practices auf allen drei Sites; SEO 100 (surprise 69, weil `noindex` dort Pflicht ist); LCP 0,9 bis 1,5 s, CLS 0                                                                                                                               |
+| Prüfung                          | Ergebnis                                                                                                                                                                                                                                                                                                                               |
+| -------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm lint`, `pnpm typecheck`    | sauber                                                                                                                                                                                                                                                                                                                                 |
+| `pnpm test`                      | 141 Unit-Tests (Umfrage-Logik, API in der Workers-Laufzeit, Header-Helfer, Auswertung, Wächter gegen Klassen-Kollisionen)                                                                                                                                                                                                              |
+| `pnpm e2e`                       | 278 Playwright-Tests in 390×844 und 1440×900, inklusive axe (WCAG 2.2 AA) auf allen Hauptansichten, Rand- und Wortbruch-Prüfung auf zehn Seiten in zwölf Breiten, Direktlinks und Neuladen, Angaben für Suchmaschinen am rohen HTML; 46 übersprungen, weil sie nur mit Tastatur, nur mit Zeiger bzw. nur in einer Grösse sinnvoll sind |
+| `pnpm budgets`                   | JS gzip: web 63,5 von 120 KB, forms 35,0 von 60 KB, surprise 0,9 von 25 KB                                                                                                                                                                                                                                                             |
+| `pnpm check:headers`             | 230 Prüfungen von Security-Headern, Cache-Regeln, Weiterleitungen, robots.txt und 404 in der Workers-Laufzeit                                                                                                                                                                                                                          |
+| `pnpm lighthouse` (mobil, lokal) | 100 bei Performance, Barrierefreiheit und Best Practices auf allen drei Sites; SEO 100 (surprise 69, weil `noindex` dort Pflicht ist); LCP 0,9 bis 1,5 s, CLS 0                                                                                                                                                                        |
 
 Nicht geprüft, weil es dafür die echte Domain braucht: Mozilla Observatory, Lighthouse gegen die Live-Adressen, echter Versand der Benachrichtigung, Turnstile mit echtem Schlüssel. Die Schritte dafür stehen in `docs/DEPLOY.md` (Schritt 8). Getestet ist nur in Chromium.
 
@@ -105,7 +114,7 @@ Alles, was von Ihnen kommen muss, steht in [`TODO.md`](TODO.md). Kurz:
 - Betrieb: Cloudflare nach [`DEPLOY.md`](DEPLOY.md) einrichten (Zone, D1 in der EU, Turnstile, Email Routing, vier Workers).
 - Prüfen: Die fiktiven Beispiel-Domains gehören niemandem; die Quellenlinks stimmen noch.
 
-Annahmen und ihre Gründe stehen in [`DECISIONS.md`](DECISIONS.md) (149 Einträge), der Stand je Phase in [`PROGRESS.md`](PROGRESS.md).
+Annahmen und ihre Gründe stehen in [`DECISIONS.md`](DECISIONS.md) (159 Einträge), der Stand je Phase in [`PROGRESS.md`](PROGRESS.md).
 
 ## Vorschau
 

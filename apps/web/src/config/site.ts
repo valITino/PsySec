@@ -109,7 +109,41 @@ export const meta = {
   /** Slogan zur Eule (Logo-Kit) */
   slogan: 'Betrüger hassen diesen Blick.',
   claim: 'Wir patchen Layer 8.',
+  /** Titel der Startseite: zuerst, worum es geht, am Schluss die Marke */
+  homeTitle: 'Cyber-Prävention für Familien: Schutz vor Online-Betrug – PSYber',
+  /** Das Wichtigste zuerst: Suchmaschinen kürzen nach rund 155 Zeichen. */
   defaultDescription:
-    'PSYber zeigt Familien, wie Online-Betrug funktioniert, und sichert das Heimnetz gleich mit ab. Sicherheit, die beim Menschen anfängt.',
+    'PSYber zeigt Familien, wie Phishing, Anlagebetrug, Romance Scam und Cybermobbing funktionieren, und sichert das Heimnetz gleich mit ab. Sicherheit, die beim Menschen anfängt.',
   ogImage: '/og/psyber.png',
+} as const;
+
+// ---------------------------------------------------------------- Angaben für Suchmaschinen
+
+/**
+ * Marke für die strukturierten Daten der Startseite (schema.org). Nur was stimmt: Offene Angaben
+ * (E-Mail, Telefon) fehlen, bis sie oben eingetragen sind. Adresse, Name der Person und Profile
+ * auf anderen Plattformen kommen dazu, sobald es sie gibt (siehe docs/TODO.md).
+ */
+export const brand = {
+  home: absoluteUrl('/'),
+  name: 'PSYber',
+  /** Ausweichnamen für den Namen der Website in den Suchergebnissen, zuletzt die Domain */
+  alternateName: ['PSYber – Cyber-Prävention für Familien', 'psyber.tech'],
+  slogan: meta.slogan,
+  description: meta.defaultDescription,
+  /** Die Eule auf Aubergine: quadratisch, 512 px, auch auf Weiss gut erkennbar */
+  logo: { url: absoluteUrl('/icon-512.png'), size: 512 },
+  /** Gehört zur Region im Kontakt: wer sie dort enger fasst, passt sie hier an */
+  areaServed: { name: 'Schweiz', code: 'CH' },
+  /** Themen, die die Website behandelt */
+  knowsAbout: [
+    'Phishing',
+    'Online-Anlagebetrug',
+    'Romance Scam',
+    'Cybermobbing',
+    'Sicheres Heimnetz',
+    'Kinderschutz im Internet',
+  ],
+  email: isTodo(contact.email) ? undefined : contact.email,
+  telephone: isTodo(contact.phone) ? undefined : contact.phone,
 } as const;

@@ -54,7 +54,11 @@ test.describe('psyber.tech', () => {
     request,
   }) => {
     await page.goto(`${WEB}/`);
-    await expect(page).toHaveTitle('PSYber – Cyber-Prävention für Familien');
+    // Zuerst das Thema, am Schluss die Marke; der Leitsatz steht am Anfang, ohne «Zürich».
+    await expect(page).toHaveTitle(
+      'Cyber-Prävention für Familien: Schutz vor Online-Betrug – PSYber',
+    );
+    await expect(page).not.toHaveTitle(/Zürich/);
     await expect(page.locator('.hero-head .kicker')).toHaveText(
       /Cyber-Prävention für Familien\s*$/,
     );

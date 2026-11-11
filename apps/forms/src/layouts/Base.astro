@@ -1,7 +1,8 @@
 ---
 import '../styles/global.css';
 import BaseHead from '@psyber/ui/components/BaseHead.astro';
-import { absoluteUrl, basePath, sites } from '../lib/site.ts';
+import { graph, webPage, website } from '@psyber/ui/lib/structured-data';
+import { absoluteUrl, basePath, sites, web } from '../lib/site.ts';
 
 interface Props {
   title: string;
@@ -11,6 +12,35 @@ interface Props {
 }
 
 const { title, description, path = '/', noindex = false } = Astro.props;
+
+const url = absoluteUrl(path);
+const home = absoluteUrl('/');
+const hidden = noindex || sites.preview;
+const ogImage = absoluteUrl('/og/umfrage.png');
+
+// Strukturierte Daten: die Umfrage als eigene Website von PSYber (Herausgeber: psyber.tech).
+const jsonLd = hidden
+  ? undefined
+  : graph(
+      path === '/' &&
+        website({
+          url: home,
+          name: 'PSYber',
+          alternateName: ['PSYber Umfrage', 'forms.psyber.tech'],
+          description,
+          language: 'de-CH',
+          publisherHome: web.home,
+        }),
+      webPage({
+        url,
+        name: title,
+        description,
+        language: 'de-CH',
+        siteUrl: home,
+        publisherHome: web.home,
+        image: ogImage,
+      }),
+    );
 ---
 
 <!doctype html>
@@ -19,11 +49,13 @@ const { title, description, path = '/', noindex = false } = Astro.props;
     <BaseHead
       title={title}
       description={description}
-      canonical={absoluteUrl(path)}
-      ogImage={absoluteUrl('/og/umfrage.png')}
+      canonical={url}
+      ogImage={ogImage}
       ogImageAlt="PSYber-Umfrage: Wie sicher ist Ihre Familie online?"
-      noindex={noindex || sites.preview}
+      noindex={hidden}
       base={basePath}
+      jsonLd={jsonLd}
+      verification={sites.verification}
     />
     <slot name="head" />
   </head>

@@ -134,6 +134,8 @@ describe('Grundlagen', () => {
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ ok: true });
     expect(response.headers.get('X-Content-Type-Options')).toBe('nosniff');
+    // Die API gehört in keine Suchmaschine.
+    expect(response.headers.get('X-Robots-Tag')).toBe('noindex, nofollow');
     expect(response.headers.get('Cache-Control')).toBe('no-store');
     expect(response.headers.get('Content-Security-Policy')).toContain("default-src 'none'");
     expect(response.headers.get('Strict-Transport-Security')).toContain('max-age=31536000');

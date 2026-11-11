@@ -66,6 +66,7 @@ Nach jeder Änderung: `pnpm lint && pnpm typecheck && pnpm test && pnpm build`, 
 - Nichts ragt über den Bildrand, kein Wort bricht mitten im Wort um, und angepinnte oder klebende Flächen passen auch in niedrige Fenster (1366×650, 1280×740). Die Tests messen das (`cutOff`, `brokenWords` in `e2e/helpers.ts`).
 - Satzzeichen direkt hinter einem Link oder `<mark>`: auf eine Zeile schreiben und `{/* prettier-ignore */}` davor setzen, sonst entsteht ein sichtbares Leerzeichen.
 - Formulare tragen immer `method="post"`; Overlays mit eigenem Scrollen tragen `data-lenis-prevent`.
+- Suchmaschinen: Eine Seite mit `noindex` nie zusätzlich in der robots.txt sperren. Strukturierte Daten nur mit Angaben, die stimmen und in der Konfiguration stehen. Nachgestellte Betrugsnachrichten tragen `data-nosnippet`. Geprüft in `e2e/seo.spec.ts`.
 
 ## Nicht tun
 

@@ -24,6 +24,11 @@ export const TURNSTILE_TEST_KEYS = Object.freeze({
 });
 
 const trim = (value) => String(value).trim().replace(/\/+$/, '');
+/** Nur Zeichen, die in solchen Codes vorkommen: So landet nie fremdes Markup im <head>. */
+const verificationCode = (value) => {
+  const code = String(value ?? '').trim();
+  return /^[A-Za-z0-9_-]{8,128}$/.test(code) ? code : '';
+};
 const pick = (value, fallback) => (value && String(value).trim() ? trim(value) : fallback);
 
 /**
@@ -54,6 +59,14 @@ export function resolveSites(env, options = {}) {
     turnstileSiteKey: pick(env.PUBLIC_TURNSTILE_SITE_KEY, ''),
     /** `true`: HSTS-Header mit `preload` (erst nach stabilem Betrieb, siehe docs/DEPLOY.md) */
     hstsPreload: env.PUBLIC_HSTS_PRELOAD === 'true' || env.PUBLIC_HSTS_PRELOAD === true,
+    /**
+     * Bestätigungscodes für Search Console und Bing Webmaster Tools (optional; empfohlen ist die
+     * Bestätigung per DNS, dann bleiben beide leer). Die Codes sind öffentlich, keine Geheimnisse.
+     */
+    verification: {
+      google: verificationCode(env.PUBLIC_GOOGLE_SITE_VERIFICATION),
+      bing: verificationCode(env.PUBLIC_BING_SITE_VERIFICATION),
+    },
   };
 }
 
