@@ -1,0 +1,168 @@
+---
+/**
+ * Angebotskarte auf --paper: Session anfragen und Rabattcode zum Kopieren.
+ * Der Code ist ein Button (kein Eingabefeld); die Rückmeldung läuft über aria-live.
+ * Verhalten: src/scripts/gewinn.ts
+ */
+import Button from '@psyber/ui/components/Button.astro';
+import Icon from '@psyber/ui/components/Icon.astro';
+import { web } from '../lib/site.ts';
+
+const CODE = 'LAYER8';
+---
+
+<div class="offer on-paper">
+  <div class="offer-main">
+    <p class="hexnum" aria-hidden="true">
+      0x03
+    </p>
+    <h2 class="display h2 offer-title">Das war erst der Anfang.</h2>
+    <p class="lead">
+      Buchen Sie eine PSYber-Session, damit Ihre ganze Familie solche Links in Zukunft durchschaut.
+      Wir kommen zu Ihnen nach Hause, erklären die Tricks hinter den Maschen und sichern gleich Ihr
+      Heimnetz ab.
+    </p>
+    <Button href={web.kontakt} icon>
+      Session anfragen
+    </Button>
+  </div>
+
+  <div class="offer-code">
+    <p class="offer-code-text">
+      Fürs Mitmachen gibt es trotzdem einen Gewinn: 10&nbsp;% Rabatt mit diesem Code.
+    </p>
+    <button type="button" class="code" data-copy={CODE}>
+      <span class="code-value mono" data-copy-code>
+        {CODE}
+      </span>
+      <span class="code-action">
+        <Icon name="copy" size={18} class="code-icon-copy" />
+        <Icon name="check" size={18} strokeWidth={2.25} class="code-icon-done" />
+        <span data-copy-action>kopieren</span>
+      </span>
+    </button>
+    <p class="sr-only" aria-live="polite" data-copy-status></p>
+  </div>
+</div>
+
+<style>
+  .offer {
+    display: grid;
+    gap: clamp(2rem, 1rem + 4vw, 3.5rem);
+    padding: clamp(1.5rem, 0.5rem + 4.6vw, 4rem);
+    border-radius: var(--r-card);
+  }
+
+  .offer-main {
+    display: grid;
+    justify-items: start;
+    gap: 1.25rem;
+  }
+
+  .offer-title {
+    margin-top: -0.5rem;
+  }
+
+  .offer-main :global(.btn) {
+    margin-top: 0.5rem;
+  }
+
+  .offer-code {
+    display: grid;
+    justify-items: start;
+    gap: 1rem;
+    align-content: start;
+    padding-top: clamp(1.5rem, 1rem + 2vw, 2.25rem);
+    border-top: 1px solid var(--border);
+  }
+
+  .offer-code-text {
+    max-width: 24em;
+    color: var(--ink);
+    font-weight: 600;
+    line-height: 1.45;
+  }
+
+  /* Der Code als Coupon: links der Code in Mono, rechts die Aktion */
+  .code {
+    display: inline-grid;
+    grid-template-columns: auto auto;
+    align-items: stretch;
+    min-height: 3.5rem;
+    border: 1.5px dashed var(--ink);
+    border-radius: var(--r-btn);
+    background-color: var(--white);
+    color: var(--ink);
+    text-align: left;
+    transition:
+      background-color var(--dur-1) var(--ease),
+      border-color var(--dur-1) var(--ease);
+  }
+
+  .code-value {
+    display: grid;
+    align-items: center;
+    padding: 0.5rem 1.125rem 0.5rem 1.25rem;
+    font-size: 1.5rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .code-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-width: 7.75rem;
+    padding: 0.5rem 1.125rem 0.5rem 1rem;
+    border-left: 1.5px dashed var(--ink);
+    color: var(--violet-dark);
+    font-size: var(--fs-small);
+    font-weight: 650;
+    --casl: 0.4;
+  }
+
+  .code :global(.code-icon-done) {
+    display: none;
+  }
+
+  .code:global(.is-copied) {
+    border-style: solid;
+  }
+
+  .code:global(.is-copied) .code-action {
+    color: var(--ink);
+  }
+
+  .code:global(.is-copied) :global(.code-icon-copy) {
+    display: none;
+  }
+
+  .code:global(.is-copied) :global(.code-icon-done) {
+    display: inline-block;
+  }
+
+  @media (hover: hover) {
+    .code:hover {
+      border-color: var(--violet);
+      background-color: color-mix(in srgb, var(--violet) 8%, var(--white));
+    }
+  }
+
+  .code:active {
+    transform: translateY(1px);
+  }
+
+  @media (min-width: 60rem) {
+    .offer {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 4fr);
+    }
+
+    .offer-code {
+      align-content: end;
+      padding-top: 0;
+      padding-left: clamp(2rem, 4vw, 3.5rem);
+      border-top: 0;
+      border-left: 1px solid var(--border);
+    }
+  }
+</style>

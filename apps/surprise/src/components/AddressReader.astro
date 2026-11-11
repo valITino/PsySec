@@ -1,0 +1,269 @@
+---
+/**
+ * «Adressen lesen»: zwei Beispiele, umschaltbar über «Echt» / «Fälschung».
+ * Umschalter sind Buttons mit aria-pressed (keine Eingabefelder auf dieser Site).
+ * Die gefälschte Adresse ist fiktiv und nie ein Link. Ohne JS stehen beide Beispiele untereinander.
+ * Verhalten: src/scripts/gewinn.ts
+ */
+import Icon from '@psyber/ui/components/Icon.astro';
+
+interface Props {
+  /** id der Überschrift, die den Umschalter benennt */
+  labelledby: string;
+}
+
+const { labelledby } = Astro.props;
+
+type Kind = 'rest' | 'sub' | 'site' | 'slash';
+
+const examples = [
+  {
+    id: 'echt',
+    label: 'Echt',
+    ok: true,
+    parts: [
+      { kind: 'rest', text: 'https://' },
+      { kind: 'sub', text: 'surprise.' },
+      { kind: 'site', text: 'psyber.tech' },
+      { kind: 'slash', text: '/' },
+      { kind: 'rest', text: 'gewinn' },
+    ],
+    site: 'psyber.tech',
+    note: '',
+  },
+  {
+    id: 'faelschung',
+    label: 'Fälschung',
+    ok: false,
+    parts: [
+      { kind: 'rest', text: 'https://' },
+      { kind: 'sub', text: 'psyber.tech.' },
+      { kind: 'site', text: 'gutschein-sofort.ch' },
+      { kind: 'slash', text: '/' },
+      { kind: 'rest', text: 'gewinn' },
+    ],
+    site: 'gutschein-sofort.ch.',
+    note: 'Eine fremde Seite, auch wenn ‹psyber.tech› in der Adresse vorkommt.',
+  },
+] satisfies {
+  id: string;
+  label: string;
+  ok: boolean;
+  parts: { kind: Kind; text: string }[];
+  /** Urteil «Echte Website: …»: die Website, zu der die Adresse wirklich führt (mit Satzzeichen) */
+  site: string;
+  note: string;
+}[];
+---
+
+<div class="reader" data-reader data-show="echt">
+  <div class="reader-switch" role="group" aria-labelledby={labelledby}>
+    {examples.map((example, index) => (
+      <button
+        type="button"
+        class="reader-tab"
+        data-reader-show={example.id}
+        aria-pressed={index === 0 ? 'true' : 'false'}
+      >
+        {example.label}
+      </button>
+    ))}
+  </div>
+
+  <div class="reader-panels" aria-live="polite">
+    {examples.map((example) => (
+      <div
+        class:list={['reader-panel', example.ok ? 'is-ok' : 'is-bad']}
+        data-reader-panel={example.id}
+      >
+        <p class="reader-cap mono">{example.label}</p>
+        <p class="addr mono">
+          {example.parts.map((part) => (
+            <span class={`addr-${part.kind}`}>{part.text}</span>
+          ))}
+        </p>
+        <p class="reader-verdict">
+          <Icon name={example.ok ? 'circle-check' : 'circle-x'} size={24} strokeWidth={2} />
+          <span>
+            <strong>
+              Echte Website: <span class="reader-site">{example.site}</span>
+            </strong>
+            {example.note && <span class="reader-note"> {example.note}</span>}
+          </span>
+        </p>
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .reader {
+    display: grid;
+    gap: 1.5rem;
+    padding: clamp(1.25rem, 0.75rem + 2vw, 2.25rem);
+    border: 1px solid var(--line);
+    border-radius: var(--r-card);
+    background-color: var(--deep);
+  }
+
+  /* Umschalter: zwei gleich breite Tasten, die gedrückte ist gefüllt */
+  .reader-switch {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.25rem;
+    width: min(100%, 20rem);
+    padding: 0.25rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-card);
+    background-color: var(--night);
+  }
+
+  .reader-tab {
+    min-height: 2.75rem;
+    padding: 0.375rem 1rem;
+    border-radius: var(--r-btn);
+    color: var(--soft);
+    font-weight: 650;
+    line-height: 1.2;
+    transition:
+      background-color var(--dur-1) var(--ease),
+      color var(--dur-1) var(--ease);
+    --casl: 0.4;
+  }
+
+  .reader-tab[aria-pressed='true'] {
+    background-color: var(--lav);
+    color: var(--night);
+  }
+
+  @media (hover: hover) {
+    .reader-tab[aria-pressed='false']:hover {
+      background-color: color-mix(in srgb, var(--lav) 16%, transparent);
+      color: var(--white);
+    }
+  }
+
+  /* Container: die Adresse richtet ihre Schriftgrösse an der Kartenbreite aus */
+  .reader-panels {
+    container-type: inline-size;
+  }
+
+  .reader-panel {
+    display: none;
+    gap: 0;
+  }
+
+  .reader[data-show='echt'] [data-reader-panel='echt'],
+  .reader[data-show='faelschung'] [data-reader-panel='faelschung'] {
+    display: grid;
+  }
+
+  /* Beschriftung der Beispiele: nur ohne JS nötig (dann fehlt der Umschalter) */
+  .reader-cap {
+    display: none;
+    margin-bottom: 0.5rem;
+    color: var(--lav);
+    font-size: var(--fs-meta);
+  }
+
+  /* Die Adresse: gross, in Mono, der entscheidende Teil ist markiert */
+  /* 4.6cqw: die echte Adresse (35 Zeichen) passt immer auf eine Zeile */
+  .addr {
+    padding-bottom: 1.125rem;
+    color: var(--lav);
+    font-size: clamp(0.75rem, 4.6cqw, 1.25rem);
+    font-weight: 500;
+    line-height: 1.9;
+    overflow-wrap: anywhere;
+  }
+
+  .addr-sub {
+    color: var(--soft);
+  }
+
+  .addr-slash {
+    color: var(--white);
+    font-weight: 800;
+  }
+
+  .addr-site {
+    position: relative;
+    display: inline-block;
+    border-radius: 0.22em;
+    font-weight: 750;
+    line-height: 1.35;
+    white-space: nowrap;
+  }
+
+  /* Verbindung von der markierten Stelle zum Urteil darunter */
+  .addr-site::after {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    width: 2px;
+    height: 2.5em; /* das Urteil darunter deckt den Überstand ab */
+    margin-left: -1px;
+    content: '';
+  }
+
+  .is-ok .addr-site {
+    background-color: var(--ok);
+    box-shadow: 0 0 0 0.16em var(--ok);
+    color: var(--night);
+  }
+
+  .is-ok .addr-site::after {
+    background-color: var(--ok);
+  }
+
+  .is-bad .addr-site {
+    background-color: var(--crit);
+    box-shadow: 0 0 0 0.16em var(--crit);
+    color: var(--white);
+  }
+
+  .is-bad .addr-site::after {
+    background-color: var(--crit);
+  }
+
+  .reader-verdict {
+    position: relative;
+    display: grid;
+    background-color: var(--deep);
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.75rem;
+    align-items: start;
+    padding-top: 1rem;
+    border-top: 2px solid var(--line);
+    color: var(--soft);
+    line-height: 1.5;
+  }
+
+  .is-ok .reader-verdict {
+    border-top-color: var(--ok);
+  }
+
+  .is-bad .reader-verdict {
+    border-top-color: var(--crit);
+  }
+
+  .reader-verdict :global(.icon) {
+    width: 1.5rem;
+    height: 1.5rem;
+    margin-top: 0.0625rem;
+  }
+
+  .is-ok .reader-verdict :global(.icon) {
+    color: var(--ok);
+  }
+
+  /* Rot erreicht auf Dunkel nur 3:1: als Icon in Ordnung, der Text bleibt hell */
+  .is-bad .reader-verdict :global(.icon) {
+    color: var(--crit);
+  }
+
+  /* Die Domain bleibt am Stück lesbar */
+  .reader-site {
+    white-space: nowrap;
+  }
+</style>

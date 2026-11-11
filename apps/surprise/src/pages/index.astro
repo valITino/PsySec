@@ -1,0 +1,21 @@
+---
+/**
+ * `/` leitet auf `/gewinn` weiter. Auf Cloudflare erledigt das `_redirects` (302);
+ * diese Seite ist der Rückfall für Hosts ohne Redirect-Regeln (z. B. die Vorschau).
+ */
+import Base from '../layouts/Base.astro';
+import { href } from '../lib/site.ts';
+
+const target = href('/gewinn');
+---
+
+<Base title="PSYber" description="Weiterleitung." path="/">
+  <meta slot="head" http-equiv="refresh" content={`0; url=${target}`} />
+  <main class="wrap section">
+    <p>
+      <a class="link" href={target}>
+        Weiter
+      </a>
+    </p>
+  </main>
+</Base>

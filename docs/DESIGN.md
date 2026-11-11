@@ -110,6 +110,8 @@ Nur diese sieben Momente bewegen sich:
 
 Dazu kommt das Psi-Netz (Abschnitt 3). Kein generisches Fade-up, kein Custom Cursor, kein Parallax auf Text.
 
+surprise.psyber.tech hat eine eigene, im Auftrag (7.1 und 7.2) vorgegebene Abfolge, sonst bewegt sich dort nichts: Teaser mit Fortschrittsbalken (höchstens 1.2 s, überspringbar), Glitch (400 ms: Streifenversatz, Farbkanäle in `--crit` und `--violet`, Scanlines) und der Amber-Marker, der einmal über «psyber.tech» wischt. Die Zeiten stehen als `--sp-*` in `apps/surprise/src/styles/global.css`.
+
 ### Reduzierte Bewegung und Pausieren
 
 - `prefers-reduced-motion: reduce`: Lenis startet nicht, keine Autoplay- und Scrub-Animationen, alle Inhalte sind sofort sichtbar und vollständig. Eine globale CSS-Regel setzt zusätzlich alle Animationen und Übergänge auf sofort.

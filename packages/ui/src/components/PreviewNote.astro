@@ -1,13 +1,15 @@
 ---
 /**
- * Schmaler Hinweis in der Vorschau (z. B. GitHub Pages): Formulare speichern nichts.
- * Erscheint nur, wenn PUBLIC_PREVIEW=true gesetzt ist.
+ * Schmaler Hinweis in der Vorschau (z. B. GitHub Pages). Der Text kommt per Slot.
+ * Die Apps zeigen ihn nur, wenn PUBLIC_PREVIEW=true gesetzt ist.
  */
 ---
 
 <p class="preview-note mono" data-preview-note>
   <span class="preview-dot" aria-hidden="true"></span>
-  Vorschau: Formulare und Umfrage speichern hier nichts.
+  <span>
+    <slot>Vorschau: Formulare und Umfrage speichern hier nichts.</slot>
+  </span>
 </p>
 
 <style>

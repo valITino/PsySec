@@ -10,7 +10,7 @@ Neue Session? Zuerst `CLAUDE.md` lesen, dann diese Datei. Der Auftrag steht in `
 | 1     | psyber.tech (One-Pager und Unterseiten)       | fertig |
 | 2     | API (Cloudflare Worker)                       | fertig |
 | 3     | forms.psyber.tech (Umfrage)                   | fertig |
-| 4     | surprise.psyber.tech («Erwischt!»)            | offen  |
+| 4     | surprise.psyber.tech («Erwischt!»)            | fertig |
 | 5     | Härtung, E2E, DEPLOY.md                       | offen  |
 | 6     | Extras (Auswertung, Easter Eggs)              | offen  |
 
@@ -60,9 +60,21 @@ Geprüft: lint, typecheck, 82 Unit-Tests, build (`wrangler deploy --dry-run`), l
 
 Geprüft: lint, typecheck, Unit-Tests, build, E2E, JS-Budget (forms 33,6 von 60 KB), Screenshots in 390×844 und 1440×900, echter Durchstich Browser → `wrangler dev` → lokale D1.
 
+## Phase 4: surprise.psyber.tech (fertig)
+
+- `/gewinn` mit Teaser (Geschenk-Icon, «Ihr Gutschein wird vorbereitet …», Fortschrittsbalken), Glitch-Übergang und Auflösung «Erwischt!»; alle Texte wörtlich aus Abschnitt 7.2.
+- Zeitleiste als reines CSS, per Klick oder Taste überspringbar; ohne JavaScript und bei reduzierter Bewegung sofort die Auflösung.
+- Angeklickter Link mit Amber-Marker auf «psyber.tech», drei Signale, «Adressen lesen» mit Umschalter «Echt» / «Fälschung» (Buttons, keine Eingabefelder), Regel und Tipp, Angebotskarte auf `--paper` mit «Session anfragen» und Code «LAYER8» zum Kopieren (`aria-live`).
+- Zähler `bait_click` einmal pro Aufruf mit `?ref=umfrage` (mit `s` 1–5), danach verschwinden die Parameter aus der Adresse.
+- `/` leitet auf `/gewinn` (302 in `_redirects`, dazu Meta-Refresh als Rückfall); `noindex` als Meta-Tag und Header, `robots.txt` mit `Disallow: /`, Referrer-Policy `no-referrer`.
+- `security.txt`, `humans.txt` und `robots.txt` auch für forms und surprise.
+- E2E: 17 Tests (Teaser und Überspringen, Zähler, Umschalter per Maus und Tastatur, Kopieren mit Rückfall, ohne JavaScript, reduzierte Bewegung, 320 px, keine Eingabefelder/Cookies/Storage, axe in beiden Zuständen).
+
+Geprüft: lint, typecheck, 82 Unit-Tests, build, 72 E2E-Tests, JS-Budget (surprise 0,9 von 25 KB), Screenshots in 390×844 und 1440×900, Zeitleiste Bild für Bild (`node scripts/states-surprise.mjs`), Vorschau-Build.
+
 ## Nächster Schritt
 
-Phase 4: surprise.psyber.tech («Erwischt!») mit Teaser, Glitch, Auflösung, «Adressen lesen», Code kopieren und Zähler `bait_click`.
+Phase 5: Härtung. CSP und Header mit `wrangler dev` prüfen (assets-only `wrangler.jsonc` für die drei Sites anlegen), Barrierefreiheit und Performance nachmessen (Lighthouse), `docs/DEPLOY.md` fertig schreiben (zehn Schritte aus Abschnitt 10, D1-Export, jährlicher Neubau wegen `security.txt`, HSTS-Preload).
 
 ## Arbeitsnotizen für Folge-Sessions
 
@@ -78,3 +90,6 @@ Phase 4: surprise.psyber.tech («Erwischt!») mit Teaser, Glitch, Auflösung, «
 - Umfrage durchklicken und fotografieren: `PUBLIC_API_BASE=mock pnpm --filter @psyber/forms build && node scripts/states-forms.mjs`.
 - Zustand, der beim Blättern zurückgesetzt werden muss, synchron in der Aktion setzen, nicht in `useEffect` (schnelle Tasteneingaben kommen sonst zu früh).
 - In Playwright-Tests auf das Island warten: `astro-island:not([ssr])`.
+- surprise: Die Zeitleiste lässt sich für Screenshots anhalten und auf einen Zeitpunkt stellen (`document.getAnimations()`, siehe `scripts/states-surprise.mjs` und `e2e/surprise.spec.ts`).
+- Eine Animation von 1 ms Dauer endet rechnerisch knapp vor 100 %: Endzustände darum in beiden Keyframes (`from, to`) setzen statt nur in `to`.
+- Text und Inline-Elemente in einer Zeile nie von Hand aneinanderreihen (Prettier bricht um, im HTML entstehen Leerzeichen): Teile als Array per `.map()` ausgeben.

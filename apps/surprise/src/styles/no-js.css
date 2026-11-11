@@ -1,0 +1,38 @@
+/*
+ * Wird nur ohne JavaScript geladen (<noscript> im <head>): sofort die Auflösung,
+ * keine Animationen, beide Adress-Beispiele untereinander, Code ohne «kopieren».
+ */
+.teaser,
+.glitch {
+  display: none !important;
+}
+
+*,
+*::before,
+*::after {
+  animation: none !important;
+}
+
+.reader .reader-switch {
+  display: none !important;
+}
+
+.reader .reader-panel {
+  display: grid !important;
+}
+
+.reader .reader-panel + .reader-panel {
+  margin-top: 2rem;
+}
+
+.reader .reader-cap {
+  display: block !important;
+}
+
+.code {
+  pointer-events: none;
+}
+
+.code .code-action {
+  display: none !important;
+}
