@@ -83,3 +83,16 @@ Der Auftrag liefert die Inhalte; für Beschriftungen und Bedienelemente fehlten 
 42. **`NOTIFY_TO` als Secret statt als Variable im Repo.** – Die private Zieladresse gehört nicht in die Versionsverwaltung.
 43. **Workers-Logs ohne automatische Request-Logs** (`invocation_logs: false`). – So landen weder IP-Adressen noch Header in den Logs.
 44. **Bekannte Grenze: D1 Time Travel.** – Cloudflare hält für D1 Wiederherstellungspunkte vor (30 Tage). Wer Administrationszugriff hat, könnte damit theoretisch nachvollziehen, welche Zeilen gleichzeitig entstanden sind. Das ist eine organisatorische Frage (Zugriff auf das Konto), technisch lässt es sich in D1 nicht abschalten.
+
+## Phase 3: forms.psyber.tech
+
+45. **Einfachauswahl und Skalen springen nach Klick, Tipp oder Tastenkürzel von selbst weiter** (nach 280 ms). – Spart pro Frage einen Tipp und hebt die Abschlussquote. Wer mit den Pfeiltasten durch die Optionen geht, wählt nur aus; «Weiter» und «Zurück» bleiben immer sichtbar.
+46. **Freitext: Enter geht weiter, Umschalt + Enter macht eine neue Zeile** (wie bei Typeform). Auf Touch-Geräten macht die Enter-Taste der Bildschirmtastatur eine neue Zeile; weiter geht es dort mit dem Button.
+47. **Matrix (Frage 6): Zifferntasten füllen die Zeilen der Reihe nach.** – Die aktive Zeile ist bei feinem Pointer leicht hervorgehoben.
+48. **Frage 14: Ist die Höchstzahl erreicht, lässt sich keine dritte Antwort anwählen**; der Hinweis erscheint sofort, nicht erst beim Weiterklicken.
+49. **Die Blocknamen (Screening, Erfahrung …) erscheinen nicht.** – Sie sind Begriffe aus der Marktforschung und helfen beim Ausfüllen nicht. Über der Frage steht «Frage 3 von 16», bei freiwilligen Fragen mit dem Zusatz «freiwillig».
+50. **Fortschritt als natives `<progress>`.** – Semantik und Screenreader-Ausgabe gratis, kein Inline-Style nötig (CSP).
+51. **Der Zwischenstand merkt sich die Quelle des ersten Aufrufs** (`quelle`, `fokus`). – Wer mitten in der Umfrage neu lädt oder den Link ohne Parameter erneut öffnet, zählt weiterhin zur ursprünglichen Quelle.
+52. **`survey_started` höchstens einmal pro Tab-Sitzung.** – «Zurück» zum Startscreen und nochmals «Los geht’s» zählt nicht doppelt.
+53. **Beide Links auf dem Danke-Screen haben exakt dieselbe Gestaltung** (gleiche Klasse, gleiches Pfeil-Icon). – Vorgabe des Auftrags: gleich gewichtet, kein Hinweis auf den Test. Ein E2E-Test sichert das ab.
+54. **Ergänzte Texte in der Umfrage:** «Frage X von Y», «freiwillig», «Umschalt + Enter für eine neue Zeile», «… / 1000 Zeichen», die Hinweise bei Pflichtfragen («Bitte wählen Sie eine Antwort aus.» usw.), «Wird gesendet …», «Absenden», «Link kopiert.», der Hinweis für Browser ohne JavaScript.

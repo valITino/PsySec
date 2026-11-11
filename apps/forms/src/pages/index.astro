@@ -1,15 +1,35 @@
 ---
+/**
+ * forms.psyber.tech: Umfrage-Funnel. Der Startscreen steht als HTML im Dokument;
+ * die Fragen übernimmt das Preact-Island.
+ */
+import { TURNSTILE_ORIGIN } from '@psyber/config/security';
+import PsiNet from '@psyber/ui/components/PsiNet.astro';
+import SurveyApp from '../components/survey/SurveyApp.tsx';
 import Base from '../layouts/Base.astro';
+import { sites, surveyConfig } from '../lib/site.ts';
+import '../styles/survey.css';
+
+// Turnstile nur erlauben, wenn es wirklich geladen wird (CSP per Meta-Tag).
+if (surveyConfig.turnstileSiteKey) {
+  Astro.csp?.insertScriptResource(TURNSTILE_ORIGIN);
+  Astro.csp?.insertDirective(`frame-src ${TURNSTILE_ORIGIN}`);
+}
 ---
 
 <Base
   title="Umfrage: Wie sicher ist Ihre Familie online? – PSYber"
   description="Rund 4 Minuten, anonym, mit Gratis-Checkliste: Sagen Sie uns, was Ihre Familie für mehr Sicherheit im Netz wirklich braucht."
 >
-  <main class="wrap section">
-    <p class="kicker">
-      <span aria-hidden="true">// </span>Rund 4 Minuten. Anonym. Mit Gratis-Checkliste.
+  <div class="sv-deco" aria-hidden="true">
+    <PsiNet fine />
+  </div>
+  {sites.preview && <p class="sv-preview">Vorschau: Die Umfrage speichert hier nichts.</p>}
+  <SurveyApp client:load config={surveyConfig} />
+  <noscript>
+    <p class="sv-noscript">
+      Für die Umfrage braucht es JavaScript. Bitte schalten Sie es in Ihrem Browser ein und laden
+      Sie die Seite neu.
     </p>
-    <h1 class="display h1 mt-4">Wie sicher ist Ihre Familie online?</h1>
-  </main>
+  </noscript>
 </Base>

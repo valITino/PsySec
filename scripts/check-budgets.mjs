@@ -77,6 +77,12 @@ for (const site of SITES) {
       inlineBytes += gzipSize(body);
     }
   }
+  // Astro-Islands laden Komponente und Renderer über Attribute am <astro-island>.
+  for (const match of html.matchAll(
+    /\b(?:component-url|renderer-url|before-hydration-url)=["']([^"']+)["']/g,
+  )) {
+    if (match[1]) queue.push(toFile(dist, match[1]));
+  }
   for (const match of html.matchAll(/<link\b[^>]*rel=["']modulepreload["'][^>]*>/g)) {
     const hrefValue = /\bhref=["']([^"']+)["']/.exec(match[0])?.[1];
     if (hrefValue) queue.push(toFile(dist, hrefValue));

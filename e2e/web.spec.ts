@@ -1,7 +1,10 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test } from '@playwright/test';
+import { expect, test, type Page } from '@playwright/test';
 import { WEB } from '../playwright.config.ts';
 import { collectErrors, horizontalOverflow, mockApi } from './helpers.ts';
+
+/** Wartet, bis das Skript der Startseite gelaufen ist (der Simulator meldet sich bereit). */
+const ready = (page: Page) => page.locator('[data-sim][data-ready]').waitFor();
 
 test.describe('psyber.tech', () => {
   test('Startseite lädt ohne Fehler, ohne Preise und ohne horizontales Scrollen', async ({
@@ -35,6 +38,7 @@ test.describe('psyber.tech', () => {
   test('mobiles Menü: öffnet, hält den Fokus, schliesst mit Esc', async ({ page, isMobile }) => {
     test.skip(!isMobile, 'Das Vollbild-Menü gibt es nur auf schmalen Bildschirmen.');
     await page.goto(`${WEB}/`);
+    await ready(page);
     const toggle = page.getByRole('button', { name: 'Menü' });
     await toggle.click();
 
@@ -60,6 +64,7 @@ test.describe('psyber.tech', () => {
 
   test('Klick-Simulator lässt sich per Tastatur bedienen', async ({ page }) => {
     await page.goto(`${WEB}/`);
+    await ready(page);
     const range = page.getByLabel('Ziehen zum Abspielen');
     await range.focus();
 
@@ -147,6 +152,7 @@ test.describe('psyber.tech', () => {
 
   test('«Der erste Schritt» gibt die Auswahl als fokus an die Umfrage weiter', async ({ page }) => {
     await page.goto(`${WEB}/`);
+    await ready(page);
     const cta = page.getByRole('link', { name: 'Umfrage starten' });
     await expect(cta).toHaveAttribute('href', 'https://forms.psyber.tech/?quelle=website');
     await page.getByRole('radio', { name: /Nach dem Klick/ }).check({ force: true });

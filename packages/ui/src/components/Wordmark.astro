@@ -9,14 +9,3 @@ const { class: className, as: Tag = 'span' } = Astro.props;
 ---
 
 <Tag class:list={['wordmark', className]}>PSYber</Tag>
-
-<style is:global>
-  .wordmark {
-    color: var(--fg-strong);
-    font-weight: 900;
-    letter-spacing: -0.02em;
-    line-height: 1;
-    --casl: 1;
-    --mono: 0;
-  }
-</style>

@@ -9,7 +9,7 @@ Neue Session? Zuerst `CLAUDE.md` lesen, dann diese Datei. Der Auftrag steht in `
 | 0     | Fundament, Tooling, `packages/ui`, Styleguide | fertig |
 | 1     | psyber.tech (One-Pager und Unterseiten)       | fertig |
 | 2     | API (Cloudflare Worker)                       | fertig |
-| 3     | forms.psyber.tech (Umfrage)                   | offen  |
+| 3     | forms.psyber.tech (Umfrage)                   | fertig |
 | 4     | surprise.psyber.tech («Erwischt!»)            | offen  |
 | 5     | Härtung, E2E, DEPLOY.md                       | offen  |
 | 6     | Extras (Auswertung, Easter Eggs)              | offen  |
@@ -48,9 +48,21 @@ Geprüft: lint, typecheck, 52 Unit-Tests, build, 25 E2E-Tests, JS-Budget (web 58
 
 Geprüft: lint, typecheck, 82 Unit-Tests, build (`wrangler deploy --dry-run`), lokaler Lauf mit `wrangler dev` und lokaler D1 (Health, Zähler, CORS-Abweisung, Kontaktanfrage mit Turnstile-Testkey).
 
+## Phase 3: forms.psyber.tech (fertig)
+
+- Preact-Island `SurveyApp` mit Signals (`apps/forms/src/components/survey`): Startscreen, eine Frage pro Screen, Fortschritt «3 / 16» (mit Sprunglogik 15), «Zurück» und «Weiter»/«Überspringen»/«Absenden» immer sichtbar.
+- Alle 16 Fragen aus `packages/survey`: Einfach- und Mehrfachauswahl, Skalen als fünf Kacheln, Themen-Matrix, Van Westendorp mit CHF-Feldern, Freitext, Warteliste.
+- Tastatur wie bei Typeform (Enter, 1–5, A–G), Übergänge 250 ms, reduced motion sofort.
+- Zwischenstand im `sessionStorage` (try/catch, nach dem Absenden gelöscht), versteckte Felder `quelle` und `fokus`, Zähler `survey_started`.
+- Absenden mit Turnstile (unsichtbar, erst beim Absenden geladen), Honeypot, Fehlermeldung mit «Erneut senden».
+- Danke-Screen: Schwerpunkte mit Tipps, zwei gleich gestaltete Links (Checkliste und Test-Link mit `s`), «Link teilen».
+- E2E: 7 Tests (kompletter Durchlauf, Tastatur, Sprunglogik, Neuladen, Sendefehler, axe auf fünf Screens).
+
+Geprüft: lint, typecheck, Unit-Tests, build, E2E, JS-Budget (forms 33,6 von 60 KB), Screenshots in 390×844 und 1440×900, echter Durchstich Browser → `wrangler dev` → lokale D1.
+
 ## Nächster Schritt
 
-Phase 3: Umfrage-Funnel in `apps/forms` (Preact-Island mit Signals), Danke-Screen mit Schwerpunkten und beiden Links, Anbindung an die API.
+Phase 4: surprise.psyber.tech («Erwischt!») mit Teaser, Glitch, Auflösung, «Adressen lesen», Code kopieren und Zähler `bait_click`.
 
 ## Arbeitsnotizen für Folge-Sessions
 
@@ -63,3 +75,6 @@ Phase 3: Umfrage-Funnel in `apps/forms` (Preact-Island mit Signals), Danke-Scree
 - Scoped Styles greifen nicht in Kind-Komponenten: dort `:global(...)` verwenden.
 - In CSS-Grid mit einem Element über alle Spalten die übrigen Elemente ausdrücklich platzieren (sonst entstehen zusätzliche Spalten).
 - Keine Inline-`style`-Attribute: Werte zur Laufzeit per `element.style…` setzen (CSP).
+- Umfrage durchklicken und fotografieren: `PUBLIC_API_BASE=mock pnpm --filter @psyber/forms build && node scripts/states-forms.mjs`.
+- Zustand, der beim Blättern zurückgesetzt werden muss, synchron in der Aktion setzen, nicht in `useEffect` (schnelle Tasteneingaben kommen sonst zu früh).
+- In Playwright-Tests auf das Island warten: `astro-island:not([ssr])`.
