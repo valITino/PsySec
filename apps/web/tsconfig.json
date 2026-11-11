@@ -1,0 +1,5 @@
+{
+  "extends": "@psyber/config/tsconfig.astro.json",
+  "include": [".astro/types.d.ts", "src/**/*", "astro.config.mjs"],
+  "exclude": ["dist", "node_modules"]
+}

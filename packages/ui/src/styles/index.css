@@ -1,0 +1,11 @@
+/*
+ * Einstieg für alle Apps:
+ *   @import 'tailwindcss';
+ *   @import '@psyber/ui/styles.css';
+ *   @source '<Pfad zu packages/ui/src>';
+ */
+@import './tokens.css';
+@import './fonts.css';
+@import './theme.css';
+@import './base.css';
+@import './components.css';

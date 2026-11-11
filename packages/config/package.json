@@ -1,0 +1,40 @@
+{
+  "name": "@psyber/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Gemeinsame tsconfig- und ESLint-Basis sowie CSP-/Header-Helfer",
+  "exports": {
+    "./eslint": "./src/eslint.mjs",
+    "./security": {
+      "types": "./src/security.d.mts",
+      "default": "./src/security.mjs"
+    },
+    "./tsconfig.base.json": "./tsconfig.base.json",
+    "./tsconfig.astro.json": "./tsconfig.astro.json",
+    "./sites": {
+      "types": "./src/sites.d.mts",
+      "default": "./src/sites.mjs"
+    },
+    "./astro-env": {
+      "types": "./src/astro-env.d.mts",
+      "default": "./src/astro-env.mjs"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "@eslint/js": "^10.0.1",
+    "astro-eslint-parser": "^3.2.0",
+    "eslint-plugin-astro": "^3.2.1",
+    "globals": "^17.14.0",
+    "typescript-eslint": "^8.72.2",
+    "vite": "^8.3.8"
+  },
+  "devDependencies": {
+    "astro": "^7.4.10",
+    "eslint": "^10.14.0",
+    "typescript": "^6.0.3"
+  }
+}

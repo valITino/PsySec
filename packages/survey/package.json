@@ -1,0 +1,20 @@
+{
+  "name": "@psyber/survey",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Umfrage: Fragen als Daten, Zod-Schemas, Sprunglogik, Validierung, Tipps",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit -p tsconfig.json"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@psyber/config": "workspace:*",
+    "typescript": "^6.0.3"
+  }
+}

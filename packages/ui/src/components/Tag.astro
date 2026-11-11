@@ -1,0 +1,16 @@
+---
+/** Kleine Pille in Mono, z. B. für Themen und Hebel. */
+interface Props {
+  tone?: 'default' | 'amber' | 'solid';
+  class?: string;
+  as?: 'span' | 'li';
+}
+
+const { tone = 'default', class: className, as: Tag = 'span' } = Astro.props;
+---
+
+<Tag
+  class:list={['tag', { 'tag-amber': tone === 'amber', 'tag-solid': tone === 'solid' }, className]}
+>
+  <slot />
+</Tag>

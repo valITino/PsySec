@@ -1,0 +1,33 @@
+---
+import '../styles/global.css';
+import BaseHead from '@psyber/ui/components/BaseHead.astro';
+import { absoluteUrl, basePath, sites } from '../lib/site.ts';
+
+interface Props {
+  title: string;
+  description: string;
+  path?: string;
+  noindex?: boolean;
+}
+
+const { title, description, path = '/', noindex = false } = Astro.props;
+---
+
+<!doctype html>
+<html lang="de-CH">
+  <head>
+    <BaseHead
+      title={title}
+      description={description}
+      canonical={absoluteUrl(path)}
+      ogImage={absoluteUrl('/og/umfrage.png')}
+      ogImageAlt="PSYber-Umfrage: Wie sicher ist Ihre Familie online?"
+      noindex={noindex || sites.preview}
+      base={basePath}
+    />
+    <slot name="head" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

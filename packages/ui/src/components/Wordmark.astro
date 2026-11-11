@@ -1,0 +1,22 @@
+---
+/** Wortmarke «PSYber»: Recursive wght 900, CASL 1, letter-spacing −0.02em. */
+interface Props {
+  class?: string;
+  as?: 'span' | 'strong' | 'div' | 'p';
+}
+
+const { class: className, as: Tag = 'span' } = Astro.props;
+---
+
+<Tag class:list={['wordmark', className]}>PSYber</Tag>
+
+<style is:global>
+  .wordmark {
+    color: var(--fg-strong);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    --casl: 1;
+    --mono: 0;
+  }
+</style>

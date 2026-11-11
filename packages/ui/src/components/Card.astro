@@ -1,0 +1,40 @@
+---
+/**
+ * Karte: Radius 16 px, 1 px Rahmen, kein Schlagschatten.
+ * `hover` aktiviert Rahmen in Lavendel und 2 px Anhebung (nur bei feinem Pointer).
+ */
+import type { HTMLAttributes } from 'astro/types';
+
+interface Props extends HTMLAttributes<'div'> {
+  as?: 'div' | 'article' | 'section' | 'li' | 'aside' | 'figure';
+  tone?: 'surface' | 'deep' | 'flat';
+  hover?: boolean;
+  pad?: boolean;
+  class?: string;
+}
+
+const {
+  as: Tag = 'div',
+  tone = 'surface',
+  hover = false,
+  pad = true,
+  class: className,
+  ...rest
+} = Astro.props;
+---
+
+<Tag
+  class:list={[
+    'card',
+    {
+      'card-deep': tone === 'deep',
+      'card-flat': tone === 'flat',
+      'card-hover': hover,
+      'card-pad': pad,
+    },
+    className,
+  ]}
+  {...rest}
+>
+  <slot />
+</Tag>

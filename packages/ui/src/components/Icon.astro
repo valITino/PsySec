@@ -1,0 +1,22 @@
+---
+/**
+ * Line-Icon (Lucide), Strich 1.5 px bei 20 px Grösse.
+ * Ohne `label` ist das Icon Dekoration und für Screenreader versteckt.
+ */
+import { iconAttrs, iconData, type IconName } from '../icons/index.ts';
+
+interface Props {
+  name: IconName;
+  size?: number;
+  strokeWidth?: number;
+  class?: string;
+  label?: string;
+}
+
+const { name, size, strokeWidth, class: className, label } = Astro.props;
+const attrs = iconAttrs({ size, strokeWidth, class: className, label });
+---
+
+<svg {...attrs}>
+  <Fragment set:html={iconData[name]} />
+</svg>

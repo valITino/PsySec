@@ -1,0 +1,11 @@
+@import 'tailwindcss';
+@import '@psyber/ui/styles.css';
+@import 'lenis/dist/lenis.css';
+
+@source '../../../../packages/ui/src';
+
+/* Scroll-Sperre, solange ein Vollbild-Overlay offen ist (auch ohne Lenis) */
+html.scroll-locked,
+html.scroll-locked body {
+  overflow: hidden;
+}

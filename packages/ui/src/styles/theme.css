@@ -1,0 +1,52 @@
+/*
+ * Bindet die Tokens in Tailwind ein. Die Standardpalette wird entfernt,
+ * damit nur Markenfarben als Utilities existieren.
+ */
+
+@theme inline {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-night: var(--night);
+  --color-aubergine: var(--aubergine);
+  --color-deep: var(--deep);
+  --color-line: var(--line);
+  --color-lav: var(--lav);
+  --color-soft: var(--soft);
+  --color-white: var(--white);
+  --color-violet: var(--violet);
+  --color-violet-dark: var(--violet-dark);
+  --color-amber: var(--amber);
+  --color-paper: var(--paper);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-crit: var(--crit);
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-fg-strong: var(--fg-strong);
+  --color-fg-muted: var(--fg-muted);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-surface: var(--surface);
+  --color-surface-deep: var(--surface-deep);
+
+  --font-sans: var(--ff-sans);
+  --font-mono: var(--ff-mono);
+
+  --text-micro: var(--fs-micro);
+  --text-meta: var(--fs-meta);
+  --text-small: var(--fs-small);
+  --text-body: var(--fs-body);
+  --text-lead: var(--fs-lead);
+
+  --radius-card: var(--r-card);
+  --radius-btn: var(--r-btn);
+  --radius-pill: var(--r-pill);
+
+  --ease-brand: var(--ease);
+
+  --container-page: var(--container);
+}

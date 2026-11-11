@@ -1,0 +1,42 @@
+---
+/** Psi-Icon und Wortmarke, optional als Link. */
+import PsiIcon from './PsiIcon.astro';
+import Wordmark from './Wordmark.astro';
+
+interface Props {
+  href?: string;
+  /** Höhe des Icons in Pixeln */
+  size?: number;
+  class?: string;
+  /** Zugänglicher Name des Links */
+  label?: string;
+}
+
+const { href, size = 26, class: className, label = 'PSYber, zur Startseite' } = Astro.props;
+const Tag = href ? 'a' : 'span';
+---
+
+<Tag class:list={['logo', className]} href={href} aria-label={href ? label : undefined}>
+  <PsiIcon size={size} class="logo-icon" />
+  <Wordmark class="logo-word" />
+</Tag>
+
+<style is:global>
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    color: var(--fg-strong);
+    text-decoration: none;
+  }
+
+  .logo-icon {
+    flex: none;
+    color: var(--accent);
+  }
+
+  .logo-word {
+    font-size: 1.375rem;
+  }
+</style>

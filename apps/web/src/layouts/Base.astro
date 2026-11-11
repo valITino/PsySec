@@ -1,0 +1,49 @@
+---
+import '../styles/global.css';
+import BaseHead from '@psyber/ui/components/BaseHead.astro';
+import { absoluteUrl, basePath, meta, sites } from '../config/site.ts';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Pfad der Seite ohne Basis, z. B. '/' oder '/checkliste' */
+  path: string;
+  noindex?: boolean;
+  ogImage?: string;
+  bodyClass?: string;
+}
+
+const {
+  title,
+  description = meta.defaultDescription,
+  path,
+  noindex = false,
+  ogImage = meta.ogImage,
+  bodyClass,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="de-CH">
+  <head>
+    <BaseHead
+      title={title}
+      description={description}
+      canonical={absoluteUrl(path)}
+      ogImage={absoluteUrl(ogImage)}
+      noindex={noindex || sites.preview}
+      base={basePath}
+    />
+    <slot name="head" />
+  </head>
+  <body class={bodyClass}>
+    <a class="skip-link" href="#inhalt">
+      Zum Inhalt springen
+    </a>
+    <slot name="header" />
+    <main id="inhalt" tabindex="-1">
+      <slot />
+    </main>
+    <slot name="footer" />
+  </body>
+</html>

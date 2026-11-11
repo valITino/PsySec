@@ -1,0 +1,14 @@
+---
+/** Kicker als Code-Kommentar: «// So arbeiten wir». Die Schrägstriche sind Dekoration. */
+interface Props {
+  class?: string;
+  as?: 'p' | 'span' | 'div';
+}
+
+const { class: className, as: Tag = 'p' } = Astro.props;
+---
+
+<Tag class:list={['kicker', className]}>
+  <span aria-hidden="true">// </span>
+  <slot />
+</Tag>
