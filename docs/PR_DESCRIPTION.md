@@ -62,14 +62,14 @@ Die beiden Bilder der Auswertung zeigen erfundene Beispieldaten (`pnpm analyze -
 
 ## Geprüft
 
-| Prüfung                          | Ergebnis                                                                                                                                                                                                                                                        |
-| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm lint`, `pnpm typecheck`    | sauber                                                                                                                                                                                                                                                          |
-| `pnpm test`                      | 114 Unit-Tests (Umfrage-Logik, API in der Workers-Laufzeit, Header-Helfer, Auswertung, Wächter gegen Klassen-Kollisionen)                                                                                                                                       |
-| `pnpm e2e`                       | 221 Playwright-Tests in 390×844 und 1440×900, inklusive axe (WCAG 2.2 AA) auf allen Hauptansichten, Überlauf-Prüfung in beiden Bewegungsmodi, Direktlinks und Neuladen; 17 übersprungen, weil sie nur mit Tastatur, nur mit Zeiger bzw. nur mobil sinnvoll sind |
-| `pnpm budgets`                   | JS gzip: web 63,4 von 120 KB, forms 33,8 von 60 KB, surprise 0,9 von 25 KB                                                                                                                                                                                      |
-| `pnpm check:headers`             | 227 Prüfungen von Security-Headern, Cache-Regeln, Weiterleitungen und 404 in der Workers-Laufzeit                                                                                                                                                               |
-| `pnpm lighthouse` (mobil, lokal) | 100 bei Performance, Barrierefreiheit und Best Practices auf allen drei Sites; SEO 100 (surprise 69, weil `noindex` dort Pflicht ist); LCP 0,9 bis 1,5 s, CLS 0                                                                                                 |
+| Prüfung                          | Ergebnis                                                                                                                                                                                                                                                                                      |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm lint`, `pnpm typecheck`    | sauber                                                                                                                                                                                                                                                                                        |
+| `pnpm test`                      | 132 Unit-Tests (Umfrage-Logik, API in der Workers-Laufzeit, Header-Helfer, Auswertung, Wächter gegen Klassen-Kollisionen)                                                                                                                                                                     |
+| `pnpm e2e`                       | 270 Playwright-Tests in 390×844 und 1440×900, inklusive axe (WCAG 2.2 AA) auf allen Hauptansichten, Rand- und Wortbruch-Prüfung auf zehn Seiten in zwölf Breiten, Direktlinks und Neuladen; 38 übersprungen, weil sie nur mit Tastatur, nur mit Zeiger bzw. nur in einer Grösse sinnvoll sind |
+| `pnpm budgets`                   | JS gzip: web 63,5 von 120 KB, forms 35,0 von 60 KB, surprise 0,9 von 25 KB                                                                                                                                                                                                                    |
+| `pnpm check:headers`             | 227 Prüfungen von Security-Headern, Cache-Regeln, Weiterleitungen und 404 in der Workers-Laufzeit                                                                                                                                                                                             |
+| `pnpm lighthouse` (mobil, lokal) | 100 bei Performance, Barrierefreiheit und Best Practices auf allen drei Sites; SEO 100 (surprise 69, weil `noindex` dort Pflicht ist); LCP 0,9 bis 1,5 s, CLS 0                                                                                                                               |
 
 Nicht geprüft, weil es dafür die echte Domain braucht: Mozilla Observatory, Lighthouse gegen die Live-Adressen, echter Versand der Benachrichtigung, Turnstile mit echtem Schlüssel. Die Schritte dafür stehen in `docs/DEPLOY.md` (Schritt 8). Getestet ist nur in Chromium.
 
@@ -84,6 +84,17 @@ Nicht geprüft, weil es dafür die echte Domain braucht: Mozilla Observatory, Li
 - **Ticker schnitt bei reduzierter Bewegung Sätze ab.** Er bricht dort jetzt um; ein Test prüft, dass jeder Satz ganz zu lesen ist.
 - **Startseite war auf schwachen Geräten träge** (Lighthouse mobil 76). Sektionen weit unten rechnet der Browser jetzt erst bei Bedarf, und die Scroll-Bibliotheken laden beim ersten Lebenszeichen: wieder 100.
 
+Aus dem Gesamt-Review am Schluss (drei unabhängige Durchgänge durch den Code, jeder Befund nachgestellt, behoben und mit einem Test abgesichert):
+
+- **Kontaktformular konnte am Skript vorbei senden.** Ohne `method` schickt ein Formular per GET; wer klickte, bevor das nachgeladene Skript da war, hatte Name und E-Mail in der Adresszeile. Jetzt `method="post"`, das Absenden ist von Anfang an abgefangen, und ohne JavaScript steht ein Hinweis.
+- **Menü liess sich nicht scrollen**, sobald das sanfte Scrollen lief: Im Querformat am Handy waren «Kontakt», E-Mail und Telefon unerreichbar.
+- **Umfrage: Fehlerhinweis ausser Sicht.** Bei hohen Fragen stand «Bitte bewerten Sie jedes Thema.» unter dem Bildrand; «Weiter» schien nichts zu tun. Hinweise stehen jetzt in der klebenden Leiste. Auf Laptops lag diese Leiste zudem ohne Grund über den Antworten.
+- **Umfrage: ungewollte Eingaben.** Gehaltenes Enter blätterte bis zum Absenden, ein Doppelklick traf die nächste Frage, Enter im E-Mail-Feld sendete ab, bevor das Häkchen «Founding Family» wählbar war.
+- **«Erneut senden» legte eine zweite Antwort an**, wenn die erste doch angekommen war. Einsendungen tragen jetzt eine zufällige Kennung; die API zählt sie nur einmal.
+- **Angepinntes Drehbuch war auf Laptops unten abgeschnitten** (1280×740, 1440×790): Die Bühne richtet sich jetzt nach der Fensterhöhe.
+- **Überlauf blieb unbemerkt.** `overflow-x: clip` schneidet still ab, und die Prüfung über `scrollWidth` sah nichts: surprise ragte bei 320 und um 1024 px über den Rand, im Footer brach «Datenschutz» mitten im Wort um, der Titel der Datenschutzerklärung zeigte die Zeichenfolge «&shy;». Die Tests messen jetzt die Kanten selbst.
+- **Testdaten-Löschbefehl hätte echte Antworten gelöscht** (nach Tag und Quelle). `docs/DEPLOY.md` beschreibt jetzt einen sicheren Weg.
+
 ## Offene Punkte
 
 Alles, was von Ihnen kommen muss, steht in [`TODO.md`](TODO.md). Kurz:
@@ -94,7 +105,7 @@ Alles, was von Ihnen kommen muss, steht in [`TODO.md`](TODO.md). Kurz:
 - Betrieb: Cloudflare nach [`DEPLOY.md`](DEPLOY.md) einrichten (Zone, D1 in der EU, Turnstile, Email Routing, vier Workers).
 - Prüfen: Die fiktiven Beispiel-Domains gehören niemandem; die Quellenlinks stimmen noch.
 
-Annahmen und ihre Gründe stehen in [`DECISIONS.md`](DECISIONS.md) (123 Einträge), der Stand je Phase in [`PROGRESS.md`](PROGRESS.md).
+Annahmen und ihre Gründe stehen in [`DECISIONS.md`](DECISIONS.md) (149 Einträge), der Stand je Phase in [`PROGRESS.md`](PROGRESS.md).
 
 ## Vorschau
 

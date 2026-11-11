@@ -9,6 +9,14 @@ Sichtbare Platzhalter auf den Websites haben das Format `[TODO: …]`. Zentrale 
 - [ ] Logo-Kit Runde 6 ist eingebaut. Die Eule im Foto-Platzhalter von «Über» schaut dem Zeiger nach (Entscheidung 121): gefällt das, oder soll sie stillhalten?
 - [ ] Sticker-Sprüche und ergänzte Texte gegenlesen (Liste in Entscheidung 112)
 
+## Nach dem Gesamt-Review: Ihre Rückmeldung
+
+- [ ] Drei neue Sätze auf dem Startscreen der Umfrage gegenlesen (Entscheidung 136): der Hinweis, dass es nach dem Antippen von selbst weitergeht, der Zusatz für die Tastatur und der Hinweis «Die Umfrage lädt noch …».
+- [ ] Danke-Screen der Umfrage: Nach dem Absenden bleibt bis zum Schliessen des Tabs ein kleiner Merker im Browser (Selbsteinschätzung und Schwerpunkte), damit der Screen ein Neuladen übersteht (Entscheidung 137). Das weicht in einem Punkt von «nach dem Absenden löschen» ab. Einverstanden? Sonst lässt es sich in `apps/forms/src/components/survey/state.ts` mit einer Zeile abschalten (`saveDone`).
+- [ ] Anführungszeichen: Wo der Auftrag ‹…› schrieb, steht auf den Seiten jetzt «…» (Entscheidung 149), zum Beispiel «Nur heute», «sofort». Im Auftrag standen diese Texte selbst in Anführungszeichen; auf der Seite sind sie die äussere Ebene.
+- [ ] Warteliste: gespeichert wird nur noch der Monat der Eintragung, nicht der Tag (Entscheidung 128). Für die Auswertung genügt das; falls Sie den Tag brauchen, bitte melden.
+- [ ] Vor dem Verteilen des Umfrage-Links die Probe aus `docs/DEPLOY.md`, Schritt 8 machen und die Testdaten danach löschen (die Befehle dort sind neu gefasst).
+
 ## Inhalte
 
 - [ ] Name (Terminal-Karte «Über», Impressum, Datenschutz)

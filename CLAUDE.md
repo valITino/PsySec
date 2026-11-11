@@ -44,7 +44,7 @@ Nach jeder Änderung: `pnpm lint && pnpm typecheck && pnpm test && pnpm build`, 
 
 ## Sprachregeln
 
-- Schweizer Hochdeutsch, Sie-Form. Nie «ß», immer «ss». Anführungszeichen «…», innen ‹…›.
+- Schweizer Hochdeutsch, Sie-Form. Nie «ß», immer «ss». Anführungszeichen «…», innen ‹…›. Auf oberster Ebene immer «…», auch wo der Auftrag ‹…› schreibt (dort stand der Text selbst in «…»).
 - Zahlen: 64’733, 15,9 %, «CHF 190.–», Gedankenstrich « – » mit Leerzeichen.
 - Kurz, aktiv, konkret, freundlich. Nerdiger Humor ja, Angstmacherei und Beschämung nie. Keine Gendersternchen.
 - Schreibweise immer exakt «PSYber».
@@ -63,6 +63,9 @@ Nach jeder Änderung: `pnpm lint && pnpm typecheck && pnpm test && pnpm build`, 
 - Bewegung gezielt (Liste in `docs/DESIGN.md`), `prefers-reduced-motion` überall respektieren, Dauerbewegung pausierbar.
 - Keine Inline-`style`-Attribute und keine Inline-Skripte im Markup (strikte CSP mit Hashes).
 - Interne Links immer über den `href()`-Helfer der jeweiligen App (wegen `base` in der GitHub-Pages-Vorschau).
+- Nichts ragt über den Bildrand, kein Wort bricht mitten im Wort um, und angepinnte oder klebende Flächen passen auch in niedrige Fenster (1366×650, 1280×740). Die Tests messen das (`cutOff`, `brokenWords` in `e2e/helpers.ts`).
+- Satzzeichen direkt hinter einem Link oder `<mark>`: auf eine Zeile schreiben und `{/* prettier-ignore */}` davor setzen, sonst entsteht ein sichtbares Leerzeichen.
+- Formulare tragen immer `method="post"`; Overlays mit eigenem Scrollen tragen `data-lenis-prevent`.
 
 ## Nicht tun
 

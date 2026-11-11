@@ -41,6 +41,7 @@ pnpm assets          # Favicons, App-Icons und OG-Bilder aus dem Logo-Kit neu er
 
 ```
 pnpm export          # anonyme Antworten und Zähler aus D1 (ohne E-Mail-Adressen)
+pnpm export --local  # dasselbe aus der lokalen Testdatenbank (eigene Datei, als Testdaten markiert)
 pnpm analyze         # Bericht mit Go/No-Go-Ampel: reports/umfrage-YYYY-MM-DD.html
 pnpm analyze --demo  # Bericht mit erfundenen Beispieldaten zum Ausprobieren
 ```

@@ -42,7 +42,12 @@ try {
       await page.waitForTimeout(450);
       await page.screenshot({ path: `shots/forms-${label}-${name}.png` });
     };
-    const next = () => page.locator('.sv-next').click();
+    // Kurz nach einem Fragenwechsel zählen Klicks auf Antworten nicht (Schutz vor Doppelklicks).
+    const settle = () => page.waitForTimeout(450);
+    const next = async () => {
+      await page.locator('.sv-next').click();
+      await settle();
+    };
     const option = (text) => page.locator('.sv-option', { hasText: text }).click();
 
     await page.goto(`${base}/?quelle=instagram&fokus=vor`, { waitUntil: 'networkidle' });
@@ -51,6 +56,7 @@ try {
     await shot('01-q1');
     await option('Stadt Zürich'); // Einfachauswahl springt von selbst weiter → q2
     await page.getByRole('heading', { name: 'Wer lebt in Ihrem Haushalt?' }).waitFor();
+    await settle();
     await option('Kinder 10–15');
     await option('Erwachsene');
     await shot('02-q2');

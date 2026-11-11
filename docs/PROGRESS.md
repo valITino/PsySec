@@ -4,16 +4,17 @@ Neue Session? Zuerst `CLAUDE.md` lesen, dann diese Datei. Der Auftrag steht in `
 
 ## Stand je Phase
 
-| Phase | Inhalt                                        | Stand  |
-| ----- | --------------------------------------------- | ------ |
-| 0     | Fundament, Tooling, `packages/ui`, Styleguide | fertig |
-| 1     | psyber.tech (One-Pager und Unterseiten)       | fertig |
-| 2     | API (Cloudflare Worker)                       | fertig |
-| 3     | forms.psyber.tech (Umfrage)                   | fertig |
-| 4     | surprise.psyber.tech («Erwischt!»)            | fertig |
-| 5     | Härtung, E2E, DEPLOY.md                       | fertig |
-| 6     | Extras (Auswertung, Easter Eggs)              | fertig |
-| R     | Redesign (neuer Look, Logo-Kit, Slogan)       | fertig |
+| Phase | Inhalt                                         | Stand  |
+| ----- | ---------------------------------------------- | ------ |
+| 0     | Fundament, Tooling, `packages/ui`, Styleguide  | fertig |
+| 1     | psyber.tech (One-Pager und Unterseiten)        | fertig |
+| 2     | API (Cloudflare Worker)                        | fertig |
+| 3     | forms.psyber.tech (Umfrage)                    | fertig |
+| 4     | surprise.psyber.tech («Erwischt!»)             | fertig |
+| 5     | Härtung, E2E, DEPLOY.md                        | fertig |
+| 6     | Extras (Auswertung, Easter Eggs)               | fertig |
+| R     | Redesign (neuer Look, Logo-Kit, Slogan)        | fertig |
+| G     | Gesamt-Review (alles prüfen, vereinheitlichen) | fertig |
 
 ## Phase 0: Fundament (fertig)
 
@@ -120,6 +121,18 @@ Auf Wunsch folgt das Design jetzt eng der Referenz eezyinn.de (Stil, Formatierun
 
 Entschieden (122, 123): Die Akzentfarbe bleibt Lime, und «Zürich» steht nur noch dort, wo es eine Tatsache benennt (Quellen, Antworten von Frage 1).
 
+## Gesamt-Review (fertig)
+
+Auftrag: alles prüfen, vereinheitlichen und dort verbessern, wo es nötig ist. Vorgehen: eigene Sichtprüfung aller Seiten und Zustände, dazu drei unabhängige Durchgänge durch den Code (API und Auswertung, Umfrage und surprise, Startseite und Designsystem). Jeder Befund wurde zuerst im Browser oder im Test nachgestellt, dann behoben und mit einem Test abgesichert. Gründe und Einzelheiten: `docs/DECISIONS.md`, Nummern 124 bis 149.
+
+- **Zwei ernste Fehler, die im Betrieb aufgefallen wären:** Das Kontaktformular konnte am Skript vorbei per GET senden (Name und E-Mail in der Adresszeile); das Vollbild-Menü liess sich nicht scrollen, sobald das sanfte Scrollen lief (im Querformat am Handy waren «Kontakt», E-Mail und Telefon unerreichbar). Beide behoben (142, 143).
+- **Umfrage:** Hinweise stehen jetzt in der klebenden Leiste und sind immer im Bild; die Leiste hat auf allen Breiten einen Grund (lag auf Laptops über den Antworten); gehaltene Tasten, Doppelklicks und Enter im E-Mail-Feld lösen nichts Ungewolltes mehr aus; der Danke-Screen übersteht Neuladen und «Zurück»; ein beschädigter Zwischenstand legt die Umfrage nicht mehr lahm; Startscreen und Leiste passen auf niedrige Fenster und schmale Handys (134 bis 139).
+- **API und Auswertung:** «Erneut senden» legt keine zweite Antwort an; die Warteliste speichert nur den Monat; Fehlkonfiguration fällt im Log auf; Rate Limit greift auch bei IPv6 sauber; lokale Test-Exporte können echte nicht mehr überschreiben; die Ampel rundet nie auf ein verfehltes Ziel auf; sichere Löschbefehle in `docs/DEPLOY.md` (127 bis 133).
+- **Startseite:** Drehbuch passt angepinnt auch in niedrige Laptop-Fenster; Einblenden klappt auch bei sehr niedrigen Fenstern; reduzierte Bewegung gilt jetzt auch im Hero; Titel der Datenschutzerklärung, Leerzeichen vor Satzzeichen, Footer-Spalten, Ticker, Terminal-Stylesheet (144 bis 149).
+- **Einheitlich:** Anführungszeichen «…» auf oberster Ebene, Farbkanäle als Tokens statt ausgeschriebener Werte, Logo aus dem Kit auch im Auswertungsbericht, toter Code entfernt.
+- **Neue Prüfungen:** Die Tests messen jetzt selbst, ob etwas über den Bildrand ragt oder ein Wort mitten im Wort umbricht (zehn Seiten, zwölf Breiten). Die bisherige Messung war dafür blind und hatte vier Stellen übersehen.
+- **Stand der Prüfkette:** 132 Unit-Tests, 270 E2E-Tests (38 übersprungen), 227 Header-Prüfungen, Lighthouse mobil 100 auf allen Seiten (surprise SEO 69 wegen `noindex`), JS gzip web 63,5 KB, forms 35,0 KB, surprise 0,9 KB.
+
 ## Abschluss
 
 Alle Phasen aus dem Auftrag sind umgesetzt. Deployt wurde nichts; es liegen keine Secrets im Repo.
@@ -144,12 +157,12 @@ Zum Testen: Sobald dieser Stand auf `main` liegt und GitHub Pages auf «GitHub A
 - In Playwright-Tests auf die Umfrage warten: `.sv[data-ready]` (Helfer `hydrated` in `e2e/survey.ts`); das Attribut setzt das Island, sobald Zwischenstand und Tastatur bereit sind.
 - surprise: Die Zeitleiste lässt sich für Screenshots anhalten und auf einen Zeitpunkt stellen (`document.getAnimations()`, siehe `scripts/states-surprise.mjs` und `e2e/surprise.spec.ts`).
 - Eine Animation von 1 ms Dauer endet rechnerisch knapp vor 100 %: Endzustände darum in beiden Keyframes (`from, to`) setzen statt nur in `to`.
-- Text und Inline-Elemente in einer Zeile nie von Hand aneinanderreihen (Prettier bricht um, im HTML entstehen Leerzeichen): Teile als Array per `.map()` ausgeben.
+- Text und Inline-Elemente in einer Zeile nie von Hand aneinanderreihen (Prettier bricht um, im HTML entstehen Leerzeichen): Teile in einen Flex-Container legen (Leerraum zählt dort nicht, siehe Adresse auf surprise) oder die Zeile mit `{/* prettier-ignore */}` schützen.
 - `pnpm build` baut web und forms zweimal: `dist/` (ohne Turnstile-Key, wird deployt bzw. von den meisten Tests genutzt) und `dist-turnstile/` (mit Testkey, nur für `e2e/turnstile.spec.ts`).
 - Lighthouse: `pnpm lighthouse` lädt Lighthouse per `pnpm dlx`. Der lokale Server darf nicht im selben Prozess blockiert werden (kein `spawnSync`).
 - Container-Query-Einheiten (`cqw`) nur in kleinen Bausteinen verwenden: Im Hero haben sie das Layout der ganzen Seite vervielfacht.
 - `wrangler dev` für mehrere Sites nur nacheinander starten (gleichzeitig kollidieren interne Ports).
-- Auswertung ausprobieren: `pnpm analyze --demo` (erfundene Daten, Bericht als Demo markiert). Mit der lokalen Datenbank: `pnpm export --local && pnpm analyze`.
+- Auswertung ausprobieren: `pnpm analyze --demo` (erfundene Daten, Bericht als Demo markiert).
 - ESLint: Node-Globals und `no-console: off` gelten nur für `scripts/` und `packages/*/scripts/`, nicht für `apps/*/src/scripts/`.
 - Doku-Screenshots neu erzeugen: `pnpm build && node scripts/analyze.ts --demo && node scripts/docs-shots.mjs`.
 - Klassennamen in Scoped Styles nie so nennen wie einen Baustein aus `packages/ui/src/styles/components.css` (z. B. `.check`, `.card`, `.label`): Beide Regeln gelten sonst zugleich. `pnpm test` meldet das.
@@ -159,3 +172,11 @@ Zum Testen: Sobald dieser Stand auf `main` liegt und GitHub Pages auf «GitHub A
 - Der Header ist `position: fixed` und hat keine eigene Höhe; in Tests auf `[data-header] .logo` warten, nicht auf den Header.
 - Akzentfarbe tauschen: `--acid-rgb`, `--acid`, `--acid-hi` in `packages/ui/src/styles/tokens.css`, danach `pnpm assets` (OG-Bilder).
 - Layout immer in beiden Bewegungsmodi prüfen: Bei `prefers-reduced-motion` sind andere Zustände sichtbar (alle Chat-Nachrichten, statisches Drehbuch).
+- Überlauf nie über `scrollWidth` prüfen: `overflow-x: clip` am `body` schneidet still ab. `cutOff(page)` und `brokenWords(page)` aus `e2e/helpers.ts` messen die Kanten und finden auch Wörter, die mitten im Wort umbrechen.
+- Layout auch in niedrigen Fenstern prüfen (1366×650, 1280×740, Handy quer): Dort fallen angepinnte Bühnen, klebende Leisten und grosse Überschriften auf.
+- Umfrage in Tests: Kurz nach einem Fragenwechsel zählen Klicks auf Antworten nicht (400 ms, Schutz vor Doppelklicks). `atQuestion(page, '3 / 16')` aus `e2e/survey.ts` wartet darauf; `skipTo` ebenfalls.
+- Satzzeichen direkt hinter einem Link: auf eine Zeile schreiben und `{/* prettier-ignore */}` davor setzen, sonst entsteht ein sichtbares Leerzeichen. Ein Array per `.map()` hilft hier nicht, weil der Formatierer auch darin umbricht.
+- Entitäten wie `&shy;` wirken nur im Text einer Vorlage, nicht in einem Attribut oder Prop: Dort das Zeichen selbst schreiben (`'\u00AD'`).
+- CSS, das ein nachgeladenes Skript braucht, per `?url` importieren und als `<link>` einhängen (siehe `terminal.ts`). Ein normaler Import landet als blockierendes Stylesheet im `<head>` jeder Seite.
+- Elemente, die nur vor dem Hydrieren sichtbar sind, dürfen im Layout keinen Platz belegen (sonst verschiebt sich die Seite: CLS). Lighthouse nach solchen Änderungen laufen lassen.
+- Lokaler Export: `pnpm export --local` schreibt `reports/export-local-….json`; auswerten mit `pnpm analyze reports/export-local-….json`.

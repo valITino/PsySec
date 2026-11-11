@@ -26,6 +26,8 @@ Quelle der Wahrheit sind die Tokens in `packages/ui/src/styles/tokens.css`. Die 
 
 Statusfarben nur zusammen mit Icon und Text: gut #0ca30c, Warnung #fab219, kritisch #d03b3b. Die Kugeln (Globus im Hero, Deko der Umfrage) nutzen drei eigene Abstufungen von der Mitte zum Rand: `--orb-core`, `--orb-mid`, `--orb-edge`.
 
+Durchscheinende Flächen, Glows und Verläufe nutzen die Kanal-Tokens (`--void-rgb`, `--carbon-rgb`, `--bone-rgb`, `--space-rgb`, `--nebula-rgb`, `--acid-rgb`), zum Beispiel `rgb(var(--bone-rgb) / 0.4)`. Ausgeschriebene `rgb(…)`- oder Hex-Werte gehören nicht ins CSS; die Farb-Tokens leiten sich selbst aus den Kanälen ab.
+
 Die Akzentfarbe hängt an drei Werten (`--acid-rgb`, `--acid`, `--acid-hi`). Wer sie tauscht, ändert Buttons, Fokus-Ring, Lichtpunkte und den Globus auf einen Schlag. Entschieden ist Lime (Entscheidung 122): Amber bleibt den Warnsignalen vorbehalten.
 
 ### Flächen
@@ -78,6 +80,9 @@ Weitere Bildelemente: der Globus «Layer 8» im Hero (Canvas, Dekoration), Punkt
 - Inhalte links ausgerichtet; zentriert nur «Haltung» und die Aussage auf surprise.
 - Radien: Karten 22 px, Panels 30 px, Bühnen bis 44 px, Bogen bis 40 px, Eingabefelder 14 px, Buttons und Tags als Pille.
 - Mobile first, sauber von 320 bis 1920 px, nie horizontales Scrollen.
+- Nichts ragt über den Bildrand, und kein Wort bricht mitten im Wort um. `overflow-x: clip` am `body` würde beides still verdecken; die Tests messen darum die Kanten selbst (`cutOff` und `brokenWords` in `e2e/helpers.ts`, zehn Seiten, zwölf Breiten).
+- Lange Wörter in schmalen Spalten: Die Schrift richtet sich nach der Spalte (Container-Einheiten wie beim Titel der Datenschutzerklärung und der Adresse auf surprise), oder die Spalten wechseln früher auf weniger Reihen (Footer). Trennstellen als weiches Trennzeichen im Text, nie als Entität in einem Attribut.
+- Angepinnte oder klebende Flächen müssen auch in niedrigen Fenstern (650 bis 800 px Höhe, typische Laptops) ganz ins Bild passen: Grössen dort an die Fensterhöhe hängen (`svh`).
 
 ## 5. Bausteine
 
@@ -86,7 +91,9 @@ Weitere Bildelemente: der Globus «Layer 8» im Hero (Canvas, Dekoration), Punkt
 - **Tags** (`.tag`): Pille in Versalien; `tag-amber` für Hebel und Warnungen, `tag-solid` (Acid) für «Neu».
 - **Formularfelder**: 52 px hoch, Radius 14 px, Rahmen 3:1; Fehler mit Icon und Text.
 - **Header**: oben volle Leiste (Logo, Navigation, CTA), nach dem Scrollen eine schwebende Kapsel (Eule, CTA, Menü-Knopf). Das Vollbild-Menü gibt es auf allen Breiten.
-- **Schwebende Bedienelemente** (`Chrome.astro`): Fortschritt (Balken auf Mobile, Schiene mit Marken ab 1280 px), Cookie-Knopf (erklärt, warum es keinen Banner gibt), Schalter «Bewegung pausieren». Auf Mobile stehen die Knöpfe als Zeile am Seitenende.
+- **Schwebende Bedienelemente** (`Chrome.astro`): Fortschritt (Balken auf Mobile, Schiene mit Marken ab 1280 px), Cookie-Knopf (erklärt, warum es keinen Banner gibt), Schalter «Bewegung pausieren». Ab 1280 px schweben die Knöpfe in der Randspalte; der Schalter zeigt seine Beschriftung nur ganz oben auf der Startseite ausgeklappt. Darunter stehen die Knöpfe als Zeile am Seitenende.
+- **Umfrage**: Kopf mit Fortschritt oben, unten eine klebende Leiste mit «Zurück» und «Weiter» über die ganze Breite. Hinweise und Fehlermeldungen stehen in dieser Leiste direkt über den Buttons und sind so immer im Bild.
+- **Schalter mit wechselndem Namen** («Band anhalten» / «Band fortsetzen») tragen kein `aria-pressed`; Schalter mit festem Namen (Echt / Fälschung, Schritte im Simulator) schon.
 - **Fokus-Ring**: 3 px Acid mit 3 px Abstand, bei Tastaturbedienung immer sichtbar.
 
 ## 6. Motion
@@ -99,9 +106,9 @@ Bewegte Momente auf psyber.tech:
 2. Header: Wechsel zwischen Leiste und Kapsel.
 3. Klick-Simulator: spielt einmal ab; in Schritt 2 klebt sich der Sticker auf.
 4. Überschriften der Sektionen fahren einmal zeilenweise ein.
-5. «Drehbuch»: scroll-gesteuerte Kette mit Pinning am Desktop.
+5. «Drehbuch»: scroll-gesteuerte Kette mit Pinning am Desktop (ab 736 px Fensterhöhe; bis 848 px rückt die Bühne zusammen, damit sie ganz ins Bild passt).
 6. Zahlen zählen einmal hoch.
-7. Phishing-Ticker als Endlosband (pausiert bei Hover, Fokus und Button).
+7. Phishing-Ticker als Endlosband (pausiert bei Hover und über den Button).
 8. «Haltung»: Wörter werden beim Scrollen hell.
 9. Paket-Treppe wächst einmal; Chat-Nachrichten erscheinen nacheinander.
 10. Footer: Cursor hinter der Wortmarke blinkt.
@@ -111,12 +118,16 @@ Kein Custom Cursor, kein Parallax auf Text.
 
 ### Reduzierte Bewegung und Pausieren
 
-Bei `prefers-reduced-motion` steht alles sofort im Endzustand: kein Lenis, kein Pinning, kein Autoplay, der Globus steht still (lässt sich aber drehen), der Ticker bricht um. Übergänge sind dann ganz aus (0 s, nicht 0.01 ms): Auch ein winziger Übergang hält für ein Bild die alten Werte fest und verschiebt kurz das Layout. Der Schalter «Bewegung pausieren» hält Dauerbewegung an (`html[data-motion='off']`).
+Bei `prefers-reduced-motion` steht alles sofort im Endzustand: kein Lenis, kein Pinning, kein Autoplay, der Globus steht still (lässt sich aber drehen) und zeigt alle Knoten gepatcht, der Ticker bricht um. Nichts hängt dann am Scrollen. Übergänge sind dann ganz aus (0 s, nicht 0.01 ms): Auch ein winziger Übergang hält für ein Bild die alten Werte fest und verschiebt kurz das Layout. Der Schalter «Bewegung pausieren» hält Dauerbewegung an (`html[data-motion='off']`).
 
 ## 7. Technische Regeln fürs Markup
 
 - Keine Inline-`style`-Attribute und keine Inline-Skripte (strikte CSP mit Hashes); Werte zur Laufzeit per `element.style…` setzen.
 - Interne Links über den `href()`-Helfer der jeweiligen App.
+- Satzzeichen direkt nach einem Link oder einer Hervorhebung: Der Formatierer bricht nach dem schliessenden Tag um, und der Umbruch wird zum sichtbaren Leerzeichen («BACS .»). Solche Stellen auf eine Zeile schreiben und mit `{/* prettier-ignore */}` davor schützen (Beispiele in `Faq.astro` und `ClickSimulator.astro`).
+- Anführungszeichen im sichtbaren Text: «…», darin ‹…›. Texte aus dem Auftrag standen dort selbst in «…»; was im Auftrag ‹…› hiess, ist auf der Seite also «…».
+- Formulare tragen immer `method="post"`, auch wenn ein Skript sie sendet: Ohne Angabe sendet der Browser per GET, und die Eingaben stünden in der Adresse, sobald das Skript fehlt.
+- Overlays mit eigenem Scrollen (Menü, Terminal) tragen `data-lenis-prevent`.
 - Klassennamen in Scoped Styles nie so nennen wie einen Baustein aus `components.css` (`pnpm test` prüft das).
 - Bilder aus dem Kit als `<img>` mit `width`, `height` und `alt` (leer, wenn Dekoration).
 - Startseite: Sektionen weit unter dem ersten Bildschirm tragen `data-lazy`; der Browser rechnet sie erst bei Bedarf (`content-visibility`). `home.ts` holt sie nach der ersten Interaktion nach und vor jedem Sprung zu einer Marke sofort. Frisch ausgelegt gelten sie zwei Bilder lang als `data-laid="new"` (darin kein Übergang), danach als `data-laid=""`.

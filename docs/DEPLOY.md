@@ -274,8 +274,10 @@ Letzte lokale Messung (November 2026): web 100/100/100/100, Checkliste 100/100/1
 
 ### Funktion
 
+Machen Sie diese Probe, **bevor** Sie den Link zur Umfrage verteilen. Dann lassen sich die Testdaten am Schluss vollständig löschen, ohne echte Antworten zu berühren.
+
 1. **Kontaktformular** auf psyber.tech ausfüllen und senden. Die Benachrichtigung kommt an Ihre Adresse; «Antworten» geht an die anfragende Person.
-2. **Umfrage** komplett durchklicken (am besten mit `?quelle=website`) und eine Test-E-Mail für die Warteliste angeben.
+2. **Umfrage** komplett durchklicken (am besten mit `?quelle=website`) und eine Test-E-Mail für die Warteliste angeben. Bei der letzten Frage mit freiem Text (Frage 15) `PSYber-Test` eintragen: Daran ist die Testantwort später zu erkennen.
 3. Auf dem Danke-Screen beide Links öffnen (Checkliste und Test-Link).
 4. In der Datenbank nachsehen:
 
@@ -286,9 +288,10 @@ Letzte lokale Messung (November 2026): web 100/100/100/100, Checkliste 100/100/1
    pnpm exec wrangler d1 execute psyber --remote --command "SELECT created_day, founding_family FROM waitlist ORDER BY created_day DESC LIMIT 5"
    ```
 
-   Erwartet: Antwort und Wartelisten-Eintrag nur mit Datum; die Zähler `survey_started`, `survey_completed`, `bait_click` und `checklist_click` je um 1 erhöht.
+   Erwartet: die Antwort nur mit Datum, der Wartelisten-Eintrag nur mit dem Monat (immer der Monatserste); die Zähler `survey_started`, `survey_completed`, `bait_click` und `checklist_click` je um 1 erhöht.
 
-5. Testdaten wieder löschen (siehe «Betrieb»).
+5. Unter **Workers & Pages → psyber-api → Observability** nachsehen: Es darf keine der Meldungen aus dem Abschnitt «Logs» stehen.
+6. Testdaten wieder löschen (siehe «Daten löschen»).
 
 ---
 
@@ -298,6 +301,8 @@ Letzte lokale Messung (November 2026): web 100/100/100/100, Checkliste 100/100/1
 pnpm export     # schreibt reports/export-YYYY-MM-DD.json
 pnpm analyze    # erzeugt reports/umfrage-YYYY-MM-DD.html
 ```
+
+Zum Ausprobieren mit der lokalen Datenbank von `wrangler dev`: `pnpm export --local`. Dieser Export heisst `export-local-YYYY-MM-DD.json`, überschreibt also nie den Export der Umfrage. `pnpm analyze` nimmt ihn nicht von selbst; der Befehl dafür steht in der Ausgabe, und der Bericht ist als Testdaten markiert.
 
 - `pnpm export` holt die anonymen Antworten, die Zähler und zwei Summen der Warteliste (Einträge gesamt, davon Founding Families). **E-Mail-Adressen und Kontaktanfragen werden nicht exportiert.**
 - `pnpm analyze` nimmt den neuesten Export aus `reports/` (oder eine Datei als Argument: `pnpm analyze reports/export-2026-12-01.json`) und erzeugt einen Bericht als einzelne HTML-Datei mit der Go/No-Go-Ampel.
@@ -342,7 +347,16 @@ Dependabot öffnet monatlich Pull Requests für Abhängigkeiten und GitHub Actio
 
 ### Logs
 
-Die API schreibt nur eigene, knappe Meldungen (zum Beispiel einen Fehlercode, wenn die Benachrichtigung scheitert). Automatische Request-Logs sind ausgeschaltet, damit weder IP-Adressen noch Header gespeichert werden. Einsehen unter **Workers & Pages → psyber-api → Observability**.
+Die API schreibt nur eigene, knappe Meldungen ohne Angaben zu Personen. Automatische Request-Logs und Traces sind ausgeschaltet, damit weder IP-Adressen noch Header gespeichert werden. Einsehen unter **Workers & Pages → psyber-api → Observability**.
+
+| Meldung                          | Bedeutung                                                                                 | Was tun                                                                                  |
+| -------------------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| `notify_not_configured`          | Eine Kontaktanfrage ist gespeichert, aber die Benachrichtigung ist nicht eingerichtet.    | `NOTIFY_TO` setzen und Email Routing prüfen (Schritte 4 und 6). Anfrage in D1 nachlesen. |
+| `notify_failed` mit Fehlercode   | Die Benachrichtigung liess sich nicht senden. Die Anfrage ist gespeichert.                | Zieladresse in Email Routing verifiziert? Absender `hallo@psyber.tech` erlaubt?          |
+| `turnstile_misconfigured`        | Cloudflare lehnt das Secret ab. Formulare antworten mit «vorübergehend nicht erreichbar». | `wrangler secret put TURNSTILE_SECRET` mit dem Secret des richtigen Widgets.             |
+| `rate_limit_not_configured`      | Ein Rate-Limit-Binding fehlt. Die API arbeitet weiter, aber ohne dieses Limit.            | `ratelimits` in `apps/api/wrangler.jsonc` prüfen und neu deployen.                       |
+| `unhandled_error` mit Fehlername | Ein unerwarteter Fehler; die API hat mit 500 geantwortet.                                 | Tritt es wiederholt auf: Datenbank-Binding und letzte Änderung prüfen, sonst Rollback.   |
+| `contacts_purged` mit einer Zahl | Der tägliche Cron hat so viele alte Kontaktanfragen gelöscht.                             | Nichts.                                                                                  |
 
 ### Daten löschen
 
@@ -351,12 +365,29 @@ Die API schreibt nur eigene, knappe Meldungen (zum Beispiel einen Fehlercode, we
 
   ```
   cd apps/api
-  pnpm exec wrangler d1 execute psyber --remote --command "DELETE FROM contact_requests WHERE email = 'person@example.ch'"
-  pnpm exec wrangler d1 execute psyber --remote --command "DELETE FROM waitlist WHERE email = 'person@example.ch'"
+  pnpm exec wrangler d1 execute psyber --remote --command "SELECT (SELECT COUNT(*) FROM contact_requests WHERE lower(email) = lower('person@example.ch')) AS anfragen, (SELECT COUNT(*) FROM waitlist WHERE lower(email) = lower('person@example.ch')) AS warteliste"
+  pnpm exec wrangler d1 execute psyber --remote --command "DELETE FROM contact_requests WHERE lower(email) = lower('person@example.ch')"
+  pnpm exec wrangler d1 execute psyber --remote --command "DELETE FROM waitlist WHERE lower(email) = lower('person@example.ch')"
   ```
 
+  Der erste Befehl zählt nur. Zeigt er zweimal 0, obwohl die Person geschrieben hat, stimmt die Schreibweise der Adresse nicht: nachfragen, nicht raten. Gross- und Kleinschreibung spielt dank `lower()` keine Rolle. Nach dem Löschen denselben Befehl nochmals ausführen: Jetzt muss zweimal 0 stehen.
+
 - Antworten der Umfrage sind anonym und lassen sich keiner Person zuordnen. Eine einzelne Antwort kann darum nicht «auf Wunsch» gefunden werden.
-- Testdaten nach den Checks aus Schritt 8: die Zeilen des Testtags gezielt löschen, zum Beispiel `DELETE FROM survey_responses WHERE created_day = '2026-12-01' AND quelle = 'website'`.
+- Testdaten aus Schritt 8, **solange die Umfrage noch nicht verteilt ist**: alle vier Tabellen leeren.
+
+  ```
+  pnpm exec wrangler d1 execute psyber --remote --command "DELETE FROM survey_responses; DELETE FROM waitlist; DELETE FROM counters; DELETE FROM contact_requests"
+  ```
+
+- Testdaten, **wenn schon echte Antworten da sind**: nie nach Tag oder Quelle löschen, das träfe echte Antworten. Nur die markierte Testantwort und die eigene Testadresse entfernen:
+
+  ```
+  pnpm exec wrangler d1 execute psyber --remote --command "DELETE FROM survey_responses WHERE q15 = 'PSYber-Test'"
+  pnpm exec wrangler d1 execute psyber --remote --command "DELETE FROM waitlist WHERE lower(email) = lower('test@example.ch')"
+  pnpm exec wrangler d1 execute psyber --remote --command "DELETE FROM contact_requests WHERE lower(email) = lower('test@example.ch')"
+  ```
+
+  Die Zähler sind Tagessummen ohne Bezug zu einer Antwort. Ein einzelner Testlauf verfälscht sie um je 1; das fällt in der Auswertung nicht ins Gewicht und bleibt darum stehen.
 
 ### Grenzen des Free-Plans
 
@@ -386,6 +417,7 @@ So wie Cloudflare ausliefert (mit `_headers` und `_redirects`): `pnpm --filter @
 - **Startseite:** Sektionen weit unter dem ersten Bildschirm rechnet der Browser erst bei Bedarf (`content-visibility`). Sehr alte Browser ohne diese Eigenschaft berechnen einfach alles sofort.
 - **SEO-Wert von surprise.** `noindex` ist dort Pflicht; Lighthouse zieht dafür Punkte ab.
 - **D1 Time Travel.** Cloudflare hält für D1 30 Tage Wiederherstellungspunkte vor. Wer Zugriff auf das Konto hat, könnte damit theoretisch nachvollziehen, welche Zeilen gleichzeitig entstanden sind. Technisch lässt sich das nicht abschalten; schützen Sie das Konto mit Zwei-Faktor-Login und vergeben Sie keine weiteren Zugänge.
+- **Rate Limits zählen pro Anschluss, nicht pro Person.** Bei IPv4 ist der Schlüssel die Adresse, bei IPv6 das /64-Netz (sonst liesse sich das Limit durch Adresswechsel im eigenen Netz umgehen). Mehrere Personen hinter derselben Adresse (Firmennetz, Mobilfunk) teilen sich ein Limit; mit 5 Einsendungen pro Minute ist das unkritisch. Für die Zähler ohne Turnstile gibt es zusätzlich ein Gesamtbudget von 600 pro Minute, unabhängig von der Adresse.
 - **Rate Limits sind «ungefähr».** Die Rate-Limit-Bindings von Workers zählen pro Cloudflare-Standort und arbeiten bewusst unscharf. Für den Schutz der Formulare reicht das; Turnstile und der Honeypot kommen dazu.
 
 ---

@@ -172,7 +172,12 @@ try {
             : `.sv-tile:has(input[value="${value}"])`,
         )
         .click();
-    const progress = (text) => page.locator('.sv-progress-text', { hasText: text }).waitFor();
+    // Wartet auf die Frage und kurz darüber hinaus: Direkt nach einem Fragenwechsel zählen
+    // Klicks auf Antworten nicht (Schutz vor Doppelklicks).
+    const progress = async (text) => {
+      await page.locator('.sv-progress-text', { hasText: text }).waitFor();
+      await page.waitForTimeout(450);
+    };
     await page.getByRole('button', { name: 'Los geht’s' }).click();
     await progress('1 / 16');
     await option('Stadt Zürich');
@@ -224,7 +229,9 @@ try {
     // Zeitleiste anhalten und gezielt auf einen Zeitpunkt stellen
     await page.addInitScript(() => {
       const held = new Set();
+      let released = false;
       const hold = () => {
+        if (released) return;
         for (const animation of document.getAnimations()) {
           if (!held.has(animation)) {
             animation.pause();
@@ -236,6 +243,12 @@ try {
       requestAnimationFrame(hold);
       window.__seek = (time) => {
         for (const animation of held) animation.currentTime = time;
+      };
+      // Zeitleiste zu Ende führen und nichts mehr anhalten: Sonst blieben auch die Übergänge
+      // der Tasten stehen, die danach gedrückt werden.
+      window.__release = () => {
+        released = true;
+        for (const animation of held) animation.finish();
       };
     });
     await page.goto(`${SURPRISE}/gewinn`, { waitUntil: 'networkidle' });
@@ -251,6 +264,7 @@ try {
     await page.evaluate(() => window.__seek(3000));
     await page.waitForTimeout(80);
     await shot(page, `surprise-erwischt-${label}`);
+    await page.evaluate(() => window.__release());
     if (label === 'mobile') {
       await page.getByRole('button', { name: 'Fälschung' }).click();
       await page.locator('[data-reader]').scrollIntoViewIfNeeded();
