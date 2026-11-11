@@ -53,17 +53,25 @@ jobs:
       - name: Unit-Tests
         run: pnpm test
 
+      # Baut alle Apps und zusätzlich web und forms mit Turnstile-Testkey (für die E2E-Tests).
       - name: Build aller Apps
         run: pnpm build
 
       - name: JS-Budgets
         run: pnpm budgets
 
+      # Startet die drei Sites lokal in der Workers-Laufzeit und prüft Security-Header,
+      # Weiterleitungen und 404. Braucht kein Cloudflare-Konto.
+      - name: Header und Weiterleitungen
+        run: pnpm check:headers
+
       - name: Build-Ergebnis für die E2E-Tests sichern
         uses: actions/upload-artifact@v7
         with:
           name: dist
-          path: apps/*/dist
+          path: |
+            apps/*/dist
+            apps/*/dist-turnstile
           retention-days: 1
           include-hidden-files: true
 

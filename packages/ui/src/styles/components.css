@@ -554,19 +554,32 @@
     isolation: isolate;
   }
 
+  /*
+   * Das Netz ist die Maske einer weissen Fläche, kein Hintergrundbild. So zählt es für den
+   * Browser nicht als grösstes Bild der Seite (LCP bleibt die Headline), und solange die Datei
+   * lädt, ist schlicht nichts zu sehen. Die zweite Maske blendet nach unten (oder oben) aus.
+   */
   .net-texture::before {
+    --net-fade: to bottom;
     position: absolute;
     inset: 0;
     z-index: -1;
-    background-image: url('../assets/net-texture.svg');
-    background-size: 420px 420px;
+    background-color: var(--white);
     content: '';
     opacity: 0.07;
     pointer-events: none;
-    mask-image: linear-gradient(to bottom, #000 0%, #000 55%, transparent 100%);
+    /* Die -webkit-Varianten für ältere Browser ergänzt der Build (Lightning CSS). */
+    mask-image:
+      url('../assets/net-texture.svg'),
+      linear-gradient(var(--net-fade), #000 0%, #000 55%, transparent 100%);
+    mask-size:
+      420px 420px,
+      100% 100%;
+    mask-repeat: repeat, no-repeat;
+    mask-composite: intersect;
   }
 
   .net-texture-up::before {
-    mask-image: linear-gradient(to top, #000 0%, #000 55%, transparent 100%);
+    --net-fade: to top;
   }
 }

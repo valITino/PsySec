@@ -279,6 +279,9 @@ importers:
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
+      wrangler:
+        specifier: ^4.160.0
+        version: 4.160.0(@cloudflare/workers-types@5.20261110.1)(@types/node@22.20.5)
 
   apps/surprise:
     dependencies:
@@ -304,6 +307,9 @@ importers:
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
+      wrangler:
+        specifier: ^4.160.0
+        version: 4.160.0(@cloudflare/workers-types@5.20261110.1)(@types/node@22.20.5)
 
   apps/web:
     dependencies:
@@ -341,6 +347,9 @@ importers:
       typescript:
         specifier: ^6.0.3
         version: 6.0.3
+      wrangler:
+        specifier: ^4.160.0
+        version: 4.160.0(@cloudflare/workers-types@5.20261110.1)(@types/node@22.20.5)
 
   packages/config:
     dependencies:

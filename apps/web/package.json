@@ -8,7 +8,9 @@
     "dev": "astro dev --port 4321",
     "build": "astro build",
     "preview": "astro preview --port 4321",
-    "typecheck": "astro check"
+    "typecheck": "astro check",
+    "cf:dev": "wrangler dev --port 8801",
+    "deploy": "wrangler deploy"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
@@ -23,6 +25,7 @@
     "@psyber/config": "workspace:*",
     "@tailwindcss/vite": "^4.3.5",
     "tailwindcss": "^4.3.5",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "wrangler": "^4.160.0"
   }
 }

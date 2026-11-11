@@ -24,6 +24,22 @@ export function cspDirectives({ apiOrigin = '' } = {}) {
   ];
 }
 
+/**
+ * Vollständige Einstellung für Astros `security.csp`.
+ * `'self'` steht ausdrücklich in den Quellen für Skripte und Styles: Sobald eine Seite zur
+ * Laufzeit eine weitere Quelle ergänzt (Turnstile auf Formularseiten), lässt Astro den
+ * Standardwert `'self'` sonst weg, und die eigenen Skripte wären blockiert.
+ * @param {{ apiOrigin?: string }} options
+ */
+export function cspConfig({ apiOrigin = '' } = {}) {
+  return {
+    algorithm: /** @type {const} */ ('SHA-256'),
+    directives: cspDirectives({ apiOrigin }),
+    scriptDirective: { resources: ["'self'"] },
+    styleDirective: { resources: ["'self'"] },
+  };
+}
+
 /** Alles aus, was die Sites nicht brauchen. */
 const PERMISSIONS_POLICY = [
   'accelerometer=()',
@@ -94,6 +110,11 @@ export function headersFile({
     '/_astro/*',
     '  ! Cache-Control',
     '  Cache-Control: public, max-age=31536000, immutable',
+    '',
+    '# Vorschaubilder für Link-Vorschauen: dürfen von anderen Websites eingebunden werden',
+    '/og/*',
+    '  ! Cross-Origin-Resource-Policy',
+    '  Cross-Origin-Resource-Policy: cross-origin',
     '',
     ...noindexPaths.flatMap((path) => [path, '  X-Robots-Tag: noindex, nofollow', '']),
   ];

@@ -1,56 +1,8 @@
 import AxeBuilder from '@axe-core/playwright';
-import { expect, test, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { FORMS } from '../playwright.config.ts';
 import { collectErrors, horizontalOverflow, mockApi } from './helpers.ts';
-
-const progress = (page: Page) => page.locator('.sv-progress-text');
-const next = (page: Page) => page.locator('.sv-next');
-const option = (page: Page, text: string) => page.locator('.sv-option', { hasText: text });
-const tile = (page: Page, value: number, row?: string) =>
-  page.locator(
-    row
-      ? `.sv-tile:has(input[name="q6-${row}"][value="${value}"])`
-      : `.sv-tile:has(input[value="${value}"])`,
-  );
-
-const ROWS = ['phishing', 'anlagebetrug', 'romance', 'cybermobbing', 'heimnetz', 'privatsphaere'];
-
-/** Wartet, bis das Preact-Island die Seite übernommen hat. */
-const hydrated = (page: Page) =>
-  page.waitForFunction(() => document.querySelector('astro-island:not([ssr])') !== null);
-
-/** Füllt die Pflichtfragen aus und landet auf Frage 8. */
-async function answerRequired(page: Page): Promise<void> {
-  await hydrated(page);
-  await page.getByRole('button', { name: 'Los geht’s' }).click();
-  await expect(progress(page)).toHaveText('1 / 16');
-  await option(page, 'Stadt Zürich').click(); // springt von selbst weiter
-  await expect(progress(page)).toHaveText('2 / 16');
-  await option(page, 'Kinder 10–15').click();
-  await option(page, 'Erwachsene').click();
-  await next(page).click();
-  await expect(progress(page)).toHaveText('3 / 16');
-  await next(page).click(); // freiwillig: überspringen
-  await expect(progress(page)).toHaveText('4 / 16');
-  await tile(page, 4).click(); // springt von selbst weiter
-  await expect(progress(page)).toHaveText('5 / 16');
-  await next(page).click();
-  await expect(progress(page)).toHaveText('6 / 16');
-  for (const row of ROWS) await tile(page, row === 'romance' ? 2 : 5, row).click();
-  await next(page).click();
-  await expect(progress(page)).toHaveText('7 / 16');
-  await option(page, 'Session bei uns zu Hause').click();
-  await next(page).click();
-  await expect(progress(page)).toHaveText('8 / 16');
-}
-
-/** Überspringt die freiwilligen Fragen ab der aktuellen Position bis zur letzten. */
-async function skipTo(page: Page, from: number, to: number, total = 16): Promise<void> {
-  for (let step = from; step < to; step++) {
-    await next(page).click();
-    await expect(progress(page)).toHaveText(`${step + 1} / ${total}`);
-  }
-}
+import { answerRequired, hydrated, next, option, progress, skipTo, tile } from './survey.ts';
 
 test.describe('forms.psyber.tech', () => {
   test('Startscreen: Texte, Datenschutz-Hinweis, kein Menü', async ({ page }) => {

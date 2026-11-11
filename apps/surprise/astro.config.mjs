@@ -1,6 +1,6 @@
 // @ts-check
 import { loadSites } from '@psyber/config/astro-env';
-import { cloudflareFiles, cspDirectives } from '@psyber/config/security';
+import { cloudflareFiles, cspConfig } from '@psyber/config/security';
 import { splitSiteUrl } from '@psyber/config/sites';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'astro/config';
@@ -18,12 +18,7 @@ export default defineConfig({
   devToolbar: { enabled: false },
   markdown: { syntaxHighlight: false },
   server: { port: 4323 },
-  security: {
-    csp: {
-      algorithm: 'SHA-256',
-      directives: cspDirectives({ apiOrigin: sites.apiOrigin }),
-    },
-  },
+  security: { csp: cspConfig({ apiOrigin: sites.apiOrigin }) },
   integrations: [
     cloudflareFiles({
       apiOrigin: sites.apiOrigin,

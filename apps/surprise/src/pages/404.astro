@@ -1,0 +1,28 @@
+---
+/** 404 von surprise.psyber.tech: gleicher Block wie auf psyber.tech, ohne Eingabefelder. */
+import Logo from '@psyber/ui/components/Logo.astro';
+import NotFound from '@psyber/ui/components/NotFound.astro';
+import Base from '../layouts/Base.astro';
+import { web } from '../lib/site.ts';
+---
+
+<Base
+  title="404 – Layer 8 nicht gefunden – PSYber"
+  description="Diese Seite gibt es nicht."
+  path="/404"
+>
+  <header class="wrap nf-header">
+    <Logo href={web.home} label="PSYber, zu psyber.tech" />
+  </header>
+  <main>
+    <NotFound href={web.home} label="Zu psyber.tech" />
+  </main>
+</Base>
+
+<style>
+  .nf-header {
+    display: flex;
+    align-items: center;
+    height: var(--header-h);
+  }
+</style>

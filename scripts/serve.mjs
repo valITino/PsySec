@@ -2,11 +2,15 @@
 // Verhält sich bei Adressen wie Cloudflare-Assets und GitHub Pages:
 //   /checkliste → checkliste.html, /ordner/ → ordner/index.html, sonst 404.html.
 //
-// Aufruf: node scripts/serve.mjs <verzeichnis> [--port 4321] [--base /PsySec]
+// Mit --production zusätzlich wie bei Cloudflare: gzip für Textdateien und die Cache-Regeln
+// aus _headers (für Lighthouse-Messungen).
+//
+// Aufruf: node scripts/serve.mjs <verzeichnis> [--port 4321] [--base /PsySec] [--production]
 import { createReadStream, existsSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { extname, join, normalize, resolve, sep } from 'node:path';
 import { pathToFileURL } from 'node:url';
+import { createGzip } from 'node:zlib';
 
 const TYPES = {
   '.html': 'text/html; charset=utf-8',
@@ -25,11 +29,14 @@ const TYPES = {
   '.xml': 'application/xml; charset=utf-8',
 };
 
+/** Dateitypen, die Cloudflare komprimiert ausliefert */
+const COMPRESSIBLE = new Set(['.html', '.css', '.js', '.mjs', '.json', '.webmanifest', '.svg']);
+
 /**
- * @param {{ dir: string, port?: number, base?: string, quiet?: boolean }} options
+ * @param {{ dir: string, port?: number, base?: string, quiet?: boolean, production?: boolean }} options
  * @returns {Promise<import('node:http').Server>}
  */
-export function serve({ dir, port = 4321, base = '', quiet = false }) {
+export function serve({ dir, port = 4321, base = '', quiet = false, production = false }) {
   const root = resolve(dir);
   const prefix = base.replace(/\/+$/, '');
 
@@ -65,10 +72,23 @@ export function serve({ dir, port = 4321, base = '', quiet = false }) {
       else res.end('404');
       return;
     }
-    res.writeHead(200, {
-      'Content-Type': TYPES[extname(file)] ?? 'application/octet-stream',
+    const extension = extname(file);
+    const headers = {
+      'Content-Type': TYPES[extension] ?? 'application/octet-stream',
       'Cache-Control': 'no-store',
-    });
+    };
+    if (production) {
+      headers['Cache-Control'] = pathname.startsWith('/_astro/')
+        ? 'public, max-age=31536000, immutable'
+        : 'public, max-age=300, must-revalidate';
+      const gzip = /\bgzip\b/.test(String(req.headers['accept-encoding'] ?? ''));
+      if (gzip && COMPRESSIBLE.has(extension)) {
+        res.writeHead(200, { ...headers, 'Content-Encoding': 'gzip', Vary: 'Accept-Encoding' });
+        createReadStream(file).pipe(createGzip()).pipe(res);
+        return;
+      }
+    }
+    res.writeHead(200, headers);
     createReadStream(file).pipe(res);
   });
 
@@ -90,8 +110,15 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
     (arg) => !arg.startsWith('--') && arg !== flag('--port') && arg !== flag('--base'),
   );
   if (!dir) {
-    console.error('Aufruf: node scripts/serve.mjs <verzeichnis> [--port 4321] [--base /PsySec]');
+    console.error(
+      'Aufruf: node scripts/serve.mjs <verzeichnis> [--port 4321] [--base /PsySec] [--production]',
+    );
     process.exit(1);
   }
-  await serve({ dir, port: Number(flag('--port', '4321')), base: flag('--base', '') });
+  await serve({
+    dir,
+    port: Number(flag('--port', '4321')),
+    base: flag('--base', ''),
+    production: args.includes('--production'),
+  });
 }

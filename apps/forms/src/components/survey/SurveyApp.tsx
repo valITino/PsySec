@@ -2,7 +2,7 @@
  * Umfrage-Funnel: eine Frage pro Screen, Fortschritt oben, «Zurück» und «Weiter» immer sichtbar.
  * Kein Menü, nur Logo und Fortschritt.
  */
-import { useEffect } from 'preact/hooks';
+import { useEffect, useRef } from 'preact/hooks';
 import type { SurveyConfig } from '../../lib/site.ts';
 import { Done, QuestionScreen, Start } from './Screens.tsx';
 import { onKeyDown } from './keyboard.ts';
@@ -12,10 +12,13 @@ const PSI_ICON = 'M2 2.2 C2 7 4 9.2 6 9.2 C8 9.2 10 7 10 2.2 M6 0.8 V13.2';
 
 export default function SurveyApp({ config }: { config: SurveyConfig }) {
   configure(config);
+  const root = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     restore();
     document.addEventListener('keydown', onKeyDown);
+    // Für Tests: Zwischenstand geladen, Tastatur angeschlossen.
+    root.current?.setAttribute('data-ready', '');
     return () => document.removeEventListener('keydown', onKeyDown);
   }, []);
 
@@ -23,7 +26,7 @@ export default function SurveyApp({ config }: { config: SurveyConfig }) {
   const step = position.value + 1;
 
   return (
-    <div class="sv" data-screen={screen.value}>
+    <div class="sv" data-screen={screen.value} ref={root}>
       <header class="sv-header">
         <div class="sv-header-inner">
           <a class="logo" href={config.links.home} aria-label="PSYber, zur Website">

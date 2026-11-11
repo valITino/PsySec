@@ -1,5 +1,6 @@
-import { describe, expect, it } from 'vitest';
-import { cspDirectives, headersFile } from '../src/security.mjs';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { requireTurnstile } from '../src/astro-env.mjs';
+import { cspConfig, cspDirectives, headersFile } from '../src/security.mjs';
 import { joinPath, resolveSites, splitSiteUrl } from '../src/sites.mjs';
 
 describe('resolveSites', () => {
@@ -83,5 +84,43 @@ describe('Security-Header', () => {
     expect(file).toContain('Referrer-Policy: no-referrer');
     expect(file).toContain('X-Robots-Tag: noindex, nofollow');
     expect(file).toContain("connect-src 'self';");
+  });
+
+  it("behält 'self' für Skripte und Styles, auch wenn eine Seite Turnstile ergänzt", () => {
+    const csp = cspConfig({ apiOrigin: 'https://api.psyber.tech' });
+    expect(csp.algorithm).toBe('SHA-256');
+    expect(csp.scriptDirective?.resources).toEqual(["'self'"]);
+    expect(csp.styleDirective?.resources).toEqual(["'self'"]);
+    expect(csp.directives).toContain("default-src 'none'");
+  });
+
+  it('gibt nur die Vorschaubilder für andere Websites frei', () => {
+    const file = headersFile();
+    expect(file).toContain('Cross-Origin-Resource-Policy: same-origin');
+    expect(file).toMatch(
+      /\/og\/\*\n {2}! Cross-Origin-Resource-Policy\n {2}Cross-Origin-Resource-Policy: cross-origin/,
+    );
+  });
+});
+
+describe('requireTurnstile', () => {
+  const live = resolveSites({});
+  const withKey = resolveSites({ PUBLIC_TURNSTILE_SITE_KEY: '1x00000000000000000000AA' });
+  const mock = resolveSites({ PUBLIC_API_BASE: 'mock' });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
+  it('bricht den Build bei Cloudflare ab, wenn der Site Key fehlt', () => {
+    vi.stubEnv('WORKERS_CI', '1');
+    expect(() => requireTurnstile(live, 'forms')).toThrow(/PUBLIC_TURNSTILE_SITE_KEY/);
+    expect(() => requireTurnstile(withKey, 'forms')).not.toThrow();
+    expect(() => requireTurnstile(mock, 'forms')).not.toThrow();
+  });
+
+  it('lässt lokale Builds und CI ohne Site Key durch', () => {
+    vi.stubEnv('WORKERS_CI', '');
+    expect(() => requireTurnstile(live, 'web')).not.toThrow();
   });
 });

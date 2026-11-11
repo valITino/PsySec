@@ -9,6 +9,9 @@ export declare const TURNSTILE_ORIGIN: string;
 
 export declare function cspDirectives(options?: { apiOrigin?: string }): CspDirectives;
 
+/** Vollständige Einstellung für `security.csp` (mit `'self'` für Skripte und Styles) */
+export declare function cspConfig(options?: { apiOrigin?: string }): CspConfig;
+
 export interface HeadersOptions {
   apiOrigin?: string;
   referrerPolicy?: string;

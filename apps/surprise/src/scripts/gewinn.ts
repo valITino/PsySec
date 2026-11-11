@@ -69,7 +69,8 @@ function copyBySelection(element: HTMLElement): boolean {
   selection.addRange(range);
   try {
     // Veraltet, aber der einzige Weg ohne Clipboard API (ältere Browser, kein HTTPS).
-    return document.execCommand('copy');
+    const legacy = document as unknown as { execCommand(command: string): boolean };
+    return legacy.execCommand('copy');
   } catch {
     return false;
   } finally {

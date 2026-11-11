@@ -1,0 +1,19 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "psyber-forms",
+  "compatibility_date": "2026-11-01",
+
+  // forms.psyber.tech: reine Auslieferung statischer Dateien aus dist/ (kein Worker-Code).
+  // Header und Weiterleitungen kommen aus dist/_headers und dist/_redirects (beim Build erzeugt).
+  "assets": {
+    "directory": "./dist",
+    // /checkliste liefert checkliste.html; ein Slash am Ende wird entfernt.
+    "html_handling": "auto-trailing-slash",
+    "not_found_handling": "404-page"
+  },
+
+  // Nur über die eigene Domain erreichbar.
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [{ "pattern": "forms.psyber.tech", "custom_domain": true }]
+}

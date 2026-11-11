@@ -12,6 +12,7 @@ const config = [
       '**/node_modules/**',
       '**/dist/**',
       '**/dist-pages/**',
+      '**/dist-turnstile/**',
       '**/.astro/**',
       '**/.wrangler/**',
       '**/coverage/**',

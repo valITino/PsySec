@@ -34,7 +34,9 @@
   ],
 
   // Benachrichtigung bei Kontaktanfragen (Email Routing muss aktiv sein).
-  "send_email": [{ "name": "NOTIFY" }],
+  // Ohne weitere Angabe darf das Binding nur an verifizierte Zieladressen des Kontos senden;
+  // der Absender ist zusätzlich auf die eigene Adresse beschränkt.
+  "send_email": [{ "name": "NOTIFY", "allowed_sender_addresses": ["hallo@psyber.tech"] }],
 
   // Täglich um 03:17 UTC: Kontaktanfragen löschen, die älter als 180 Tage sind.
   "triggers": { "crons": ["17 3 * * *"] },

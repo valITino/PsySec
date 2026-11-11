@@ -1,7 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Smoke-Tests gegen die gebauten Sites (vorher `pnpm build`).
+ * Smoke-Tests gegen die gebauten Sites (vorher `pnpm build`; das baut auch die Variante
+ * mit Turnstile-Testkey nach apps/<app>/dist-turnstile).
  * Die API wird in den Tests gemockt; es geht kein Request ins Netz.
  */
 const executablePath = process.env.PW_CHROMIUM_PATH || undefined;
@@ -16,6 +17,9 @@ const server = (dir: string, port: number, path = '/') => ({
 export const WEB = 'http://127.0.0.1:4321';
 export const FORMS = 'http://127.0.0.1:4322';
 export const SURPRISE = 'http://127.0.0.1:4323';
+/** Zweiter Build von web und forms mit Turnstile-Testkey (scripts/build-turnstile.mjs) */
+export const WEB_TURNSTILE = 'http://127.0.0.1:4331';
+export const FORMS_TURNSTILE = 'http://127.0.0.1:4332';
 
 export default defineConfig({
   testDir: './e2e',
@@ -43,5 +47,7 @@ export default defineConfig({
     server('apps/web/dist', 4321),
     server('apps/forms/dist', 4322),
     server('apps/surprise/dist', 4323, '/gewinn'),
+    server('apps/web/dist-turnstile', 4331),
+    server('apps/forms/dist-turnstile', 4332),
   ],
 });

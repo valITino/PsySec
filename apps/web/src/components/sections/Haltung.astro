@@ -96,11 +96,6 @@ const statements = [
     line-height: 1.5;
   }
 
-  /* Zeilenumbruch nur zwischen Wörtern: SplitText setzt jedes Wort in ein eigenes Element */
-  .statement-text :global(.word) {
-    will-change: opacity;
-  }
-
   @media (min-width: 64rem) {
     .statement {
       grid-template-columns: 3rem minmax(0, 1fr);

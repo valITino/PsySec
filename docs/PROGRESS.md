@@ -11,7 +11,7 @@ Neue Session? Zuerst `CLAUDE.md` lesen, dann diese Datei. Der Auftrag steht in `
 | 2     | API (Cloudflare Worker)                       | fertig |
 | 3     | forms.psyber.tech (Umfrage)                   | fertig |
 | 4     | surprise.psyber.tech («Erwischt!»)            | fertig |
-| 5     | Härtung, E2E, DEPLOY.md                       | offen  |
+| 5     | Härtung, E2E, DEPLOY.md                       | läuft  |
 | 6     | Extras (Auswertung, Easter Eggs)              | offen  |
 
 ## Phase 0: Fundament (fertig)
@@ -72,9 +72,26 @@ Geprüft: lint, typecheck, Unit-Tests, build, E2E, JS-Budget (forms 33,6 von 60 
 
 Geprüft: lint, typecheck, 82 Unit-Tests, build, 72 E2E-Tests, JS-Budget (surprise 0,9 von 25 KB), Screenshots in 390×844 und 1440×900, Zeitleiste Bild für Bild (`node scripts/states-surprise.mjs`), Vorschau-Build.
 
+## Phase 5: Härtung (läuft)
+
+Erledigt:
+
+- `wrangler.jsonc` für web, forms und surprise (reine Asset-Worker mit Custom Domain), `wrangler` als Dev-Abhängigkeit, Skripte `cf:dev` und `deploy` je App.
+- `pnpm check:headers`: startet die drei Sites lokal in der Workers-Laufzeit und prüft Security-Header, Cache-Regeln, Weiterleitungen, 404, `security.txt` (227 Prüfungen); läuft auch in der CI.
+- **Fehler behoben:** Mit gesetztem Turnstile-Key fehlte `'self'` in `script-src` (Astro ersetzt den Standardwert, sobald eine Seite eine Quelle ergänzt). Neu `cspConfig()` in `packages/config`. Abgesichert durch einen zweiten Build mit Turnstile-Testkey (`apps/*/dist-turnstile`, Teil von `pnpm build`) und `e2e/turnstile.spec.ts`.
+- Build bricht bei Cloudflare ab, wenn `PUBLIC_TURNSTILE_SITE_KEY` fehlt (`requireTurnstile`).
+- 404-Seiten auch für forms und surprise (gemeinsamer Baustein `NotFound.astro`).
+- `e2e/hardening.spec.ts`: für alle zehn Seiten keine Requests an Dritte, keine Cookies, ein H1, lückenlose Überschriften, kein Inline-Style, Fokus-Ring.
+- `pnpm lighthouse` (mobil, lokal): alle Seiten 100 bei Performance, Barrierefreiheit und Best Practices (surprise Performance 99), LCP 0,9–1,2 s.
+- Performance der Startseite: Klick-Simulator ohne Container Query (Layout-Zeit rund ein Viertel), Netz-Textur als Maske statt Hintergrundbild (zählt nicht mehr als LCP-Element).
+- Kontrast in jedem Zustand: «Haltung» dimmt Wörter nur, solange der Satz im Bild ist; Drehbuch-Eingriffe ohne `opacity`.
+- OG-Bilder dürfen von anderen Websites eingebunden werden (`Cross-Origin-Resource-Policy: cross-origin` nur für `/og/*`).
+
+Offen: `docs/DEPLOY.md` fertig schreiben, Entscheidungen nachtragen.
+
 ## Nächster Schritt
 
-Phase 5: Härtung. CSP und Header mit `wrangler dev` prüfen (assets-only `wrangler.jsonc` für die drei Sites anlegen), Barrierefreiheit und Performance nachmessen (Lighthouse), `docs/DEPLOY.md` fertig schreiben (zehn Schritte aus Abschnitt 10, D1-Export, jährlicher Neubau wegen `security.txt`, HSTS-Preload).
+`docs/DEPLOY.md` (zehn Schritte aus Abschnitt 10, D1-Export, jährlicher Neubau wegen `security.txt`, HSTS-Preload, erwartetes Observatory-Ergebnis), danach Phase 6 (Auswertung, Easter Eggs).
 
 ## Arbeitsnotizen für Folge-Sessions
 
@@ -89,7 +106,11 @@ Phase 5: Härtung. CSP und Header mit `wrangler dev` prüfen (assets-only `wrang
 - Keine Inline-`style`-Attribute: Werte zur Laufzeit per `element.style…` setzen (CSP).
 - Umfrage durchklicken und fotografieren: `PUBLIC_API_BASE=mock pnpm --filter @psyber/forms build && node scripts/states-forms.mjs`.
 - Zustand, der beim Blättern zurückgesetzt werden muss, synchron in der Aktion setzen, nicht in `useEffect` (schnelle Tasteneingaben kommen sonst zu früh).
-- In Playwright-Tests auf das Island warten: `astro-island:not([ssr])`.
+- In Playwright-Tests auf die Umfrage warten: `.sv[data-ready]` (Helfer `hydrated` in `e2e/survey.ts`); das Attribut setzt das Island, sobald Zwischenstand und Tastatur bereit sind.
 - surprise: Die Zeitleiste lässt sich für Screenshots anhalten und auf einen Zeitpunkt stellen (`document.getAnimations()`, siehe `scripts/states-surprise.mjs` und `e2e/surprise.spec.ts`).
 - Eine Animation von 1 ms Dauer endet rechnerisch knapp vor 100 %: Endzustände darum in beiden Keyframes (`from, to`) setzen statt nur in `to`.
 - Text und Inline-Elemente in einer Zeile nie von Hand aneinanderreihen (Prettier bricht um, im HTML entstehen Leerzeichen): Teile als Array per `.map()` ausgeben.
+- `pnpm build` baut web und forms zweimal: `dist/` (ohne Turnstile-Key, wird deployt bzw. von den meisten Tests genutzt) und `dist-turnstile/` (mit Testkey, nur für `e2e/turnstile.spec.ts`).
+- Lighthouse: `pnpm lighthouse` lädt Lighthouse per `pnpm dlx`. Der lokale Server darf nicht im selben Prozess blockiert werden (kein `spawnSync`).
+- Container-Query-Einheiten (`cqw`) nur in kleinen Bausteinen verwenden: Im Hero haben sie das Layout der ganzen Seite vervielfacht.
+- `wrangler dev` für mehrere Sites nur nacheinander starten (gleichzeitig kollidieren interne Ports).

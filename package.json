@@ -12,7 +12,7 @@
     "dev:forms": "pnpm --filter @psyber/forms dev",
     "dev:surprise": "pnpm --filter @psyber/surprise dev",
     "dev:api": "pnpm --filter @psyber/api dev",
-    "build": "pnpm --recursive --filter \"./apps/*\" build",
+    "build": "pnpm --recursive --filter \"./apps/*\" build && node scripts/build-turnstile.mjs",
     "build:pages": "node scripts/build-pages.mjs",
     "lint": "eslint . && prettier --check .",
     "format": "prettier --write .",
@@ -20,6 +20,8 @@
     "test": "vitest run",
     "e2e": "playwright test",
     "budgets": "node scripts/check-budgets.mjs",
+    "check:headers": "node scripts/check-headers.mjs",
+    "lighthouse": "node scripts/lighthouse.mjs",
     "assets": "node scripts/brand-assets.ts",
     "analyze": "node scripts/analyze.ts"
   },

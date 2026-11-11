@@ -264,7 +264,7 @@ const numbered = acts.map((act) => ({
     background-color: var(--aubergine);
     transition:
       border-color var(--dur-3) var(--ease),
-      opacity var(--dur-3) var(--ease),
+      background-color var(--dur-3) var(--ease),
       transform var(--dur-3) var(--ease);
   }
 
@@ -335,9 +335,10 @@ const numbered = acts.map((act) => ({
     box-shadow: 0 0 0 5px color-mix(in srgb, var(--lav) 28%, transparent);
   }
 
+  /* Noch nicht eingerastet: zurückgesetzt und flach, der Text bleibt voll lesbar (kein opacity). */
   .drehbuch[data-animated] .fix:not(.is-on) {
     border-color: var(--line);
-    opacity: 0.45;
+    background-color: var(--deep);
     transform: translateX(0.75rem);
   }
 

@@ -1,12 +1,13 @@
 // @ts-check
 import sitemap from '@astrojs/sitemap';
-import { loadSites } from '@psyber/config/astro-env';
-import { cloudflareFiles, cspDirectives } from '@psyber/config/security';
+import { loadSites, requireTurnstile } from '@psyber/config/astro-env';
+import { cloudflareFiles, cspConfig } from '@psyber/config/security';
 import { splitSiteUrl } from '@psyber/config/sites';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'astro/config';
 
 const { sites } = loadSites();
+requireTurnstile(sites, 'web');
 const { site, base } = splitSiteUrl(sites.web);
 
 // https://docs.astro.build/en/reference/configuration-reference/
@@ -25,12 +26,7 @@ export default defineConfig({
   // Kein Syntax-Highlighting nötig; Shiki würde Inline-Styles erzeugen (CSP).
   markdown: { syntaxHighlight: false },
   server: { port: 4321 },
-  security: {
-    csp: {
-      algorithm: 'SHA-256',
-      directives: cspDirectives({ apiOrigin: sites.apiOrigin }),
-    },
-  },
+  security: { csp: cspConfig({ apiOrigin: sites.apiOrigin }) },
   integrations: [
     sitemap({
       filter: (page) => !/\/(styleguide|404)(\.html)?\/?$/.test(page),
