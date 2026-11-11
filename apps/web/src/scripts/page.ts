@@ -3,9 +3,11 @@
  * Kein Smooth Scroll, keine Scroll-Animationen.
  */
 import { initPsiNet, motionAllowed, motionPaused, setMotionPaused } from '@psyber/ui/motion';
+import { initEggs } from './egg.ts';
 import { initHeader } from './header.ts';
 
 initHeader(() => null);
+initEggs();
 initPsiNet();
 
 const toggle = document.querySelector<HTMLButtonElement>('[data-motion-toggle]');

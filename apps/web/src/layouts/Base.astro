@@ -2,7 +2,7 @@
 import '../styles/global.css';
 import BaseHead from '@psyber/ui/components/BaseHead.astro';
 import PreviewNote from '@psyber/ui/components/PreviewNote.astro';
-import { absoluteUrl, basePath, meta, sites } from '../config/site.ts';
+import { absoluteUrl, basePath, contact, meta, sites } from '../config/site.ts';
 
 interface Props {
   title: string;
@@ -37,7 +37,7 @@ const {
     />
     <slot name="head" />
   </head>
-  <body class={bodyClass}>
+  <body class={bodyClass} data-hello={contact.email}>
     <a class="skip-link" href="#inhalt">
       Zum Inhalt springen
     </a>

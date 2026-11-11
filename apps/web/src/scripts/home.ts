@@ -14,6 +14,7 @@ import {
 } from '@psyber/ui/motion';
 import type { SmoothScroll } from '@psyber/ui/motion/smooth';
 import { initChat } from './chat.ts';
+import { initEggs } from './egg.ts';
 import { initFirstStep } from './first-step.ts';
 import { initHeader } from './header.ts';
 import { initSimulator } from './simulator.ts';
@@ -22,6 +23,7 @@ import { initStairs } from './stairs.ts';
 let smooth: SmoothScroll | null = null;
 
 initHeader(() => smooth);
+initEggs(() => smooth);
 
 const simulator = document.querySelector<HTMLElement>('[data-sim]');
 if (simulator) initSimulator(simulator);

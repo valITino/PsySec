@@ -64,7 +64,9 @@ const config = [
     name: 'psyber/node',
     files: [
       '**/*.config.{js,mjs,ts}',
-      '**/scripts/**/*.{js,mjs,ts}',
+      // Nur Werkzeug-Skripte: der Browser-Code der Apps liegt unter apps/*/src/scripts.
+      'scripts/**/*.{js,mjs,ts}',
+      'packages/*/scripts/**/*.{js,mjs,ts}',
       'e2e/**/*.ts',
       'packages/config/**/*.mjs',
     ],

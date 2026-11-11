@@ -12,7 +12,7 @@ Neue Session? Zuerst `CLAUDE.md` lesen, dann diese Datei. Der Auftrag steht in `
 | 3     | forms.psyber.tech (Umfrage)                   | fertig |
 | 4     | surprise.psyber.tech («Erwischt!»)            | fertig |
 | 5     | Härtung, E2E, DEPLOY.md                       | fertig |
-| 6     | Extras (Auswertung, Easter Eggs)              | offen  |
+| 6     | Extras (Auswertung, Easter Eggs)              | fertig |
 
 ## Phase 0: Fundament (fertig)
 
@@ -80,7 +80,7 @@ Geprüft: lint, typecheck, 82 Unit-Tests, build, 72 E2E-Tests, JS-Budget (surpri
 - Build bricht bei Cloudflare ab, wenn `PUBLIC_TURNSTILE_SITE_KEY` fehlt (`requireTurnstile`).
 - 404-Seiten auch für forms und surprise (gemeinsamer Baustein `NotFound.astro`).
 - `e2e/hardening.spec.ts`: für alle zehn Seiten keine Requests an Dritte, keine Cookies, ein H1, lückenlose Überschriften, kein Inline-Style, Fokus-Ring.
-- `pnpm lighthouse` (mobil, lokal): alle Seiten 100 bei Performance, Barrierefreiheit und Best Practices (surprise Performance 99), LCP 0,9–1,2 s.
+- `pnpm lighthouse` (mobil, lokal): alle Seiten 100 bei Performance, Barrierefreiheit und Best Practices, LCP 0,9–1,2 s.
 - Performance der Startseite: Klick-Simulator ohne Container Query (Layout-Zeit rund ein Viertel), Netz-Textur als Maske statt Hintergrundbild (zählt nicht mehr als LCP-Element).
 - Kontrast in jedem Zustand: «Haltung» dimmt Wörter nur, solange der Satz im Bild ist; Drehbuch-Eingriffe ohne `opacity`.
 - OG-Bilder dürfen von anderen Websites eingebunden werden (`Cross-Origin-Resource-Policy: cross-origin` nur für `/og/*`).
@@ -90,9 +90,23 @@ Geprüft: lint, typecheck, 82 Unit-Tests, build, 72 E2E-Tests, JS-Budget (surpri
 
 Geprüft: lint, typecheck, 87 Unit-Tests, build, 148 E2E-Tests, JS-Budgets (web 58,2 / forms 33,6 / surprise 0,9 KB), `pnpm check:headers` (227 Prüfungen), `pnpm lighthouse`.
 
-## Nächster Schritt
+## Phase 6: Extras (fertig)
 
-Phase 6: `scripts/analyze.ts` (Bericht aus `reports/export-*.json` mit Van Westendorp und Go/No-Go-Ampel, dazu `--demo` und Tests), Easter Eggs auf psyber.tech (Konsolen-Gruss, Konami-Terminal), Feinschliff an den Animationen. Danach Abschluss: PROGRESS, TODO, PR-Beschreibung.
+- **Auswertung:** `pnpm export` (anonyme Antworten, Zähler, zwei Summen der Warteliste) und `pnpm analyze` (Bericht `reports/umfrage-YYYY-MM-DD.html`): Go/No-Go-Ampel, Antworten nach Quelle und Fokus, Verteilung von Frage 4, Interesse je Thema, Formate, Abo-Bausteine, Preisstufen mit Median-Spanne, Van-Westendorp-Kurven mit akzeptiertem Bereich und optimalem Preis, Frage 14, Freitexte, Klickrate auf den Test-Link je Selbsteinschätzung. `pnpm analyze --demo` zum Ausprobieren.
+- Rechenlogik in `scripts/analyze/compute.ts`, Bericht in `scripts/analyze/report.ts`, 29 Unit-Tests.
+- **Easter Eggs** auf psyber.tech: Gruss in der Konsole; Konami-Code öffnet ein Terminal mit `help`, `whoami`, `ping familie.local`, `sudo patch layer8`, `exit` (Esc schliesst, per Tastatur bedienbar, reduzierte Bewegung respektiert, eigener Chunk).
+- **Feinschliff an den Animationen:** «Haltung» und Drehbuch (siehe Phase 5), Klick-Simulator ohne Layout-Ruckeln.
+- Doku-Screenshots in `docs/screenshots/` (`node scripts/docs-shots.mjs`), PR-Beschreibung in `docs/PR_DESCRIPTION.md`.
+
+Geprüft: lint, typecheck, 116 Unit-Tests, build, 153 E2E-Tests, JS-Budgets, `pnpm check:headers`, `pnpm lighthouse`.
+
+## Abschluss
+
+Alle Phasen aus dem Auftrag sind umgesetzt. Deployt wurde nichts; es liegen keine Secrets im Repo.
+
+Was jetzt bei Ihnen liegt, steht in `docs/TODO.md`: Inhalte (Name, Rolle, Motivation, Foto, Kontaktdaten, Impressum, Preise), rechtliche Prüfung und das Einrichten von Cloudflare nach `docs/DEPLOY.md`.
+
+Zum Testen: Sobald dieser Stand auf `main` liegt und GitHub Pages auf «GitHub Actions» steht, veröffentlicht der Workflow `pages.yml` die Vorschau aller drei Websites.
 
 ## Arbeitsnotizen für Folge-Sessions
 
@@ -115,3 +129,6 @@ Phase 6: `scripts/analyze.ts` (Bericht aus `reports/export-*.json` mit Van Weste
 - Lighthouse: `pnpm lighthouse` lädt Lighthouse per `pnpm dlx`. Der lokale Server darf nicht im selben Prozess blockiert werden (kein `spawnSync`).
 - Container-Query-Einheiten (`cqw`) nur in kleinen Bausteinen verwenden: Im Hero haben sie das Layout der ganzen Seite vervielfacht.
 - `wrangler dev` für mehrere Sites nur nacheinander starten (gleichzeitig kollidieren interne Ports).
+- Auswertung ausprobieren: `pnpm analyze --demo` (erfundene Daten, Bericht als Demo markiert). Mit der lokalen Datenbank: `pnpm export --local && pnpm analyze`.
+- ESLint: Node-Globals und `no-console: off` gelten nur für `scripts/` und `packages/*/scripts/`, nicht für `apps/*/src/scripts/`.
+- Doku-Screenshots neu erzeugen: `pnpm build && node scripts/analyze.ts --demo && node scripts/docs-shots.mjs`.

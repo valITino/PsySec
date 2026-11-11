@@ -14,9 +14,10 @@ apps/api          api.psyber.tech        Cloudflare Worker (Hono, D1, Turnstile,
 packages/ui       Tokens, Schrift, Psi-Icon, Psi-Netz, Wortmarke, Buttons, Karten, Motion-Helfer
 packages/survey   Fragen als Daten, Zod-Schemas, Sprunglogik, Tipps (von Client und API genutzt)
 packages/config   tsconfig-/ESLint-Basis, CSP- und Header-Helfer
-scripts/          OG-Bilder/Favicons, Budget-Check, GitHub-Pages-Build, analyze.ts
+scripts/          OG-Bilder/Favicons, Budget-, Header- und Lighthouse-Prüfung, GitHub-Pages-Build,
+                  Export und Auswertung (analyze.ts, analyze/), Screenshot-Werkzeuge
 e2e/              Playwright-Smoke-Tests
-docs/             BRIEF, DESIGN, DEPLOY, DECISIONS, PROGRESS, TODO
+docs/             BRIEF, DESIGN, DEPLOY, DECISIONS, PROGRESS, TODO, PR_DESCRIPTION, screenshots/
 ```
 
 ## Befehle

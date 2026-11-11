@@ -270,7 +270,7 @@ Cloudflare kann von sich aus Skripte in HTML-Seiten einfügen. Schalten Sie für
 - Lokal: `pnpm build && pnpm lighthouse` (mobil; Ziel mindestens 95 in allen Kategorien, LCP unter 2 s, CLS unter 0.05).
 - Live: <https://pagespeed.web.dev> mit `https://psyber.tech`, `https://forms.psyber.tech` und `https://surprise.psyber.tech/gewinn`.
 
-Letzte lokale Messung (November 2026): web 100/100/100/100, Checkliste 100/100/100/100, forms 100/100/100/100, surprise 99/100/100/66. Die 66 bei SEO sind gewollt: Die Seite ist `noindex`, und Lighthouse wertet das als Fehler.
+Letzte lokale Messung (November 2026): web 100/100/100/100, Checkliste 100/100/100/100, forms 100/100/100/100, surprise 100/100/100/66; LCP 0,9 bis 1,2 s. Die 66 bei SEO sind gewollt: Die Seite ist `noindex`, und Lighthouse wertet das als Fehler.
 
 ### Funktion
 
@@ -382,7 +382,7 @@ So wie Cloudflare ausliefert (mit `_headers` und `_redirects`): `pnpm --filter @
 - **CSP an zwei Stellen.** Die Hashes für Skripte und Styles stehen im Meta-Tag jeder Seite (Astro erzeugt sie beim Build). Direktiven, die per Meta nicht wirken (`frame-ancestors`), stehen im Header aus `_headers`, zusammen mit `base-uri`, `object-src`, `form-action` und `connect-src`. Der Browser wendet beide Richtlinien an.
 - **Inline-Skripte nur von Astro.** Die Umfrage braucht das kleine Startskript für die Preact-Insel. Es ist per Hash erlaubt; `unsafe-inline` gibt es nirgends.
 - **Lighthouse lokal.** Der lokale Server liefert über HTTP und ohne das Netz von Cloudflare aus. Die Werte sind ein guter Anhaltspunkt, kein Ersatz für die Messung nach dem Go-Live.
-- **CLS auf `/checkliste`: 0.05 knapp erreicht** (gemessen 0.0499). Lädt die Schrift erst nach dem ersten Bild, bricht ein Absatz anders um. Die Ersatzschrift ist im Mittel auf 0,2 % genau auf Recursive abgestimmt; einzelne Zeichen (etwa ‹ ›) sind trotzdem unterschiedlich breit. Beim zweiten Seitenaufruf kommt die Schrift aus dem Cache und nichts verschiebt sich.
+- **CLS auf `/checkliste` schwankt zwischen 0 und 0.05.** Lädt die Schrift erst nach dem ersten Bild, bricht ein Absatz anders um (gemessen: einmal 0.0499, sonst 0). Die Ersatzschrift ist im Mittel auf 0,2 % genau auf Recursive abgestimmt; einzelne Zeichen (etwa ‹ ›) sind trotzdem unterschiedlich breit. Beim zweiten Seitenaufruf kommt die Schrift aus dem Cache und nichts verschiebt sich.
 - **Schriftdatei 305 KB.** Recursive mit allen fünf Achsen, wie im Auftrag verlangt. Weniger Zeichen sparen fast nichts (getestet: 4 %), weil die Achsen den Platz brauchen. Die Datei wird vorgeladen und ein Jahr gecacht.
 - **SEO-Wert von surprise.** `noindex` ist dort Pflicht; Lighthouse zieht dafür Punkte ab.
 - **D1 Time Travel.** Cloudflare hält für D1 30 Tage Wiederherstellungspunkte vor. Wer Zugriff auf das Konto hat, könnte damit theoretisch nachvollziehen, welche Zeilen gleichzeitig entstanden sind. Technisch lässt sich das nicht abschalten; schützen Sie das Konto mit Zwei-Faktor-Login und vergeben Sie keine weiteren Zugänge.
