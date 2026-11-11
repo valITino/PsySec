@@ -22,6 +22,11 @@
   --nebula: #b678f7; /* Glow und Lichtpunkte, nie für Text auf Space */
   --haze: #cfc8e2; /* Sekundärtext auf Space */
 
+  /* Kugel: Globus im Hero und Deko der Umfrage, von der Mitte zum Rand */
+  --orb-core: #1e1049;
+  --orb-mid: #150b34;
+  --orb-edge: #0b0719;
+
   /*
    * Aktion. Die Akzentfarbe hängt an genau diesen drei Werten: Wer sie tauscht (z. B. gegen das
    * Amber der Eule), ändert Buttons, Fokus-Ring, Lichtpunkte und Globus auf einen Schlag.
@@ -65,7 +70,7 @@
     'Geist Mono Variable', ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono',
     'Courier New', monospace;
 
-  --fs-micro: 0.75rem; /* 12 px: Labels in Mono */
+  --fs-micro: 0.75rem; /* 12 px: Tags, kleine Labels, Hex-Nummern */
   --fs-meta: 0.8125rem; /* 13 px */
   --fs-small: 0.9375rem; /* 15 px */
   --fs-body: clamp(1rem, 0.96rem + 0.18vw, 1.125rem);

@@ -28,7 +28,7 @@ export function humansTxt(site: string): string {
     `Site: ${site}`,
     'Sprache: Deutsch (Schweiz)',
     'Technik: Astro, Tailwind CSS, GSAP, Lenis, Cloudflare Workers',
-    'Schrift: Manrope und Geist Mono (SIL Open Font License)',
+    'Schriften: Manrope und Geist Mono (SIL Open Font License)',
     'Icons: Lucide (ISC License)',
     'Cookies: 0. Tracking-Pixel: 0. Deepfakes: 0. Nerds: genau einer.',
     '',

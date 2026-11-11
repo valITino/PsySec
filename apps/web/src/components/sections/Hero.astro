@@ -193,7 +193,12 @@ const cta = primaryCta(true);
     border-radius: 50%;
     background:
       radial-gradient(circle at 68% 20%, rgb(182 120 247 / 0.36) 0%, rgb(182 120 247 / 0) 48%),
-      radial-gradient(circle at 50% 50%, #1e1049 0%, #150b34 56%, #0b0719 100%);
+      radial-gradient(
+        circle at 50% 50%,
+        var(--orb-core) 0%,
+        var(--orb-mid) 56%,
+        var(--orb-edge) 100%
+      );
     box-shadow:
       0 0 0 1px rgb(182 120 247 / 0.55),
       0 0 90px 0 rgb(182 120 247 / 0.32),

@@ -1,5 +1,6 @@
 // Klickt die Umfrage einmal durch und speichert Screenshots der wichtigsten Screens.
-// Aufruf: PUBLIC_API_BASE=mock pnpm --filter @psyber/forms build && node scripts/states-forms.mjs
+// Aufruf: pnpm build && node scripts/states-forms.mjs
+// Die API wird abgefangen; es geht kein Request ins Netz.
 import { chromium } from '@playwright/test';
 import { mkdirSync } from 'node:fs';
 import { serve } from './serve.mjs';
@@ -21,6 +22,17 @@ try {
   for (const [label, options] of Object.entries(VIEWPORTS)) {
     const context = await browser.newContext(options);
     const page = await context.newPage();
+    await page.route('https://api.psyber.tech/**', (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'content-type',
+        },
+        body: '{"ok":true}',
+      }),
+    );
     const problems = [];
     page.on('console', (message) => {
       if (message.type() === 'error') problems.push(message.text());

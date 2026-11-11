@@ -348,6 +348,40 @@ test.describe('psyber.tech', () => {
     });
   }
 
+  test('Schwebende Knöpfe stehen in der Randspalte und verdecken keinen Inhalt', async ({
+    page,
+    isMobile,
+  }) => {
+    test.skip(isMobile, 'Am Handy stehen die Knöpfe als Zeile am Seitenende');
+    await page.goto(`${WEB}/`);
+    await ready(page);
+    const cookie = page.getByRole('button', { name: /Cookie-Banner/ });
+    const motion = page.locator('[data-motion-toggle]');
+    await expect(cookie).toBeVisible();
+    await expect(motion).toBeVisible();
+    // Ganz oben trägt der Schalter seine Beschriftung.
+    await expect(motion.locator('[data-motion-label]')).toBeInViewport();
+    expect((await motion.boundingBox())!.width).toBeGreaterThan(120);
+
+    // Nach dem Scrollen: beide Knöpfe liegen neben der Inhaltsspalte, nicht darüber.
+    await page.evaluate(() => window.scrollTo({ top: 4200, behavior: 'instant' }));
+    await expect(page.locator('[data-header].is-scrolled')).toBeAttached();
+    await page.mouse.move(700, 300);
+    const column = await page.evaluate(() => {
+      const box = document.querySelector('main .wrap')!.getBoundingClientRect();
+      return { left: box.left, right: box.right };
+    });
+    await expect
+      .poll(async () => (await motion.boundingBox())!.width, { timeout: 3000 })
+      .toBeLessThan(48);
+    const left = (await cookie.boundingBox())!;
+    const right = (await motion.boundingBox())!;
+    expect(left.x + left.width).toBeLessThanOrEqual(column.left + 0.5);
+    expect(right.x).toBeGreaterThanOrEqual(column.right - 0.5);
+    // Der Name bleibt für Screenreader erhalten, auch ohne sichtbare Beschriftung.
+    await expect(motion).toHaveAccessibleName('Bewegung pausieren');
+  });
+
   test('Klick-Simulator lässt sich per Tastatur bedienen', async ({ page }) => {
     await page.goto(`${WEB}/`);
     await ready(page);

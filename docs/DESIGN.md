@@ -24,7 +24,7 @@ Quelle der Wahrheit sind die Tokens in `packages/ui/src/styles/tokens.css`. Die 
 | `--amber`    | #f9ad26 | Warnsignale (Hebel, Marker); die Augenfarbe der Eule | 10,5:1 auf void    |
 | `--white`    | #ffffff | nur Text auf Kritisch-Rot                            | 4,8:1 auf crit     |
 
-Statusfarben nur zusammen mit Icon und Text: gut #0ca30c, Warnung #fab219, kritisch #d03b3b.
+Statusfarben nur zusammen mit Icon und Text: gut #0ca30c, Warnung #fab219, kritisch #d03b3b. Die Kugeln (Globus im Hero, Deko der Umfrage) nutzen drei eigene Abstufungen von der Mitte zum Rand: `--orb-core`, `--orb-mid`, `--orb-edge`.
 
 Die Akzentfarbe hängt an drei Werten (`--acid-rgb`, `--acid`, `--acid-hi`). Wer sie tauscht, ändert Buttons, Fokus-Ring, Lichtpunkte und den Globus auf einen Schlag. Entschieden ist Lime (Entscheidung 122): Amber bleibt den Warnsignalen vorbehalten.
 

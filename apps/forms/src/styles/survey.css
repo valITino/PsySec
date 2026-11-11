@@ -13,18 +13,19 @@
 
 /* Deko: die Eule in einer leuchtenden Kugel, rechts angeschnitten */
 .sv-deco {
+  --sv-deco-size: 110vw;
   position: fixed;
   top: -22vw;
   right: -38vw;
   z-index: 0;
   display: grid;
   place-items: center;
-  width: 110vw;
+  width: var(--sv-deco-size);
   aspect-ratio: 1;
   border-radius: 50%;
   background:
     radial-gradient(circle at 34% 24%, rgb(182 120 247 / 0.3) 0%, rgb(182 120 247 / 0) 46%),
-    radial-gradient(circle at 50% 50%, #1e1049 0%, #150b34 56%, #0b0719 100%);
+    radial-gradient(circle at 50% 50%, var(--orb-core) 0%, var(--orb-mid) 56%, var(--orb-edge) 100%);
   box-shadow:
     0 0 0 1px rgb(182 120 247 / 0.45),
     0 0 90px 0 rgb(182 120 247 / 0.26),
@@ -36,24 +37,50 @@
 .sv-deco .owl {
   width: 40%;
   opacity: 0.55;
+  transition: opacity var(--dur-3) var(--ease);
 }
 
-/* Während der Fragen und danach tritt die Kugel zurück */
+/*
+ * Während der Fragen und danach tritt die Kugel zurück. Die Eule macht dem Inhalt Platz: Auf
+ * schmalen Bildschirmen verschwindet sie, auf breiten rückt sie neben die Fragenspalte.
+ */
 .sv-deco:has(~ * [data-screen='question']),
 .sv-deco:has(~ * [data-screen='done']) {
   opacity: 0.22;
 }
 
+.sv-deco:has(~ * [data-screen='question']) .owl,
+.sv-deco:has(~ * [data-screen='done']) .owl {
+  opacity: 0;
+}
+
 @media (min-width: 64rem) {
   .sv-deco {
+    --sv-deco-size: min(52vw, 46rem);
     top: 50%;
     right: -9vw;
-    width: min(52vw, 46rem);
     opacity: 1;
     transform: translateY(-50%);
+    transition:
+      right var(--dur-4) var(--ease),
+      opacity var(--dur-3) var(--ease);
   }
 
   .sv-deco .owl {
+    opacity: 1;
+  }
+
+  /*
+   * Die Fragenspalte ist 48rem breit und zentriert. Die Kugel steht so, dass die Eule (40 % der
+   * Kugel, in ihrer Mitte) 1.5rem rechts neben der Spalte beginnt.
+   */
+  .sv-deco:has(~ * [data-screen='question']),
+  .sv-deco:has(~ * [data-screen='done']) {
+    right: calc(50vw - 25.5rem - 0.7 * var(--sv-deco-size));
+  }
+
+  .sv-deco:has(~ * [data-screen='question']) .owl,
+  .sv-deco:has(~ * [data-screen='done']) .owl {
     opacity: 1;
   }
 }

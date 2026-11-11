@@ -20,6 +20,8 @@ const KONAMI = [
   'a',
 ] as const;
 
+// Stile für die Konsole: Dort gibt es keine CSS-Variablen, darum stehen die Farben des Logo-Kits
+// (Nacht, Lavendel) hier ausgeschrieben.
 const BADGE =
   'font: 800 20px ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; color: #ad9bf6; background: #140a29; padding: 8px 14px; border-radius: 8px;';
 const TEXT = 'font: 14px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;';
