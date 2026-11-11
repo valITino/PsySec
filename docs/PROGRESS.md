@@ -100,7 +100,9 @@ Geprüft: lint, typecheck, 87 Unit-Tests, build, 148 E2E-Tests, JS-Budgets (web 
 
 - **Nachtrag:** Auf dem Handy fehlte das Chat-Mockup in 0x06 (Klassen-Kollision `.check`, siehe Entscheidung 98). Behoben und mit drei Tests abgesichert.
 
-Geprüft: lint, typecheck, 118 Unit-Tests, build, 195 E2E-Tests, JS-Budgets, `pnpm check:headers`, `pnpm lighthouse`.
+- **Nachtrag:** Bei reduzierter Bewegung schnitt der Ticker Sätze ab (Entscheidung 99). Behoben, Test ergänzt.
+
+Geprüft: lint, typecheck, 118 Unit-Tests, build, 197 E2E-Tests, JS-Budgets, `pnpm check:headers`, `pnpm lighthouse`; Sichtprüfung der Startseite in 390×844 und 1440×900, mit und ohne reduzierte Bewegung.
 
 ## Abschluss
 

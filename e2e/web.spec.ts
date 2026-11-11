@@ -182,6 +182,30 @@ test.describe('psyber.tech', () => {
     expect(calls).toHaveLength(1);
   });
 
+  test('Ticker bei reduzierter Bewegung: steht still, alle Sätze sind ganz lesbar', async ({
+    browser,
+  }, testInfo) => {
+    const context = await browser.newContext({ ...testInfo.project.use, reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    await page.goto(`${WEB}/`);
+    const ticker = page.locator('[data-ticker]');
+    await ticker.scrollIntoViewIfNeeded();
+    const viewport = page.viewportSize()?.width ?? 0;
+    const pills = ticker.locator('.ticker-list:not(.ticker-copy) .pill');
+    expect(await pills.count()).toBeGreaterThanOrEqual(8);
+    for (const pill of await pills.all()) {
+      await expect(pill).toBeVisible();
+      const box = await pill.boundingBox();
+      expect(box?.x ?? -1, await pill.innerText()).toBeGreaterThanOrEqual(0);
+      expect((box?.x ?? 0) + (box?.width ?? 0), await pill.innerText()).toBeLessThanOrEqual(
+        viewport,
+      );
+    }
+    // Die Kopie für die Endlosschleife ist dann überflüssig.
+    await expect(ticker.locator('.ticker-copy').first()).toBeHidden();
+    await context.close();
+  });
+
   test('Chat-Mockup in 0x06 ist sichtbar und liegt im Bildschirm', async ({
     browser,
   }, testInfo) => {
