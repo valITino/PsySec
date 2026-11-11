@@ -113,7 +113,7 @@ interface Card {
   /** Schriftgrösse der Headline */
   size: number;
   footer: string;
-  mood?: 'wach' | 'skeptisch' | 'erwischt';
+  mood?: 'blick' | 'skeptisch' | 'erwischt';
 }
 
 function render(root: string, fonts: Fonts, card: Card): Buffer {
@@ -148,7 +148,7 @@ function render(root: string, fonts: Fonts, card: Card): Buffer {
     fill: C.haze,
     tracking: 0.01,
   });
-  const owl = card.mood && card.mood !== 'wach' ? `owl-${card.mood}.svg` : 'owl.svg';
+  const owl = card.mood && card.mood !== 'blick' ? `owl-${card.mood}.svg` : 'owl.svg';
 
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${WIDTH}" height="${HEIGHT}" viewBox="0 0 ${WIDTH} ${HEIGHT}">
   <defs>

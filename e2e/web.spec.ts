@@ -303,6 +303,51 @@ test.describe('psyber.tech', () => {
     await context.close();
   });
 
+  for (const reducedMotion of ['no-preference', 'reduce'] as const) {
+    const mode = reducedMotion === 'reduce' ? 'reduzierte Bewegung' : 'mit Bewegung';
+
+    test(`«Über»: Die Eule schaut dem Zeiger nach (${mode})`, async ({
+      browser,
+      isMobile,
+    }, testInfo) => {
+      test.skip(isMobile, 'Einen Zeiger gibt es nur am Desktop');
+      const context = await browser.newContext({ ...testInfo.project.use, reducedMotion });
+      const page = await context.newPage();
+      const errors = collectErrors(page);
+      await page.goto(`${WEB}/#ueber`);
+      await expect(page.locator('html[data-scroll="ready"]')).toBeAttached({ timeout: 15_000 });
+      const owl = page.locator('#ueber [data-owl]');
+      await expect(owl).toBeVisible();
+      const box = (await owl.boundingBox())!;
+      /** Verschiebung der Pupillen nach rechts in Einheiten der Zeichnung */
+      const shift = () =>
+        page.evaluate(() => {
+          const pupils = document.querySelector<SVGGElement>('#ueber [data-owl-pupils]')!;
+          return Number(/translate\(([-\d.]+)px/.exec(pupils.style.transform)?.[1] ?? 0);
+        });
+      const lookFrom = async (x: number) => {
+        // Das Skript lädt erst, wenn die Eule in Sicht ist: bewegen, bis es reagiert.
+        for (let step = 0; step < 8; step += 1) {
+          await page.mouse.move(x + step, box.y + box.height / 2, { steps: 2 });
+          await page.waitForTimeout(120);
+        }
+        return shift();
+      };
+
+      const right = await lookFrom(box.x + box.width + 500);
+      // links bleibt der Zeiger im Bild: am Rand des Fensters
+      const left = await lookFrom(4);
+      if (reducedMotion === 'reduce') {
+        expect({ right, left }).toEqual({ right: 0, left: 0 });
+      } else {
+        expect(right).toBeGreaterThan(6);
+        expect(left).toBeLessThan(-6);
+      }
+      expect(errors).toEqual([]);
+      await context.close();
+    });
+  }
+
   test('Klick-Simulator lässt sich per Tastatur bedienen', async ({ page }) => {
     await page.goto(`${WEB}/`);
     await ready(page);

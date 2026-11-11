@@ -8,7 +8,9 @@ import Icon from '@psyber/ui/components/Icon.astro';
 import Kicker from '@psyber/ui/components/Kicker.astro';
 import Logo from '@psyber/ui/components/Logo.astro';
 import Owl from '@psyber/ui/components/Owl.astro';
+import OwlLive from '@psyber/ui/components/OwlLive.astro';
 import Tag from '@psyber/ui/components/Tag.astro';
+import logoClaimUrl from '@psyber/ui/brand/logo-claim-dark.svg?url';
 import stickerBlick from '@psyber/ui/brand/sticker-blick.svg?url';
 import stickerGeklickt from '@psyber/ui/brand/sticker-geklickt.svg?url';
 import stickerVersuch from '@psyber/ui/brand/sticker-netter-versuch.svg?url';
@@ -160,11 +162,26 @@ const icons = Object.keys(iconData) as IconName[];
       </Card>
       <Card class="sg-brand-cell">
         <p class="label-up">Wortmarke allein</p>
-        <img class="sg-wordmark" src={wordmarkUrl} width="933" height="202" alt="PSYber" />
+        <img class="sg-wordmark" src={wordmarkUrl} width="993" height="215" alt="PSYber" />
       </Card>
       <Card class="sg-brand-cell">
         <p class="label-up">Slogan</p>
         <p class="display h3">Betrüger hassen diesen Blick.</p>
+      </Card>
+      <Card class="sg-brand-cell">
+        <p class="label-up">Logo mit Slogan (Druck, Social Media)</p>
+        <img
+          class="sg-claim"
+          src={logoClaimUrl}
+          width="1563"
+          height="542"
+          alt="PSYber. Betrüger hassen diesen Blick."
+          loading="lazy"
+        />
+      </Card>
+      <Card class="sg-brand-cell">
+        <p class="label-up">«Der Blick»: Die Pupillen folgen dem Zeiger</p>
+        <OwlLive class="sg-owl" />
       </Card>
       <div class="sg-brand-cell sg-space on-space">
         <p class="label-up">Eule auf Space</p>
@@ -175,7 +192,7 @@ const icons = Object.keys(iconData) as IconName[];
       </div>
     </div>
 
-    <h3 class="h4 mt-12">Mimik: wach, skeptisch, erwischt, genervt</h3>
+    <h3 class="h4 mt-12">Mimik: Blick (Standard), skeptisch, erwischt, genervt</h3>
     <div class="sg-moods mt-4">
       <Owl />
       <Owl mood="skeptisch" />
@@ -442,6 +459,11 @@ const icons = Object.keys(iconData) as IconName[];
 
   .sg-wordmark {
     width: min(100%, 18rem);
+    height: auto;
+  }
+
+  .sg-claim {
+    width: min(100%, 26rem);
     height: auto;
   }
 

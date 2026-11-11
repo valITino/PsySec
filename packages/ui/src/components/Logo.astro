@@ -18,7 +18,7 @@ interface Props {
 const { href, variant = 'full', class: className, label = 'PSYber, zur Startseite' } = Astro.props;
 const Tag = href ? 'a' : 'span';
 // Seitenverhältnisse aus den viewBox-Angaben der Dateien
-const size = variant === 'owl' ? { width: 41, height: 44 } : { width: 139, height: 44 };
+const size = variant === 'owl' ? { width: 36, height: 44 } : { width: 127, height: 44 };
 ---
 
 <Tag class:list={['logo', className]} href={href} aria-label={href ? label : undefined}>

@@ -1,9 +1,10 @@
 ---
 /**
  * 0x09 Über: Foto-Platzhalter als Punktraster-Karte, daneben Überschrift und Terminal-Karte.
+ * Im Platzhalter hält die Eule die Stellung und schaut dem Zeiger nach (home.ts, owl-eyes.ts).
  * Keine erfundenen Angaben.
  */
-import Owl from '@psyber/ui/components/Owl.astro';
+import OwlLive from '@psyber/ui/components/OwlLive.astro';
 import stickerUrl from '@psyber/ui/brand/sticker-blick.svg?url';
 import { about } from '../../config/site.ts';
 import SectionHead from '../SectionHead.astro';
@@ -23,7 +24,7 @@ const lines = [
         <span class="portrait-corner portrait-corner-tr" aria-hidden="true"></span>
         <span class="portrait-corner portrait-corner-bl" aria-hidden="true"></span>
         <span class="portrait-corner portrait-corner-br" aria-hidden="true"></span>
-        <Owl mood="skeptisch" class="portrait-owl" />
+        <OwlLive class="portrait-owl" />
         <figcaption class="portrait-caption">
           <span class="label-up">{about.foto}</span>
           <span>Solange hält die Eule die Stellung.</span>

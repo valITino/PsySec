@@ -103,21 +103,22 @@ Geprüft: lint, typecheck, 87 Unit-Tests, build, 148 E2E-Tests, JS-Budgets (web 
 
 - **Nachtrag:** Bei reduzierter Bewegung schnitt der Ticker Sätze ab (Entscheidung 99). Behoben, Test ergänzt.
 
-Geprüft nach dem Redesign: lint, typecheck, 114 Unit-Tests, build, 219 E2E-Tests (15 weitere übersprungen, weil sie nur mit Tastatur bzw. nur mobil sinnvoll sind), JS-Budgets (web 62,7 / forms 33,8 / surprise 0,9 KB), `pnpm check:headers` (227 Prüfungen), `pnpm lighthouse` (alle Seiten 100 bei Performance, Barrierefreiheit und Best Practices; LCP 0,9 bis 1,4 s, CLS 0); Sichtprüfung aller drei Websites in 390×844 und 1440×900, mit und ohne reduzierte Bewegung.
+Geprüft nach dem Redesign: lint, typecheck, 114 Unit-Tests, build, 221 E2E-Tests (17 weitere übersprungen, weil sie nur mit Tastatur, nur mit Zeiger bzw. nur mobil sinnvoll sind), JS-Budgets (web 63,4 / forms 33,8 / surprise 0,9 KB), `pnpm check:headers` (227 Prüfungen), `pnpm lighthouse` (alle Seiten 100 bei Performance, Barrierefreiheit und Best Practices; LCP 0,9 bis 1,5 s, CLS 0); Sichtprüfung aller drei Websites in 390×844 und 1440×900, mit und ohne reduzierte Bewegung.
 
 ## Redesign (fertig)
 
 Auf Wunsch folgt das Design jetzt eng der Referenz eezyinn.de (Stil, Formatierung, Schrift), bleibt aber selbst gebaut. Dazu kamen das Logo-Kit mit der Eule, der Slogan «Betrüger hassen diesen Blick.» und der Leitsatz ohne «in Zürich». Details und Gründe: `docs/DECISIONS.md` ab Nummer 100, Regeln: `docs/DESIGN.md`.
 
 - **Designsystem:** neue Tokens (Schwarz, Space-Violett, Acid, Amber für Warnsignale), Manrope und Geist Mono statt Recursive, Versal-Überschriften, Pillen-Buttons, Bogen (`.sheet`) und Bühnen (`.stage`), Labels als Code-Kommentar.
-- **Logo-Kit:** `packages/ui/src/brand/` mit Logo, Eule (vier Mimiken), Wortmarke, Favicon, App-Icon und drei Stickern; Komponenten `Logo.astro` und `Owl.astro`; Favicons und OG-Bilder kommen aus dem Kit (`pnpm assets`). Psi-Icon und Psi-Netz sind entfernt.
+- **Logo-Kit (Runde 6 «Der Blick»):** `packages/ui/src/brand/` mit Logo (ohne und mit Slogan), Eule in vier Mimiken, Wortmarke, Favicon, App-Icon, drei Stickern und den Ebenen für die Animation; Komponenten `Logo.astro`, `Owl.astro` und `OwlLive.astro` (die Eule in «Über» schaut dem Zeiger nach); Favicons und OG-Bilder kommen aus dem Kit (`pnpm assets`). Psi-Icon und Psi-Netz sind entfernt.
 - **psyber.tech:** Header als Leiste und Kapsel, Vollbild-Menü auf allen Breiten, Hero mit Globus «Layer 8», Klick-Simulator als Bühne, alle Sektionen im Wechsel Schwarz/Violett, Footer mit grosser Wortmarke, schwebende Bedienelemente (Fortschritt, Cookie-Knopf, Bewegung pausieren).
 - **forms und surprise:** gleicher Look; auf surprise die erwischte Eule mit Sticker, auf forms die Eule in der Kugel.
 - **Performance:** beide Schriften vorgeladen, Globus und Beiwerk nach dem ersten Bild, Sektionen weiter unten erst bei Bedarf berechnet. Lighthouse mobil wieder 100.
 - **Tests:** an den neuen Aufbau angepasst und ergänzt (Menü aus der Kapsel, Sprungmarken, Nachholen der Sektionen).
 - **Direktlinks und Neuladen (Entscheidungen 116 bis 119):** `psyber.tech/#kontakt` landet jetzt in beiden Bewegungsmodi genau auf dem Ziel; nach dem Neuladen steht derselbe Abschnitt im Bild (`position.ts`, gemerkt im Verlaufseintrag, ohne Cookie). Bei reduzierter Bewegung gibt es gar keine Übergänge mehr, und frisch ausgelegte Sektionen blenden nichts über. Sechs neue E2E-Tests sichern das ab.
+- **Logo-Kit Runde 6 (Entscheidungen 120 und 121):** neu gezeichnete Eule und Logo überall ersetzt, Favicons, OG-Bilder und Wortmarke neu erzeugt; in «Über» schaut die Eule dem Zeiger nach.
 
-Offen für Ihre Rückmeldung (steht auch in `docs/TODO.md`): Akzentfarbe Lime oder Amber, weitere Stellen mit «Zürich», neue Logo-Dateien mit dem neuen Slogan.
+Offen für Ihre Rückmeldung (steht auch in `docs/TODO.md`): Akzentfarbe Lime oder Amber, weitere Stellen mit «Zürich».
 
 ## Abschluss
 

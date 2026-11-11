@@ -58,16 +58,17 @@ Manrope (Variable Font, 200–800) für Überschriften und Text, wie bei der Ref
 
 ## 3. Logo und Bildwelt
 
-Aus dem Logo-Kit (Runde 5), abgelegt in `packages/ui/src/brand/`:
+Aus dem Logo-Kit (Runde 6 «Der Blick»), abgelegt in `packages/ui/src/brand/`:
 
 - **Logo** (`logo-dark.svg`, für Druck `logo-light.svg`): die Eule mit Lupe und die Wortmarke, verbunden durch die Leiterbahn. Komponente `Logo.astro`. In der Kapsel des Headers bleibt nur die Eule sichtbar.
-- **Eule** (`Owl.astro`) in vier Mimiken: wach, skeptisch (Menü, «Über»), erwischt (surprise), genervt (404).
+- **Eule** (`Owl.astro`) in vier Mimiken: Blick (Standard), skeptisch (Menü), erwischt (surprise), genervt (404).
+- **«Der Blick»** (`OwlLive.astro`): die Eule aus den Ebenen des Kits. Ihre Pupillen folgen dem Zeiger, auf Geräten ohne Zeiger dem Scrollen. Sie hält im Foto-Platzhalter von «Über» die Stellung.
 - **Wortmarke** allein (`wordmark.svg`, aus dem Logo abgeleitet): gross im Footer, dahinter ein blinkender Cursor.
 - **Sticker**: «Betrüger hassen diesen Blick.» («Über»), «Netter Versuch.» (klebt sich auf den Klick-Simulator, sobald der DNS-Filter blockiert), «Du hast geklickt.» (surprise).
 - **Favicon und App-Icons** erzeugt `pnpm assets` aus dem Kit, ebenso die OG-Bilder (Eule, Wortmarke, Leiterbahnen).
 - Slogan: «Betrüger hassen diesen Blick.» Zweiter Claim: «Wir patchen Layer 8.»
 
-Nicht verwendet werden die Dateien des Kits mit dem früheren Claim (Logo mit Claim, Patch-Sticker, Key Visual).
+Das Logo mit Slogan (`logo-claim-*.svg`) liegt für Druck und Social Media bereit; auf den Websites steht der Slogan als Text, weil er im Logo bei kleinen Grössen nicht lesbar ist. Nicht verwendet werden gestapeltes Logo, einfarbige Varianten, Patch-Sticker und Key Visual.
 
 Weitere Bildelemente: der Globus «Layer 8» im Hero (Canvas, Dekoration), Punktraster (`.dot-grid`), Leuchtpunkte (`.dot`). Keine Stockfotos, keine KI-Bilder von Menschen. Icons: Lucide, 1.5 px Strich. Emojis nur in Beispiel-Chats und im Test-Link der Umfrage.
 
@@ -104,6 +105,7 @@ Bewegte Momente auf psyber.tech:
 8. «Haltung»: Wörter werden beim Scrollen hell.
 9. Paket-Treppe wächst einmal; Chat-Nachrichten erscheinen nacheinander.
 10. Footer: Cursor hinter der Wortmarke blinkt.
+11. «Über»: Die Eule schaut dem Zeiger nach, ihre LED blinkt.
 
 Kein Custom Cursor, kein Parallax auf Text.
 

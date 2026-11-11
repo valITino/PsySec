@@ -29,7 +29,7 @@ export default function SurveyApp({ config }: { config: SurveyConfig }) {
       <header class="sv-header">
         <div class="sv-header-inner">
           <a class="logo" href={config.links.home} aria-label="PSYber, zur Website">
-            <img class="logo-img" src={logoUrl} width="139" height="44" alt="" decoding="async" />
+            <img class="logo-img" src={logoUrl} width="127" height="44" alt="" decoding="async" />
           </a>
           {inQuestion && (
             <p class="sv-progress-text mono" aria-hidden="true">

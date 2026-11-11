@@ -17,7 +17,7 @@ Komplette Umsetzung des Auftrags (`docs/BRIEF.md`) in sieben Phasen, danach das 
 
 - **Look:** fast schwarze Flächen, violette Bogen, riesige Überschriften in Versalien, Pillen, Bühnen mit grossen Radien. Acid (Lime) ist die Aktionsfarbe, Amber steht für Warnsignale und ist die Augenfarbe der Eule.
 - **Schrift:** Manrope wie bei der Referenz, Geist Mono nur für Code (Hex-Nummern, «//», Terminal, Adressen). Zusammen 48 KB statt vorher 305 KB.
-- **Marke:** Logo, Eule in vier Mimiken, Wortmarke, Favicons, OG-Bilder und Sticker aus dem Logo-Kit. Leitsatz «Cyber-Prävention für Familien» (ohne «in Zürich»).
+- **Marke:** Logo, Eule in vier Mimiken, Wortmarke, Favicons, OG-Bilder und Sticker aus dem Logo-Kit (Runde 6 «Der Blick»). In «Über» schaut die Eule dem Zeiger nach. Leitsatz «Cyber-Prävention für Familien» (ohne «in Zürich»).
 - **Eigenes:** Von der Referenz stammen keine Texte, Bilder, Logos und kein Code. Regeln in [`DESIGN.md`](DESIGN.md), Gründe in [`DECISIONS.md`](DECISIONS.md) ab Nummer 100.
 
 ## Screenshots
@@ -62,14 +62,14 @@ Die beiden Bilder der Auswertung zeigen erfundene Beispieldaten (`pnpm analyze -
 
 ## Geprüft
 
-| Prüfung                          | Ergebnis                                                                                                                                                                                                                                        |
-| -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm lint`, `pnpm typecheck`    | sauber                                                                                                                                                                                                                                          |
-| `pnpm test`                      | 114 Unit-Tests (Umfrage-Logik, API in der Workers-Laufzeit, Header-Helfer, Auswertung, Wächter gegen Klassen-Kollisionen)                                                                                                                       |
-| `pnpm e2e`                       | 219 Playwright-Tests in 390×844 und 1440×900, inklusive axe (WCAG 2.2 AA) auf allen Hauptansichten, Überlauf-Prüfung in beiden Bewegungsmodi, Direktlinks und Neuladen; 15 übersprungen, weil sie nur mit Tastatur bzw. nur mobil sinnvoll sind |
-| `pnpm budgets`                   | JS gzip: web 62,7 von 120 KB, forms 33,8 von 60 KB, surprise 0,9 von 25 KB                                                                                                                                                                      |
-| `pnpm check:headers`             | 227 Prüfungen von Security-Headern, Cache-Regeln, Weiterleitungen und 404 in der Workers-Laufzeit                                                                                                                                               |
-| `pnpm lighthouse` (mobil, lokal) | 100 bei Performance, Barrierefreiheit und Best Practices auf allen drei Sites; SEO 100 (surprise 69, weil `noindex` dort Pflicht ist); LCP 0,9 bis 1,4 s, CLS 0                                                                                 |
+| Prüfung                          | Ergebnis                                                                                                                                                                                                                                                        |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm lint`, `pnpm typecheck`    | sauber                                                                                                                                                                                                                                                          |
+| `pnpm test`                      | 114 Unit-Tests (Umfrage-Logik, API in der Workers-Laufzeit, Header-Helfer, Auswertung, Wächter gegen Klassen-Kollisionen)                                                                                                                                       |
+| `pnpm e2e`                       | 221 Playwright-Tests in 390×844 und 1440×900, inklusive axe (WCAG 2.2 AA) auf allen Hauptansichten, Überlauf-Prüfung in beiden Bewegungsmodi, Direktlinks und Neuladen; 17 übersprungen, weil sie nur mit Tastatur, nur mit Zeiger bzw. nur mobil sinnvoll sind |
+| `pnpm budgets`                   | JS gzip: web 63,4 von 120 KB, forms 33,8 von 60 KB, surprise 0,9 von 25 KB                                                                                                                                                                                      |
+| `pnpm check:headers`             | 227 Prüfungen von Security-Headern, Cache-Regeln, Weiterleitungen und 404 in der Workers-Laufzeit                                                                                                                                                               |
+| `pnpm lighthouse` (mobil, lokal) | 100 bei Performance, Barrierefreiheit und Best Practices auf allen drei Sites; SEO 100 (surprise 69, weil `noindex` dort Pflicht ist); LCP 0,9 bis 1,5 s, CLS 0                                                                                                 |
 
 Nicht geprüft, weil es dafür die echte Domain braucht: Mozilla Observatory, Lighthouse gegen die Live-Adressen, echter Versand der Benachrichtigung, Turnstile mit echtem Schlüssel. Die Schritte dafür stehen in `docs/DEPLOY.md` (Schritt 8). Getestet ist nur in Chromium.
 
@@ -89,12 +89,12 @@ Nicht geprüft, weil es dafür die echte Domain braucht: Mozilla Observatory, Li
 Alles, was von Ihnen kommen muss, steht in [`TODO.md`](TODO.md). Kurz:
 
 - Inhalte: Name, Rolle, Motivation, Foto, E-Mail, Telefon, Angaben fürs Impressum, finale Preise. Auf den Seiten stehen dafür sichtbare Platzhalter `[TODO: …]`.
-- Zum Redesign: Akzentfarbe Lime oder Amber (Tausch an drei Werten), weitere Stellen mit «Zürich» (FAQ, Umfrage, Kontakt), Logo-Dateien mit dem neuen Slogan.
+- Zum Redesign: Akzentfarbe Lime oder Amber (Tausch an drei Werten), weitere Stellen mit «Zürich» (FAQ, Umfrage, Kontakt), die Eule in «Über», die dem Zeiger nachschaut.
 - Rechtliches: Impressum und Datenschutzerklärung prüfen lassen (als Entwurf markiert), Rabattcode «LAYER8» bestätigen.
 - Betrieb: Cloudflare nach [`DEPLOY.md`](DEPLOY.md) einrichten (Zone, D1 in der EU, Turnstile, Email Routing, vier Workers).
 - Prüfen: Die fiktiven Beispiel-Domains gehören niemandem; die Quellenlinks stimmen noch.
 
-Annahmen und ihre Gründe stehen in [`DECISIONS.md`](DECISIONS.md) (119 Einträge), der Stand je Phase in [`PROGRESS.md`](PROGRESS.md).
+Annahmen und ihre Gründe stehen in [`DECISIONS.md`](DECISIONS.md) (121 Einträge), der Stand je Phase in [`PROGRESS.md`](PROGRESS.md).
 
 ## Vorschau
 

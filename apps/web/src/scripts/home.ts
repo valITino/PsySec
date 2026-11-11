@@ -58,6 +58,18 @@ if (contact) {
   );
 }
 
+// --- Die Eule in «Über» schaut dem Zeiger nach: erst laden, wenn sie in Sicht kommt ---
+const owl = document.querySelector<SVGSVGElement>('[data-owl]');
+if (owl && motionAllowed()) {
+  onceInView(
+    owl,
+    () => {
+      void import('@psyber/ui/motion/owl-eyes').then((module) => module.initOwlEyes(owl));
+    },
+    { rootMargin: '400px 0px' },
+  );
+}
+
 // ---------------------------------------------------------------- Gleich danach: Beiwerk
 
 // Jedes Stück in einem eigenen ruhigen Moment, damit keines den Browser lange aufhält.

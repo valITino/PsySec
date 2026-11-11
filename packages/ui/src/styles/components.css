@@ -272,6 +272,27 @@
     height: auto;
   }
 
+  /* «Der Blick»: Eule aus Ebenen, die Pupillen folgen dem Zeiger (owl-eyes.ts) */
+  .owl-pupils {
+    transition: transform var(--dur-1) var(--ease);
+  }
+
+  .owl-led {
+    animation: owl-led 3.6s var(--ease) infinite;
+  }
+
+  @keyframes owl-led {
+    0%,
+    62%,
+    100% {
+      opacity: 1;
+    }
+
+    74% {
+      opacity: 0.2;
+    }
+  }
+
   /* Sticker aus dem Kit: wie auf einen Laptop geklebt, leicht gedreht */
   .sticker {
     display: block;
