@@ -51,14 +51,14 @@ Die beiden Bilder der Auswertung zeigen erfundene Beispieldaten (`pnpm analyze -
 
 ## Geprüft
 
-| Prüfung                          | Ergebnis                                                                                                                                                                    |
-| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `pnpm lint`, `pnpm typecheck`    | sauber                                                                                                                                                                      |
-| `pnpm test`                      | 116 Unit-Tests (Umfrage-Logik, API in der Workers-Laufzeit, Header-Helfer, Auswertung)                                                                                      |
-| `pnpm e2e`                       | 153 Playwright-Tests in 390×844 und 1440×900, inklusive axe (WCAG 2.2 AA) auf allen Hauptansichten; 15 übersprungen, weil sie nur mit Tastatur bzw. nur mobil sinnvoll sind |
-| `pnpm budgets`                   | JS gzip: web 58,9 von 120 KB, forms 33,6 von 60 KB, surprise 0,9 von 25 KB                                                                                                  |
-| `pnpm check:headers`             | 227 Prüfungen von Security-Headern, Cache-Regeln, Weiterleitungen und 404 in der Workers-Laufzeit                                                                           |
-| `pnpm lighthouse` (mobil, lokal) | 100 bei Performance, Barrierefreiheit und Best Practices auf allen drei Sites; SEO 100 (surprise 66, weil `noindex` dort Pflicht ist); LCP 0,9 bis 1,2 s                    |
+| Prüfung                          | Ergebnis                                                                                                                                                                                                                 |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `pnpm lint`, `pnpm typecheck`    | sauber                                                                                                                                                                                                                   |
+| `pnpm test`                      | 118 Unit-Tests (Umfrage-Logik, API in der Workers-Laufzeit, Header-Helfer, Auswertung, Wächter gegen Klassen-Kollisionen)                                                                                                |
+| `pnpm e2e`                       | 195 Playwright-Tests in 390×844 und 1440×900, inklusive axe (WCAG 2.2 AA) auf allen Hauptansichten und Überlauf-Prüfung in beiden Bewegungsmodi; 15 übersprungen, weil sie nur mit Tastatur bzw. nur mobil sinnvoll sind |
+| `pnpm budgets`                   | JS gzip: web 58,9 von 120 KB, forms 33,6 von 60 KB, surprise 0,9 von 25 KB                                                                                                                                               |
+| `pnpm check:headers`             | 227 Prüfungen von Security-Headern, Cache-Regeln, Weiterleitungen und 404 in der Workers-Laufzeit                                                                                                                        |
+| `pnpm lighthouse` (mobil, lokal) | 100 bei Performance, Barrierefreiheit und Best Practices auf allen drei Sites; SEO 100 (surprise 66, weil `noindex` dort Pflicht ist); LCP 0,9 bis 1,2 s                                                                 |
 
 Nicht geprüft, weil es dafür die echte Domain braucht: Mozilla Observatory, Lighthouse gegen die Live-Adressen, echter Versand der Benachrichtigung, Turnstile mit echtem Schlüssel. Die Schritte dafür stehen in `docs/DEPLOY.md` (Schritt 8). Getestet ist nur in Chromium.
 
@@ -67,6 +67,7 @@ Nicht geprüft, weil es dafür die echte Domain braucht: Mozilla Observatory, Li
 - **CSP hätte in Produktion die eigenen Skripte blockiert.** Sobald eine Seite Turnstile als Quelle ergänzte, liess Astro `'self'` weg. Die Tests liefen ohne Turnstile-Key und sahen das nicht. Jetzt setzt `cspConfig()` die Quellen ausdrücklich, und ein zweiter Build mit Testkey samt eigenem E2E-Test prüft den Weg der Produktion.
 - **Klick-Simulator bremste die Startseite** (Lighthouse Performance 89). Ursache waren Container-Query-Einheiten im Handy-Mockup. Ohne sie: 100.
 - **Netz-Textur zählte als grösstes Bild der Seite** (LCP 2,7 s auf surprise). Als Maske statt Hintergrundbild: 0,9 s.
+- **Chat-Mockup fehlte auf dem Handy.** Der Abschnitt 0x06 hiess im CSS wie ein Baustein des Designsystems (`.check`); dadurch war das Mockup auf schmalen Bildschirmen 2 px breit. Umbenannt, dazu ein Test, der solche Kollisionen künftig meldet.
 - **Gedimmter Text unter dem Kontrast-Minimum** in «Haltung» und im Drehbuch. Beide Effekte bleiben, der Text ist jetzt in jedem Zustand lesbar.
 
 ## Offene Punkte
@@ -78,7 +79,7 @@ Alles, was von Ihnen kommen muss, steht in [`TODO.md`](TODO.md). Kurz:
 - Betrieb: Cloudflare nach [`DEPLOY.md`](DEPLOY.md) einrichten (Zone, D1 in der EU, Turnstile, Email Routing, vier Workers).
 - Prüfen: Die fiktiven Beispiel-Domains gehören niemandem; die Quellenlinks stimmen noch.
 
-Annahmen und ihre Gründe stehen in [`DECISIONS.md`](DECISIONS.md) (97 Einträge), der Stand je Phase in [`PROGRESS.md`](PROGRESS.md).
+Annahmen und ihre Gründe stehen in [`DECISIONS.md`](DECISIONS.md) (98 Einträge), der Stand je Phase in [`PROGRESS.md`](PROGRESS.md).
 
 ## Vorschau
 
