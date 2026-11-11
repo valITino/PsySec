@@ -24,14 +24,17 @@ docs/             BRIEF, DESIGN, DEPLOY, DECISIONS, PROGRESS, TODO
 ```
 corepack enable && pnpm install
 pnpm dev:web | dev:forms | dev:surprise | dev:api
-pnpm build        alle Apps bauen
-pnpm lint         ESLint + Prettier-Check
-pnpm typecheck    astro check + tsc
-pnpm test         Vitest (packages/survey, apps/api, scripts)
-pnpm e2e          Playwright-Smoke gegen die gebauten Sites
-pnpm budgets      JS-Budgets prüfen (web 120 KB, forms 60 KB, surprise 25 KB, gzip)
-pnpm build:pages  Vorschau-Build für GitHub Pages (alle drei Sites unter einem Pfad, API gemockt)
-pnpm analyze      Umfrage-Auswertung aus D1-Export
+pnpm build          alle Apps bauen (web und forms zusätzlich mit Turnstile-Testkey nach dist-turnstile)
+pnpm lint           ESLint + Prettier-Check
+pnpm typecheck      astro check + tsc
+pnpm test           Vitest (packages/config, packages/survey, apps/api, scripts)
+pnpm e2e            Playwright-Smoke gegen die gebauten Sites (vorher pnpm build)
+pnpm budgets        JS-Budgets prüfen (web 120 KB, forms 60 KB, surprise 25 KB, gzip)
+pnpm check:headers  Header, Weiterleitungen und 404 gegen wrangler dev prüfen (vorher pnpm build)
+pnpm lighthouse     Lighthouse mobil gegen den lokalen Build (lädt Lighthouse per pnpm dlx)
+pnpm build:pages    Vorschau-Build für GitHub Pages (alle drei Sites unter einem Pfad, API gemockt)
+pnpm export         D1-Export für die Auswertung (ohne E-Mail-Adressen), danach pnpm analyze
+pnpm analyze        Umfrage-Auswertung aus dem Export
 ```
 
 Nach jeder Änderung: `pnpm lint && pnpm typecheck && pnpm test && pnpm build`, dann Screenshots in 390×844 und 1440×900 kritisch prüfen. Danach Commit und Eintrag in `docs/PROGRESS.md`.

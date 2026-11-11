@@ -17,6 +17,8 @@ export interface Sites {
   phase: 'survey' | 'launch';
   preview: boolean;
   turnstileSiteKey: string;
+  /** HSTS-Header mit `preload` ausliefern */
+  hstsPreload: boolean;
 }
 
 export declare function resolveSites(

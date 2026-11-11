@@ -25,6 +25,7 @@ export default defineConfig({
     preact(),
     cloudflareFiles({
       apiOrigin: sites.apiOrigin,
+      hstsPreload: sites.hstsPreload,
       redirects: ['/security.txt /.well-known/security.txt 301'],
     }),
   ],

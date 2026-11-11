@@ -72,6 +72,7 @@ const PERMISSIONS_POLICY = [
  *   referrerPolicy?: string,
  *   noindex?: boolean,
  *   noindexPaths?: string[],
+ *   hstsPreload?: boolean,
  * }} options
  */
 export function headersFile({
@@ -79,6 +80,7 @@ export function headersFile({
   referrerPolicy = 'strict-origin-when-cross-origin',
   noindex = false,
   noindexPaths = [],
+  hstsPreload = false,
 } = {}) {
   const connect = ["'self'", apiOrigin].filter(Boolean).join(' ');
   const csp = [
@@ -96,7 +98,7 @@ export function headersFile({
     '',
     '/*',
     `  Content-Security-Policy: ${csp}`,
-    '  Strict-Transport-Security: max-age=31536000; includeSubDomains',
+    `  Strict-Transport-Security: max-age=31536000; includeSubDomains${hstsPreload ? '; preload' : ''}`,
     '  X-Content-Type-Options: nosniff',
     '  X-Frame-Options: DENY',
     `  Referrer-Policy: ${referrerPolicy}`,

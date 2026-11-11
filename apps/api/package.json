@@ -10,8 +10,8 @@
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "db:migrate:local": "wrangler d1 migrations apply psyber --local",
     "db:migrate:remote": "wrangler d1 migrations apply psyber --remote",
-    "db:export": "wrangler d1 export psyber --remote --output ../../reports/psyber-export.sql",
-    "deploy": "wrangler deploy"
+    "deploy": "wrangler deploy",
+    "db:backup": "wrangler d1 export psyber --remote --output ../../reports/psyber-backup.sql"
   },
   "dependencies": {
     "@psyber/survey": "workspace:*",

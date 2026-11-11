@@ -33,6 +33,7 @@ export default defineConfig({
     }),
     cloudflareFiles({
       apiOrigin: sites.apiOrigin,
+      hstsPreload: sites.hstsPreload,
       noindexPaths: ['/styleguide'],
       redirects: [
         '# Kurzadressen',

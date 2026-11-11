@@ -50,7 +50,10 @@ export const securityHeaders: MiddlewareHandler<AppEnv> = async (c, next) => {
   c.header('Cache-Control', 'no-store');
   c.header('Referrer-Policy', 'no-referrer');
   c.header('Content-Security-Policy', "default-src 'none'; frame-ancestors 'none'");
-  c.header('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+  c.header(
+    'Strict-Transport-Security',
+    `max-age=31536000; includeSubDomains${c.env.HSTS_PRELOAD === 'true' ? '; preload' : ''}`,
+  );
 };
 
 /**

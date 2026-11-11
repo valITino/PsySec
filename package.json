@@ -23,6 +23,7 @@
     "check:headers": "node scripts/check-headers.mjs",
     "lighthouse": "node scripts/lighthouse.mjs",
     "assets": "node scripts/brand-assets.ts",
+    "export": "node scripts/export-d1.mjs",
     "analyze": "node scripts/analyze.ts"
   },
   "devDependencies": {

@@ -52,6 +52,8 @@ export function resolveSites(env, options = {}) {
     phase,
     preview,
     turnstileSiteKey: pick(env.PUBLIC_TURNSTILE_SITE_KEY, ''),
+    /** `true`: HSTS-Header mit `preload` (erst nach stabilem Betrieb, siehe docs/DEPLOY.md) */
+    hstsPreload: env.PUBLIC_HSTS_PRELOAD === 'true' || env.PUBLIC_HSTS_PRELOAD === true,
   };
 }
 

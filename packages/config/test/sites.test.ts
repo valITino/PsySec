@@ -94,6 +94,17 @@ describe('Security-Header', () => {
     expect(csp.directives).toContain("default-src 'none'");
   });
 
+  it('hängt «preload» nur auf Wunsch an den HSTS-Header', () => {
+    expect(headersFile()).toContain(
+      'Strict-Transport-Security: max-age=31536000; includeSubDomains\n',
+    );
+    expect(headersFile({ hstsPreload: true })).toContain(
+      'Strict-Transport-Security: max-age=31536000; includeSubDomains; preload\n',
+    );
+    expect(resolveSites({}).hstsPreload).toBe(false);
+    expect(resolveSites({ PUBLIC_HSTS_PRELOAD: 'true' }).hstsPreload).toBe(true);
+  });
+
   it('gibt nur die Vorschaubilder für andere Websites frei', () => {
     const file = headersFile();
     expect(file).toContain('Cross-Origin-Resource-Policy: same-origin');

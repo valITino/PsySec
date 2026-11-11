@@ -22,6 +22,7 @@ export default defineConfig({
   integrations: [
     cloudflareFiles({
       apiOrigin: sites.apiOrigin,
+      hstsPreload: sites.hstsPreload,
       referrerPolicy: 'no-referrer',
       noindex: true,
       redirects: ['/ /gewinn 302', '/security.txt /.well-known/security.txt 301'],

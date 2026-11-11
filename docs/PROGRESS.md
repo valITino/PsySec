@@ -11,7 +11,7 @@ Neue Session? Zuerst `CLAUDE.md` lesen, dann diese Datei. Der Auftrag steht in `
 | 2     | API (Cloudflare Worker)                       | fertig |
 | 3     | forms.psyber.tech (Umfrage)                   | fertig |
 | 4     | surprise.psyber.tech («Erwischt!»)            | fertig |
-| 5     | Härtung, E2E, DEPLOY.md                       | läuft  |
+| 5     | Härtung, E2E, DEPLOY.md                       | fertig |
 | 6     | Extras (Auswertung, Easter Eggs)              | offen  |
 
 ## Phase 0: Fundament (fertig)
@@ -72,9 +72,7 @@ Geprüft: lint, typecheck, Unit-Tests, build, E2E, JS-Budget (forms 33,6 von 60 
 
 Geprüft: lint, typecheck, 82 Unit-Tests, build, 72 E2E-Tests, JS-Budget (surprise 0,9 von 25 KB), Screenshots in 390×844 und 1440×900, Zeitleiste Bild für Bild (`node scripts/states-surprise.mjs`), Vorschau-Build.
 
-## Phase 5: Härtung (läuft)
-
-Erledigt:
+## Phase 5: Härtung (fertig)
 
 - `wrangler.jsonc` für web, forms und surprise (reine Asset-Worker mit Custom Domain), `wrangler` als Dev-Abhängigkeit, Skripte `cf:dev` und `deploy` je App.
 - `pnpm check:headers`: startet die drei Sites lokal in der Workers-Laufzeit und prüft Security-Header, Cache-Regeln, Weiterleitungen, 404, `security.txt` (227 Prüfungen); läuft auch in der CI.
@@ -87,11 +85,14 @@ Erledigt:
 - Kontrast in jedem Zustand: «Haltung» dimmt Wörter nur, solange der Satz im Bild ist; Drehbuch-Eingriffe ohne `opacity`.
 - OG-Bilder dürfen von anderen Websites eingebunden werden (`Cross-Origin-Resource-Policy: cross-origin` nur für `/og/*`).
 
-Offen: `docs/DEPLOY.md` fertig schreiben, Entscheidungen nachtragen.
+- HSTS-Preload als Schalter (`PUBLIC_HSTS_PRELOAD`, `HSTS_PRELOAD`), `pnpm export` für die Auswertung (ohne E-Mail-Adressen).
+- `docs/DEPLOY.md` vollständig: zehn Schritte, Betrieb, bekannte Grenzen, Vorschau auf GitHub Pages.
+
+Geprüft: lint, typecheck, 87 Unit-Tests, build, 148 E2E-Tests, JS-Budgets (web 58,2 / forms 33,6 / surprise 0,9 KB), `pnpm check:headers` (227 Prüfungen), `pnpm lighthouse`.
 
 ## Nächster Schritt
 
-`docs/DEPLOY.md` (zehn Schritte aus Abschnitt 10, D1-Export, jährlicher Neubau wegen `security.txt`, HSTS-Preload, erwartetes Observatory-Ergebnis), danach Phase 6 (Auswertung, Easter Eggs).
+Phase 6: `scripts/analyze.ts` (Bericht aus `reports/export-*.json` mit Van Westendorp und Go/No-Go-Ampel, dazu `--demo` und Tests), Easter Eggs auf psyber.tech (Konsolen-Gruss, Konami-Terminal), Feinschliff an den Animationen. Danach Abschluss: PROGRESS, TODO, PR-Beschreibung.
 
 ## Arbeitsnotizen für Folge-Sessions
 

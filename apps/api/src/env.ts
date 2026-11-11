@@ -18,6 +18,8 @@ export interface Env {
   ALLOWED_ORIGINS?: string;
   /** `development` erlaubt localhost als Origin */
   ENVIRONMENT?: string;
+  /** `true`: HSTS-Header mit `preload` (erst nach stabilem Betrieb) */
+  HSTS_PRELOAD?: string;
 }
 
 export type AppEnv = { Bindings: Env };

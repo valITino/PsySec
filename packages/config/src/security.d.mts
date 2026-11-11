@@ -17,6 +17,8 @@ export interface HeadersOptions {
   referrerPolicy?: string;
   noindex?: boolean;
   noindexPaths?: string[];
+  /** HSTS mit `preload` (erst nach stabilem Betrieb) */
+  hstsPreload?: boolean;
 }
 
 export declare function headersFile(options?: HeadersOptions): string;

@@ -52,4 +52,5 @@
   // Geheimnisse (nie ins Repo): wrangler secret put TURNSTILE_SECRET
   //                             wrangler secret put NOTIFY_TO
   // Optional als Variable: ALLOWED_ORIGINS (zusätzliche Origins, kommagetrennt)
+  //                       HSTS_PRELOAD=true (erst nach stabilem Betrieb, siehe docs/DEPLOY.md)
 }
