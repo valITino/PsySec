@@ -25,11 +25,12 @@ if (surveyConfig.turnstileSiteKey) {
     <Owl lazy={false} />
   </div>
   {sites.preview && <p class="sv-preview">Vorschau: Die Umfrage speichert hier nichts.</p>}
-  <SurveyApp client:load config={surveyConfig} />
+  {/* Ohne JavaScript bleibt der Startknopf wirkungslos: Der Hinweis steht darum ganz oben. */}
   <noscript>
     <p class="sv-noscript">
       Für die Umfrage braucht es JavaScript. Bitte schalten Sie es in Ihrem Browser ein und laden
       Sie die Seite neu.
     </p>
   </noscript>
+  <SurveyApp client:load config={surveyConfig} />
 </Base>

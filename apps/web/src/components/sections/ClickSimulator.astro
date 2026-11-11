@@ -32,13 +32,13 @@ const steps = [
   >
     <div class="sim-screen">
       <div class="sim-status mono">
-        <span class="sim-time" data-sim-time aria-label="Uhrzeit in Zürich">
+        <span class="sim-time" data-sim-time aria-label="Uhrzeit in der Schweiz">
           --:--
         </span>
         <span class="sim-island" aria-hidden="true"></span>
-        <span class="sim-city">
+        <span class="sim-place">
           <Icon name="map-pin" size={12} strokeWidth={2} />
-          Zürich
+          Schweiz
         </span>
       </div>
 
@@ -278,14 +278,14 @@ const steps = [
     border: 1px solid var(--hairline);
   }
 
-  .sim-city {
+  .sim-place {
     display: inline-flex;
     align-items: center;
     justify-content: flex-end;
     gap: 0.3em;
   }
 
-  .sim-city :global(.icon) {
+  .sim-place :global(.icon) {
     width: 1em;
     height: 1em;
     color: var(--fg-muted);

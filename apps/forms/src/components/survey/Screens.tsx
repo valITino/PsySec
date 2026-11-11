@@ -36,9 +36,9 @@ export function Start({ config }: { config: SurveyConfig }) {
         Wie sicher ist Ihre Familie online?
       </h1>
       <p class="lead sv-start-text">
-        Wir planen ein Angebot für Familien in Zürich und möchten wissen, was Sie wirklich brauchen.
-        Die Umfrage dauert rund 4 Minuten und ist anonym. Am Ende gibt es die Checkliste ‹5
-        Warnsignale für Online-Betrug› gratis.
+        Wir planen ein Angebot für Familien und möchten wissen, was Sie wirklich brauchen. Die
+        Umfrage dauert rund 4 Minuten und ist anonym. Am Ende gibt es die Checkliste ‹5 Warnsignale
+        für Online-Betrug› gratis.
       </p>
       <div class="sv-start-actions">
         <button type="button" class="btn btn-primary sv-start-button" onClick={start}>

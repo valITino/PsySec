@@ -1,5 +1,6 @@
 /**
- * Echte Uhrzeit in Zürich, jede volle Minute aktualisiert. Ohne JS bleibt «--:--» stehen.
+ * Echte Schweizer Uhrzeit (Zeitzone Europe/Zurich), jede volle Minute aktualisiert. Ohne JS bleibt
+ * «--:--» stehen.
  *
  * Die Uhr startet erst, wenn eine ihrer Anzeigen in die Nähe des Bildschirms kommt, und dann in einem ruhigen
  * Moment: Beim ersten Mal lädt der Browser für die Zeitzone seine Zeitzonen-Daten, das kostet

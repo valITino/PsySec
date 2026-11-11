@@ -5,8 +5,7 @@ Sichtbare Platzhalter auf den Websites haben das Format `[TODO: …]`. Zentrale 
 ## Nach dem Redesign: Ihre Rückmeldung
 
 - [ ] Look ansehen (lokal `pnpm dev:web`, oder die Vorschau auf GitHub Pages, sobald der Stand auf `main` liegt)
-- [ ] Akzentfarbe: Lime wie bei der Referenz (jetzt) oder das Amber der Eule? Der Tausch ist eine Zeile in `packages/ui/src/styles/tokens.css` (Entscheidung 103)
-- [ ] «Zürich» steht weiterhin dort, wo der heutige Stand beschrieben wird: FAQ («Für Familien im Raum Zürich»), Einleitung der Umfrage, Kontakt («Stadt und Kanton Zürich»), Meta-Description. Sollen auch diese Stellen offener formuliert werden?
+- [ ] Region im Kontakt und im Footer lautet jetzt «Schweiz» (Entscheidung 123). Falls Sie vorerst nur einen Teil der Schweiz abdecken, hier genauer werden: `apps/web/src/config/site.ts`
 - [ ] Logo-Kit Runde 6 ist eingebaut. Die Eule im Foto-Platzhalter von «Über» schaut dem Zeiger nach (Entscheidung 121): gefällt das, oder soll sie stillhalten?
 - [ ] Sticker-Sprüche und ergänzte Texte gegenlesen (Liste in Entscheidung 112)
 
@@ -52,5 +51,6 @@ Sichtbare Platzhalter auf den Websites haben das Format `[TODO: …]`. Zentrale 
 Alle Annahmen stehen mit Grund und Alternative in `docs/DECISIONS.md`. Die wichtigsten:
 
 - Ampel der Auswertung: «Fast», wenn kein Kriterium unter 80 % seines Ziels liegt (Entscheidung 89).
+- Ampel der Auswertung: Das Kriterium «mindestens 60 % der Antworten aus dem Kanton Zürich» stammt aus dem Auftrag. Wenn der Start nicht mehr auf Zürich begrenzt ist, den Wert in `scripts/analyze/compute.ts` anpassen oder streichen.
 - Kontaktanfragen werden nach 180 Tagen gelöscht; Umfrage und Warteliste speichern nur das Datum (Auftrag 8.2).
 - Die Vorschau auf GitHub Pages simuliert die API: Dort wird nichts gespeichert und nichts gezählt.

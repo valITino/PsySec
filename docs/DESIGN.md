@@ -26,7 +26,7 @@ Quelle der Wahrheit sind die Tokens in `packages/ui/src/styles/tokens.css`. Die 
 
 Statusfarben nur zusammen mit Icon und Text: gut #0ca30c, Warnung #fab219, kritisch #d03b3b.
 
-Die Akzentfarbe hängt an drei Werten (`--acid-rgb`, `--acid`, `--acid-hi`). Wer sie tauscht, ändert Buttons, Fokus-Ring, Lichtpunkte und den Globus auf einen Schlag.
+Die Akzentfarbe hängt an drei Werten (`--acid-rgb`, `--acid`, `--acid-hi`). Wer sie tauscht, ändert Buttons, Fokus-Ring, Lichtpunkte und den Globus auf einen Schlag. Entschieden ist Lime (Entscheidung 122): Amber bleibt den Warnsignalen vorbehalten.
 
 ### Flächen
 

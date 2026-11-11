@@ -22,7 +22,7 @@ export function humansTxt(site: string): string {
     '/* TEAM */',
     'PSYber: Cyber-Prävention für Familien',
     'Kontakt: security@psyber.tech',
-    'Ort: Zürich, Schweiz',
+    'Ort: Schweiz',
     '',
     '/* SITE */',
     `Site: ${site}`,

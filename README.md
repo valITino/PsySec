@@ -34,6 +34,7 @@ pnpm e2e             # Playwright gegen die gebauten Sites
 pnpm budgets         # JS-Budgets (web 120 KB, forms 60 KB, surprise 25 KB)
 pnpm check:headers   # Security-Header, Weiterleitungen und 404 in der Workers-Laufzeit
 pnpm lighthouse      # Lighthouse mobil gegen den lokalen Build
+pnpm assets          # Favicons, App-Icons und OG-Bilder aus dem Logo-Kit neu erzeugen
 ```
 
 ## Auswerten
@@ -52,6 +53,8 @@ Alle drei Websites lassen sich ohne Cloudflare unter einer Adresse ansehen (Form
 pnpm build:pages
 node scripts/serve.mjs dist-pages --base /PsySec   # http://localhost:4321/PsySec/
 ```
+
+Der Vorschau-Build überschreibt `apps/*/dist`. Vor `pnpm e2e` oder `pnpm lighthouse` darum wieder `pnpm build` ausführen.
 
 Auf GitHub Pages veröffentlicht der Workflow `pages.yml` denselben Stand bei jedem Push auf `main` (einmalig: Settings → Pages → Source «GitHub Actions»).
 

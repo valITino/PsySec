@@ -4,6 +4,8 @@
  *   - Fortschritt: dünner Balken oben (Mobile) bzw. Schiene mit Marken links (Desktop, nur Startseite)
  *   - unten links: der Cookie-Knopf. Er öffnet keinen Banner, sondern sagt, warum es keinen gibt.
  *   - unten rechts: Schalter «Bewegung pausieren» (nur sichtbar, wenn sich etwas bewegt)
+ * Auf breiten Bildschirmen schweben beide in der Randspalte neben dem Inhalt; sonst stehen sie
+ * als Zeile am Seitenende. So verdecken sie nie Text.
  * Verhalten: src/scripts/chrome.ts
  */
 import Icon from '@psyber/ui/components/Icon.astro';
@@ -138,8 +140,8 @@ const { progress = false } = Astro.props;
   /* ---------- Knöpfe ---------- */
 
   /*
-   * Schmal: Die beiden Knöpfe stehen als Zeile am Ende der Seite (unter dem Footer), damit sie
-   * keinen Text verdecken. Ab Tablet schweben sie in den unteren Ecken.
+   * Schmal und auf Tablets: Die beiden Knöpfe stehen als Zeile am Ende der Seite (unter dem
+   * Footer). Erst wenn die Randspalte breit genug ist, schweben sie dort (siehe unten).
    */
   .chrome {
     display: flex;
@@ -183,8 +185,15 @@ const { progress = false } = Astro.props;
     text-transform: uppercase;
   }
 
-  @media (min-width: 48rem) {
+  /*
+   * Breit (ab hier ist die Randspalte mindestens 45 px): Die Knöpfe schweben in den unteren
+   * Ecken, mittig in der Randspalte und damit auf einer Achse mit der Fortschritts-Schiene.
+   * Etwas kleiner als am Handy (36 px), damit sie neben den Inhalt passen statt darüber.
+   */
+  @media (min-width: 80rem) {
     .chrome {
+      --chrome-size: 2.25rem;
+      --chrome-inset: calc((var(--gutter) - var(--chrome-size)) / 2);
       display: block;
       width: auto;
       padding: 0;
@@ -197,12 +206,40 @@ const { progress = false } = Astro.props;
       z-index: 45;
     }
 
+    .chrome-btn,
+    .chrome-motion {
+      min-width: var(--chrome-size);
+      height: var(--chrome-size);
+    }
+
     .chrome-left {
-      left: var(--gutter);
+      left: var(--chrome-inset);
     }
 
     .chrome-motion {
-      right: var(--gutter);
+      right: var(--chrome-inset);
+    }
+
+    /*
+     * Ganz oben steht der Schalter mit Beschriftung da (dort ist die Ecke frei). Nach dem
+     * Scrollen bleibt nur der runde Knopf; Zeiger oder Fokus klappen die Beschriftung wieder
+     * aus. Der Name bleibt für Screenreader immer erhalten.
+     */
+    :global([data-header].is-scrolled) ~ .chrome .chrome-motion:not(:hover, :focus-visible) {
+      gap: 0;
+      padding-inline: 0;
+    }
+
+    :global([data-header].is-scrolled)
+      ~ .chrome
+      .chrome-motion:not(:hover, :focus-visible)
+      .chrome-motion-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
     }
   }
 

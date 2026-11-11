@@ -57,7 +57,7 @@ export const nav = [
 export const contact = {
   email: '[TODO: E-Mail]',
   phone: '[TODO: Telefon/WhatsApp]',
-  region: 'Stadt und Kanton Zürich',
+  region: 'Schweiz',
   security: 'security@psyber.tech',
 } as const;
 
@@ -135,6 +135,6 @@ export const meta = {
   slogan: 'Betrüger hassen diesen Blick.',
   claim: 'Wir patchen Layer 8.',
   defaultDescription:
-    'PSYber zeigt Familien im Raum Zürich, wie Online-Betrug funktioniert, und sichert das Heimnetz gleich mit ab. Sicherheit, die beim Menschen anfängt.',
+    'PSYber zeigt Familien, wie Online-Betrug funktioniert, und sichert das Heimnetz gleich mit ab. Sicherheit, die beim Menschen anfängt.',
   ogImage: '/og/psyber.png',
 } as const;

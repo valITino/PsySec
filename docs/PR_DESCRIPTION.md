@@ -89,12 +89,12 @@ Nicht geprüft, weil es dafür die echte Domain braucht: Mozilla Observatory, Li
 Alles, was von Ihnen kommen muss, steht in [`TODO.md`](TODO.md). Kurz:
 
 - Inhalte: Name, Rolle, Motivation, Foto, E-Mail, Telefon, Angaben fürs Impressum, finale Preise. Auf den Seiten stehen dafür sichtbare Platzhalter `[TODO: …]`.
-- Zum Redesign: Akzentfarbe Lime oder Amber (Tausch an drei Werten), weitere Stellen mit «Zürich» (FAQ, Umfrage, Kontakt), die Eule in «Über», die dem Zeiger nachschaut.
+- Zum Redesign: die Eule in «Über», die dem Zeiger nachschaut (gefällt das?), und die Region «Schweiz» im Kontakt (genauer fassen, falls vorerst nur ein Teil der Schweiz abgedeckt wird).
 - Rechtliches: Impressum und Datenschutzerklärung prüfen lassen (als Entwurf markiert), Rabattcode «LAYER8» bestätigen.
 - Betrieb: Cloudflare nach [`DEPLOY.md`](DEPLOY.md) einrichten (Zone, D1 in der EU, Turnstile, Email Routing, vier Workers).
 - Prüfen: Die fiktiven Beispiel-Domains gehören niemandem; die Quellenlinks stimmen noch.
 
-Annahmen und ihre Gründe stehen in [`DECISIONS.md`](DECISIONS.md) (121 Einträge), der Stand je Phase in [`PROGRESS.md`](PROGRESS.md).
+Annahmen und ihre Gründe stehen in [`DECISIONS.md`](DECISIONS.md) (123 Einträge), der Stand je Phase in [`PROGRESS.md`](PROGRESS.md).
 
 ## Vorschau
 

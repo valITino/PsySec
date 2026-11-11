@@ -118,7 +118,7 @@ Auf Wunsch folgt das Design jetzt eng der Referenz eezyinn.de (Stil, Formatierun
 - **Direktlinks und Neuladen (Entscheidungen 116 bis 119):** `psyber.tech/#kontakt` landet jetzt in beiden Bewegungsmodi genau auf dem Ziel; nach dem Neuladen steht derselbe Abschnitt im Bild (`position.ts`, gemerkt im Verlaufseintrag, ohne Cookie). Bei reduzierter Bewegung gibt es gar keine Übergänge mehr, und frisch ausgelegte Sektionen blenden nichts über. Sechs neue E2E-Tests sichern das ab.
 - **Logo-Kit Runde 6 (Entscheidungen 120 und 121):** neu gezeichnete Eule und Logo überall ersetzt, Favicons, OG-Bilder und Wortmarke neu erzeugt; in «Über» schaut die Eule dem Zeiger nach.
 
-Offen für Ihre Rückmeldung (steht auch in `docs/TODO.md`): Akzentfarbe Lime oder Amber, weitere Stellen mit «Zürich».
+Entschieden (122, 123): Die Akzentfarbe bleibt Lime, und «Zürich» steht nur noch dort, wo es eine Tatsache benennt (Quellen, Antworten von Frage 1).
 
 ## Abschluss
 

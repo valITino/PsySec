@@ -1,5 +1,5 @@
 /**
- * Hero: Globus, Uhrzeit in Zürich und der Scroll-Verlauf.
+ * Hero: Globus, Schweizer Uhrzeit und der Scroll-Verlauf.
  *
  * Auf grossen Bildschirmen bleibt der Hero kurz stehen (CSS: sticky). Auf dieser Strecke
  * tritt die erste Frage zurück, und die Knoten auf dem Globus werden «gepatcht». Auf kleinen
@@ -27,7 +27,7 @@ export function initHero(root: HTMLElement): void {
     else setTimeout(create, 100);
   }
 
-  startClock(root.querySelector<HTMLElement>('[data-zurich-time]'));
+  startClock(root.querySelector<HTMLElement>('[data-swiss-time]'));
   if (!track) return;
 
   const pin = window.matchMedia('(min-width: 64rem) and (min-height: 40rem)');

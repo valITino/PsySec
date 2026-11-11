@@ -1,7 +1,7 @@
 /**
  * Bewegungs-Präferenzen.
  * - `prefers-reduced-motion`: keine Autoplay- oder Scrub-Animationen, kein Lenis.
- * - `data-motion="off"` am <html>: vom Menschen pausierte Dauerbewegung (Ticker, Psi-Netz).
+ * - `data-motion="off"` am <html>: vom Menschen pausierte Dauerbewegung (Ticker, Globus, Cursor).
  */
 
 const QUERY = '(prefers-reduced-motion: reduce)';

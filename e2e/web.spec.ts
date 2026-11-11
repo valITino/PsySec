@@ -371,7 +371,7 @@ test.describe('psyber.tech', () => {
     });
     await expect(page.getByText('3 Warnsignale erkannt. Nicht klicken.')).toBeVisible();
 
-    // Uhrzeit in Zürich statt Platzhalter (die Uhr startet, sobald die Anzeige in Sicht kommt)
+    // Schweizer Uhrzeit statt Platzhalter (die Uhr startet, sobald die Anzeige in Sicht kommt)
     await page.locator('[data-sim-time]').scrollIntoViewIfNeeded();
     await expect(page.locator('[data-sim-time]')).toHaveText(/^\d{2}:\d{2}$/);
   });

@@ -772,9 +772,10 @@
 .sv-noscript {
   position: relative;
   z-index: 11;
-  margin: 0 auto 2rem;
+  margin: 1rem auto 0;
   width: min(100% - 2 * var(--gutter), 44rem);
   padding: 1rem 1.25rem;
   border: 1px solid var(--amber);
   border-radius: var(--r-input);
+  background-color: var(--carbon);
 }

@@ -34,6 +34,8 @@ pnpm budgets        JS-Budgets prüfen (web 120 KB, forms 60 KB, surprise 25 KB,
 pnpm check:headers  Header, Weiterleitungen und 404 gegen wrangler dev prüfen (vorher pnpm build)
 pnpm lighthouse     Lighthouse mobil gegen den lokalen Build (lädt Lighthouse per pnpm dlx)
 pnpm build:pages    Vorschau-Build für GitHub Pages (alle drei Sites unter einem Pfad, API gemockt)
+                    Achtung: überschreibt apps/*/dist; vor Tests wieder pnpm build
+pnpm assets         Favicons, App-Icons und OG-Bilder aus dem Logo-Kit neu erzeugen
 pnpm export         D1-Export für die Auswertung (ohne E-Mail-Adressen), danach pnpm analyze
 pnpm analyze        Umfrage-Auswertung aus dem Export
 ```
