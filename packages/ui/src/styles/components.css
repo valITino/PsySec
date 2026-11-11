@@ -378,6 +378,7 @@
 
   .field {
     display: grid;
+    align-content: start;
     gap: 0.5rem;
   }
 
@@ -437,10 +438,6 @@
   .field-error .icon {
     flex: none;
     margin-top: 0.125rem;
-    color: #ff8f8f;
-  }
-
-  .on-paper .field-error .icon {
     color: var(--crit);
   }
 

@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 import BaseHead from '@psyber/ui/components/BaseHead.astro';
+import PreviewNote from '../components/PreviewNote.astro';
 import { absoluteUrl, basePath, meta, sites } from '../config/site.ts';
 
 interface Props {
@@ -40,6 +41,7 @@ const {
     <a class="skip-link" href="#inhalt">
       Zum Inhalt springen
     </a>
+    {sites.preview && <PreviewNote />}
     <slot name="header" />
     <main id="inhalt" tabindex="-1">
       <slot />

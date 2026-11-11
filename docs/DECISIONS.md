@@ -33,3 +33,39 @@ Format: **Entscheidung** – Grund – Alternative. Neue Einträge unten anhäng
 18. **Zeilenlänge als `34em` statt `68ch`.** – In Recursive ist `1ch` breiter als der Durchschnittsbuchstabe; `34em` entspricht rund 68 Zeichen.
 19. **Schalter «Bewegung pausieren» im Footer und Pause-Button am Ticker.** – WCAG 2.2.2 verlangt, dass automatisch laufende Bewegung über 5 Sekunden pausierbar ist; Hover und Fokus allein reichen auf Touch-Geräten nicht.
 20. **Logo-Icon in Lavendel, nicht Amber.** – Amber bleibt den Warnsignalen vorbehalten («sparsam»).
+
+## Phase 1: psyber.tech
+
+21. **Der H1 im Hero steht in drei Zeilen** («Ein Klick zu viel?» / «Ein Anruf zu» / «glaubwürdig?») mit `clamp(2.25rem, 10.4vw, 3.5rem)` auf Mobile und `clamp(3.5rem, 5.5vw, 5rem)` ab 1024 px. – Inhaltlich bleiben es zwei Fragen. Neben dem Klick-Simulator ist die Textspalte rund 690 px breit; die zweite Frage passt dort in keiner sinnvollen Grösse auf eine Zeile. Drei feste Zeilen ergeben auf allen Breiten dasselbe ruhige Bild. – Alternative: H1 über die volle Breite; dann rutscht das Widget unter den Falz.
+22. **Die Headline blendet per CSS ein, nicht per GSAP.** – Sie ist das grösste Element im ersten Viewport. Reines CSS braucht kein Skript, flackert nicht und funktioniert auch, wenn JavaScript ausfällt.
+23. **Der Klick-Simulator kommt ohne GSAP aus.** – Die Zeitleiste (`<input type="range">`) schaltet Zustände über Klassen, die Übergänge macht CSS. So ist das Widget sofort bedienbar. GSAP, ScrollTrigger, SplitText und Lenis laden erst nach dem ersten Eindruck (zusammen 53 KB gzip), das Kontaktformular erst, wenn es in Sicht kommt.
+24. **Drehbuch auf Desktop mit grosser «Untertitel»-Zeile.** – Der Kurztext des aktuellen Schritts steht gross unter der Kette; Hover und Tab-Fokus zeigen den Text jedes Schritts (Tooltip-Verhalten, auch per Tastatur). Auf Mobile sowie ohne JS oder bei reduzierter Bewegung sind alle Kurztexte direkt sichtbar. Pinning nur ab 1024 px Breite und 736 px Höhe.
+25. **Helle Sektionen: «Haltung» (0x05) und «Pakete» (0x08).** – Zwei sind erlaubt; so entsteht in der Mitte und im letzten Drittel je ein Rhythmuswechsel.
+26. **`zod/mini` statt der klassischen Zod-API** (gleiches Paket, Zod 4). – Spart im Browser rund 20 KB gzip; Client und API nutzen weiterhin dieselben Schemas aus `packages/survey`.
+27. **«Interesse» im Kontaktformular als Auswahl-Chips (Radio-Gruppe)** statt Dropdown. – Fünf Optionen sind auf einen Blick sichtbar und auf dem Handy leichter zu treffen.
+28. **Fallakten: `datum` bedeutet «Stand der Fallakte».** – Sortiert wird nach `featured`, dann `datum`, dann Dateiname; die Nummern im Dateinamen legen bei gleichem Datum die Reihenfolge fest.
+29. **OG-Bilder mit fontkit und resvg statt satori.** – satori kann weder WOFF2 noch die Achsen einer Variable Font. fontkit liest Recursive direkt aus dem Fontsource-Paket und liefert die Buchstaben mit CASL und MONO als Pfade.
+30. **Quellenlinks öffnen in einem neuen Tab** (`rel="noopener"`), mit Hinweis für Screenreader. – Wer eine Quelle prüft, soll die Seite nicht verlieren.
+31. **Zähler `checklist_click` höchstens einmal pro Tab-Sitzung** (Merker im `sessionStorage`, kein Cookie). – Neu laden zählt nicht doppelt.
+32. **Statusfarben nur an Icons.** – Rot (#d03b3b) und Grün (#0ca30c) erreichen auf dunklem Grund 3:1 (genug für Icons), aber nicht 4,5:1 für Text. Der Text daneben steht darum immer in Weiss bzw. `--soft`.
+33. **Vorschau-Hinweis.** – In der Vorschau (`PUBLIC_PREVIEW=true`) steht oben ein schmaler Balken «Vorschau: Formulare und Umfrage speichern hier nichts.»
+
+### Ergänzte Texte (im Ton des Auftrags)
+
+Der Auftrag liefert die Inhalte; für Beschriftungen und Bedienelemente fehlten einige kurze Texte. Ergänzt wurden:
+
+- Hero-Widget: «Unbekannter Absender», «SMS · heute», «Nachricht» (Eingabezeile), «dns: blockiert».
+- Problem-Split: Kartenlabels «Layer 8 · Mensch» und «Layer 1–7 · Technik».
+- Drehbuch: «PSYber setzt an» über den drei Eingriffen.
+- Maschen: «Fallakte 00» sowie im Mockup «Gesponsert», «Echt?», «Jetzt starten»; «Quelle:» vor den Quellenlinks.
+- Ticker: Button «Band anhalten» / «Band fortsetzen».
+- Haltung: unsichtbare Überschrift «Unsere Haltung» (für Screenreader, entspricht dem Kicker).
+- Ablauf: Kicker «Angelehnt an TCP» im Handshake-Kasten.
+- Pakete: Tags «Einmal-Paket» und «Abo»; nur in der Phase `launch`: «Welches Paket passt zu Ihrer Familie? Das klären wir im Kennenlern-Gespräch.»
+- FAQ: Kicker «FAQ», Überschrift «Häufige Fragen.».
+- Kontakt: «Felder mit * sind Pflicht.», «Anfrage senden», «Wird gesendet …», «… / 2000 Zeichen», die Fehlermeldungen an den Feldern.
+- Footer: Schalter «Bewegung pausieren» / «Bewegung fortsetzen».
+- Checkliste: Kicker «Checkliste zum Ausdrucken», Fusszeile für den Ausdruck.
+- 404: Terminal-Befehl «ping diese-seite», Abschnittsnummer «0x194» (404 in Hex).
+- Impressum und Datenschutz: komplette Entwurfstexte, als «Entwurf, rechtlich prüfen lassen» markiert.
+- Meta-Beschreibungen der Seiten.

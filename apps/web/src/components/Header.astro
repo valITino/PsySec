@@ -1,0 +1,302 @@
+---
+/**
+ * Sticky Header: anfangs transparent, nach 40 px Scroll Aubergine mit 80 % Deckkraft und Blur.
+ * Mobile: Button «Menü» öffnet ein Vollbild-Overlay (Fokus bleibt im Menü, Esc schliesst).
+ * Verhalten: src/scripts/header.ts
+ */
+import Button from '@psyber/ui/components/Button.astro';
+import Logo from '@psyber/ui/components/Logo.astro';
+import { contact, href, isTodo, nav, primaryCta } from '../config/site.ts';
+
+interface Props {
+  /** Auf der Startseite sind die Navigationspunkte Ankerlinks ohne Seitenwechsel. */
+  home?: boolean;
+}
+
+const { home = false } = Astro.props;
+const cta = primaryCta(home);
+const link = (hash: string) => (home ? hash : href(`/${hash}`));
+---
+
+<header class="site-header" data-header>
+  <div class="wrap site-header-inner">
+    <Logo href={href('/')} class="site-logo" />
+
+    <nav class="site-nav" aria-label="Hauptnavigation">
+      <ul>
+        {nav.map((item) => (
+          <li>
+            <a href={link(item.hash)}>{item.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="site-actions">
+      <Button href={cta.href} size="sm" class="site-cta">
+        {cta.label}
+      </Button>
+      <button
+        type="button"
+        class="menu-toggle"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        data-menu-toggle
+      >
+        <span data-menu-label>Menü</span>
+        <span class="menu-bars" aria-hidden="true">
+          <span></span>
+          <span></span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  <div class="mobile-menu net-texture" id="mobile-menu" data-menu hidden>
+    <div class="wrap mobile-menu-inner">
+      <nav aria-label="Menü">
+        <ul class="mobile-links">
+          {nav.map((item, index) => (
+            <li>
+              <a href={link(item.hash)} data-menu-link>
+                <span class="hexnum" aria-hidden="true">
+                  0x0{index + 1}
+                </span>
+                <span class="mobile-link-label">{item.label}</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <div class="mobile-foot">
+        <Button href={cta.href} block icon data-menu-link>
+          {cta.label}
+        </Button>
+        <dl class="mobile-contact">
+          <div>
+            <dt>E-Mail</dt>
+            <dd>
+              {isTodo(contact.email) ? (
+                contact.email
+              ) : (
+                <a class="link" href={`mailto:${contact.email}`}>
+                  {contact.email}
+                </a>
+              )}
+            </dd>
+          </div>
+          <div>
+            <dt>Telefon</dt>
+            <dd>
+              {isTodo(contact.phone) ? (
+                contact.phone
+              ) : (
+                <a class="link" href={`tel:${contact.phone.replace(/\s+/g, '')}`}>
+                  {contact.phone}
+                </a>
+              )}
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    height: var(--header-h);
+    border-bottom: 1px solid transparent;
+    transition:
+      background-color var(--dur-2) var(--ease),
+      border-color var(--dur-2) var(--ease);
+  }
+
+  .site-header:global(.is-scrolled) {
+    border-bottom-color: var(--line);
+    background-color: color-mix(in srgb, var(--aubergine) 80%, transparent);
+    backdrop-filter: blur(14px);
+  }
+
+  .site-header:global(.is-open) {
+    border-bottom-color: var(--line);
+    background-color: var(--night);
+    backdrop-filter: none;
+  }
+
+  .site-header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    height: 100%;
+  }
+
+  .site-nav {
+    display: none;
+  }
+
+  .site-nav ul {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.25rem, 1.2vw, 1rem);
+  }
+
+  .site-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding-inline: 0.75rem;
+    border-radius: 10px;
+    color: var(--soft);
+    font-size: var(--fs-small);
+    font-weight: 550;
+    text-decoration: none;
+    transition: color var(--dur-1) var(--ease);
+  }
+
+  .site-nav a:hover {
+    color: var(--white);
+  }
+
+  .site-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Unter 420 px ist für den CTA neben Logo und Menü kein Platz; er steht dann im Menü. */
+  .site-actions :global(.site-cta) {
+    display: none;
+  }
+
+  @media (min-width: 26.25rem) {
+    .site-actions :global(.site-cta) {
+      display: inline-flex;
+    }
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 2.75rem;
+    padding-inline: 0.875rem 0.75rem;
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--r-btn);
+    color: var(--white);
+    font-size: var(--fs-small);
+    font-weight: 650;
+    --casl: 0.4;
+  }
+
+  .menu-bars {
+    position: relative;
+    display: block;
+    width: 1.125rem;
+    height: 0.75rem;
+  }
+
+  .menu-bars span {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 1.5px;
+    border-radius: 2px;
+    background-color: currentColor;
+    transition: transform var(--dur-2) var(--ease);
+  }
+
+  .menu-bars span:first-child {
+    top: 2px;
+  }
+
+  .menu-bars span:last-child {
+    bottom: 2px;
+  }
+
+  .menu-toggle[aria-expanded='true'] .menu-bars span:first-child {
+    transform: translateY(3.25px) rotate(45deg);
+  }
+
+  .menu-toggle[aria-expanded='true'] .menu-bars span:last-child {
+    transform: translateY(-3.25px) rotate(-45deg);
+  }
+
+  .mobile-menu {
+    position: fixed;
+    inset: var(--header-h) 0 0 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background-color: var(--night);
+  }
+
+  .mobile-menu-inner {
+    display: flex;
+    min-height: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2.5rem;
+    padding-block: 2rem 2.5rem;
+  }
+
+  .mobile-links {
+    display: grid;
+  }
+
+  .mobile-links a {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    padding-block: 0.875rem;
+    border-bottom: 1px solid var(--line);
+    text-decoration: none;
+  }
+
+  .mobile-link-label {
+    color: var(--white);
+    font-size: clamp(2rem, 9vw, 2.75rem);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    --casl: 1;
+  }
+
+  .mobile-foot {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .mobile-contact {
+    display: grid;
+    gap: 0.5rem;
+    font-size: var(--fs-small);
+  }
+
+  .mobile-contact div {
+    display: grid;
+    grid-template-columns: 5rem 1fr;
+    gap: 0.75rem;
+  }
+
+  .mobile-contact dt {
+    color: var(--lav);
+    font-family: var(--ff-mono);
+    --mono: 1;
+  }
+
+  @media (min-width: 64rem) {
+    .site-nav {
+      display: block;
+    }
+
+    .menu-toggle,
+    .mobile-menu {
+      display: none;
+    }
+  }
+</style>

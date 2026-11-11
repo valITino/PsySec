@@ -1,0 +1,198 @@
+---
+/**
+ * Hero: zwei Fragen als Headline, daneben der Klick-Simulator.
+ * Die Headline blendet zeilenweise hinter einer Maske ein (reines CSS, Stagger 80 ms).
+ */
+import Button from '@psyber/ui/components/Button.astro';
+import Kicker from '@psyber/ui/components/Kicker.astro';
+import PsiNet from '@psyber/ui/components/PsiNet.astro';
+import { primaryCta } from '../../config/site.ts';
+import ClickSimulator from './ClickSimulator.astro';
+
+const cta = primaryCta(true);
+---
+
+<section class="hero net-texture" aria-labelledby="hero-title" data-psi-tilt>
+  <div class="hero-psi" aria-hidden="true">
+    <PsiNet animated fine class="hero-psi-net" />
+  </div>
+
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <Kicker>Cyber-Prävention für Familien in Zürich</Kicker>
+      <h1 id="hero-title" class="display hero-title">
+        <span class="mask">
+          <span class="mask-line">Ein Klick zu viel?</span>
+        </span>
+        <span class="mask">
+          <span class="mask-line">Ein Anruf zu</span>
+        </span>
+        <span class="mask">
+          <span class="mask-line">glaubwürdig?</span>
+        </span>
+      </h1>
+      <p class="lead hero-lead">
+        Betrüger hacken keine Router, sondern Menschen. PSYber zeigt Ihrer Familie, wie Manipulation
+        funktioniert, und sichert Ihr Heimnetz gleich mit ab.
+      </p>
+      <div class="hero-actions">
+        <Button href={cta.href} icon>
+          {cta.label}
+        </Button>
+        <Button href="#ablauf" variant="secondary">
+          So funktioniert’s
+        </Button>
+      </div>
+    </div>
+
+    <div class="hero-widget">
+      <ClickSimulator />
+    </div>
+  </div>
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    /* Der transparente Header liegt über dem Hero */
+    margin-top: calc(-1 * var(--header-h));
+    padding-top: calc(var(--header-h) + clamp(2rem, 5vw, 3.5rem));
+    padding-bottom: clamp(4rem, 8vw, 6.5rem);
+    overflow: clip;
+  }
+
+  .hero-psi {
+    position: absolute;
+    top: 1.5rem;
+    right: -52%;
+    z-index: -1;
+    width: 105%;
+    opacity: 0.2;
+    pointer-events: none;
+  }
+
+  .hero-psi :global(.hero-psi-net) {
+    width: 100%;
+    height: auto;
+    --psi-bg: var(--night);
+  }
+
+  .hero-grid {
+    display: grid;
+    gap: clamp(3rem, 8vw, 4rem);
+  }
+
+  .hero-copy {
+    display: grid;
+    align-content: center;
+    justify-items: start;
+    gap: 1.5rem;
+  }
+
+  .hero-title {
+    font-size: clamp(2.25rem, 10.4vw, 3.5rem);
+  }
+
+  /* Maske: Zeile fährt von unten herein; etwas Luft für Umlaute und Unterlängen */
+  .mask {
+    display: block;
+    overflow: hidden;
+    margin-block: -0.08em;
+    padding-block: 0.08em;
+  }
+
+  .mask-line {
+    display: block;
+    animation: hero-line var(--dur-4) var(--ease) both;
+  }
+
+  .mask:nth-child(2) .mask-line {
+    animation-delay: 80ms;
+  }
+
+  .mask:nth-child(3) .mask-line {
+    animation-delay: 160ms;
+  }
+
+  @keyframes hero-line {
+    from {
+      transform: translateY(112%);
+    }
+  }
+
+  .hero-lead {
+    max-width: 31em;
+  }
+
+  .hero-actions {
+    display: grid;
+    gap: 0.75rem;
+    width: 100%;
+    margin-top: 0.5rem;
+  }
+
+  @media (min-width: 26.25rem) {
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      width: auto;
+    }
+  }
+
+  .hero-widget {
+    position: relative;
+    display: grid;
+    justify-items: center;
+  }
+
+  /* Der einzige Glow der Seite: dezent violett hinter dem Widget */
+  .hero-widget::before {
+    position: absolute;
+    top: 46%;
+    left: 50%;
+    z-index: -1;
+    width: min(46rem, 150%);
+    aspect-ratio: 1;
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--violet) 42%, transparent),
+      transparent
+    );
+    content: '';
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+  }
+
+  @media (min-width: 64rem) {
+    .hero {
+      display: grid;
+      align-items: center;
+      min-height: min(100svh, 62rem);
+    }
+
+    .hero-psi {
+      top: -7%;
+      right: -11.5%;
+      width: 64%;
+      opacity: 0.24;
+    }
+
+    .hero-grid {
+      grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .hero-title {
+      font-size: clamp(3.5rem, 5.5vw, 5rem);
+    }
+
+    .hero-widget {
+      justify-items: end;
+    }
+
+    .hero-widget::before {
+      left: 62%;
+    }
+  }
+</style>

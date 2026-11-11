@@ -1,0 +1,122 @@
+---
+/**
+ * 0x05 Haltung: drei grosse Aussagen. Beim Scrollen werden die Wörter von 25 % auf 100 %
+ * Deckkraft hell (SplitText, siehe src/scripts/haltung.ts). Ohne JS stehen sie einfach da.
+ * Erste der höchstens zwei hellen Sektionen.
+ */
+import SectionHead from '../SectionHead.astro';
+
+const statements = [
+  {
+    text: 'Nicht jeder, der klickt, ist naiv.',
+    note: 'Betrug zielt auf Gefühle, nicht auf Intelligenz. Darum gibt es bei uns keine Vorwürfe.',
+  },
+  {
+    text: 'Nicht jede Sicherheit braucht Überwachung.',
+    note: 'Wir erklären, statt heimlich mitzulesen. Überwacht wird nur, was alle Beteiligten erlaubt haben.',
+  },
+  {
+    text: 'Nicht jedes Problem löst eine App.',
+    note: 'Manchmal braucht es eine Person, die man fragen kann. Genau die sind wir.',
+  },
+];
+---
+
+<section class="section on-paper haltung" aria-labelledby="haltung-title" data-haltung>
+  <div class="wrap">
+    <SectionHead
+      num="0x05"
+      kicker="Unsere Haltung"
+      title="Unsere Haltung"
+      id="haltung-title"
+      class="haltung-head"
+    />
+
+    <ol class="statements">
+      {statements.map((statement, index) => (
+        <li class="statement">
+          <span class="statement-num mono" aria-hidden="true">
+            0{index + 1}
+          </span>
+          <div class="statement-body">
+            <p class="display statement-text" data-reveal-words>
+              {statement.text}
+            </p>
+            <p class="statement-note">{statement.note}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </div>
+</section>
+
+<style>
+  /* Die Überschrift steht bereits im Kicker; sichtbar wäre sie doppelt. */
+  .haltung :global(.haltung-head .section-title) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .statements {
+    display: grid;
+    gap: clamp(3rem, 8vw, 6.5rem);
+    margin-top: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .statement {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .statement-num {
+    color: var(--violet);
+    font-size: var(--fs-meta);
+    font-weight: 500;
+  }
+
+  .statement-body {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .statement-text {
+    max-width: 15em;
+    font-size: var(--fs-statement);
+    line-height: 1;
+  }
+
+  .statement-note {
+    max-width: 30em;
+    color: var(--ink);
+    font-size: var(--fs-lead);
+    line-height: 1.5;
+  }
+
+  /* Zeilenumbruch nur zwischen Wörtern: SplitText setzt jedes Wort in ein eigenes Element */
+  .statement-text :global(.word) {
+    will-change: opacity;
+  }
+
+  @media (min-width: 64rem) {
+    .statement {
+      grid-template-columns: 3rem minmax(0, 1fr);
+      gap: 1.5rem;
+    }
+
+    .statement-num {
+      padding-top: 0.9rem;
+    }
+
+    .statement:nth-child(2) {
+      margin-left: 8.333%;
+    }
+
+    .statement:nth-child(3) {
+      margin-left: 16.666%;
+    }
+  }
+</style>

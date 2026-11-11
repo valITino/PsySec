@@ -1,2 +1,4 @@
-/** Version des Antwortschemas; wird mit jeder Antwort gespeichert. */
-export const SCHEMA_VERSION = 1;
+export * from './questions.ts';
+export * from './schema.ts';
+export * from './logic.ts';
+export * from './tips.ts';

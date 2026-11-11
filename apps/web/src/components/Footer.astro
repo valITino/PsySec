@@ -1,0 +1,232 @@
+---
+/**
+ * Mehrspaltiger Footer mit Mono-Zeilen. Kein Cookie-Banner, weil keine Cookies gesetzt werden.
+ */
+import Logo from '@psyber/ui/components/Logo.astro';
+import { contact, href, isTodo, meta, surveyUrl } from '../config/site.ts';
+
+interface Props {
+  home?: boolean;
+}
+
+const { home = false } = Astro.props;
+const anchor = (hash: string) => (home ? hash : href(`/${hash}`));
+
+const columns = [
+  {
+    title: 'Angebot',
+    links: [
+      { label: 'Lösungen', href: anchor('#angebot') },
+      { label: 'Pakete', href: anchor('#pakete') },
+      { label: 'Ablauf', href: anchor('#ablauf') },
+    ],
+  },
+  {
+    title: 'PSYber',
+    links: [
+      { label: 'Maschen', href: anchor('#maschen') },
+      { label: 'Über', href: anchor('#ueber') },
+      { label: 'Umfrage', href: surveyUrl() },
+      { label: 'Checkliste', href: href('/checkliste') },
+      { label: 'Kontakt', href: anchor('#kontakt') },
+    ],
+  },
+  {
+    title: 'Rechtliches',
+    links: [
+      { label: 'Impressum', href: href('/impressum') },
+      { label: 'Datenschutz', href: href('/datenschutz') },
+    ],
+  },
+];
+---
+
+<footer class="site-footer net-texture net-texture-up">
+  <div class="wrap">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <Logo href={href('/')} />
+        <p class="footer-claim">{meta.claim}</p>
+      </div>
+
+      <nav class="footer-nav" aria-label="Footer">
+        {columns.map((column) => (
+          <div>
+            <h2 class="footer-title">{column.title}</h2>
+            <ul>
+              {column.links.map((item) => (
+                <li>
+                  <a href={item.href}>{item.label}</a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+        <div>
+          <h2 class="footer-title">Kontakt</h2>
+          <ul>
+            <li>
+              {isTodo(contact.email) ? (
+                <span>{contact.email}</span>
+              ) : (
+                <a href={`mailto:${contact.email}`}>{contact.email}</a>
+              )}
+            </li>
+            <li>
+              {isTodo(contact.phone) ? (
+                <span>{contact.phone}</span>
+              ) : (
+                <a href={`tel:${contact.phone.replace(/\s+/g, '')}`}>{contact.phone}</a>
+              )}
+            </li>
+            <li>
+              <span>{contact.region}</span>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </div>
+
+    <div class="footer-bottom mono">
+      <ul class="footer-lines">
+        <li>Kein Cookie-Banner. Weil wir keine Cookies setzen.</li>
+        <li>0 Tracking-Pixel, 0 Deepfakes, genau ein Nerd.</li>
+        <li>
+          Sicherheitslücke gefunden?{' '}
+          <a class="link" href={href('/.well-known/security.txt')}>
+            /.well-known/security.txt
+          </a>
+        </li>
+        <li>© 2026 PSYber</li>
+      </ul>
+      <button type="button" class="motion-toggle" data-motion-toggle aria-pressed="false" hidden>
+        <span class="motion-dot" aria-hidden="true"></span>
+        <span data-motion-label>Bewegung pausieren</span>
+      </button>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--line);
+    padding-block: clamp(3.5rem, 8vw, 6rem) 2.5rem;
+  }
+
+  .footer-top {
+    display: grid;
+    gap: 3rem;
+  }
+
+  .footer-brand {
+    display: grid;
+    gap: 0.75rem;
+    align-content: start;
+  }
+
+  .footer-claim {
+    color: var(--lav);
+    font-family: var(--ff-mono);
+    font-size: var(--fs-meta);
+    --mono: 1;
+  }
+
+  .footer-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.5rem 1.5rem;
+  }
+
+  .footer-title {
+    margin-bottom: 0.75rem;
+    color: var(--white);
+    font-size: var(--fs-small);
+    font-weight: 750;
+    letter-spacing: 0;
+    line-height: 1.4;
+    --casl: 0.5;
+  }
+
+  .footer-nav ul {
+    display: grid;
+    gap: 0.125rem;
+  }
+
+  .footer-nav a,
+  .footer-nav span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.25rem;
+    color: var(--soft);
+    font-size: var(--fs-small);
+    text-decoration: none;
+    overflow-wrap: anywhere;
+  }
+
+  .footer-nav a:hover {
+    color: var(--white);
+    text-decoration: underline;
+    text-decoration-color: var(--lav);
+  }
+
+  .footer-bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+    margin-top: clamp(3rem, 6vw, 5rem);
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--line);
+    color: var(--lav);
+    font-size: var(--fs-micro);
+  }
+
+  .footer-lines {
+    display: grid;
+    gap: 0.375rem;
+  }
+
+  .motion-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding-inline: 0.875rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-pill);
+    color: var(--soft);
+    font-family: var(--ff-mono);
+    font-size: var(--fs-micro);
+    --mono: 1;
+  }
+
+  .motion-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--ok);
+  }
+
+  .motion-toggle[aria-pressed='true'] .motion-dot {
+    background-color: var(--lav);
+  }
+
+  @media (min-width: 40rem) {
+    .footer-nav {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .footer-top {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+    }
+  }
+
+  @media print {
+    .site-footer {
+      display: none;
+    }
+  }
+</style>

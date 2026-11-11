@@ -1,0 +1,216 @@
+---
+/**
+ * Phishing-Ticker: zwei gegenläufige Reihen aus Pillen (Satz plus Hebel).
+ * CSS-Animation über transform; die Kopie für den Loop ist aria-hidden.
+ * Pausiert bei Hover, bei Fokus und über den Pause-Button. Reduced motion: statisch, umbrechend.
+ */
+import Icon from '@psyber/ui/components/Icon.astro';
+
+const phrases = [
+  ['Ihr Paket wartet', 'Zeitdruck'],
+  ['Hallo Mama, das ist meine neue Nummer', 'Zuneigung'],
+  ['Ihr Konto wird gesperrt', 'Angst'],
+  ['Sie haben gewonnen!', 'Gewinn'],
+  ['Hier spricht die Polizei', 'Autorität'],
+  ['Nur heute gültig', 'Zeitdruck'],
+  ['Alle aus der Klasse sind schon dabei', 'Gruppendruck'],
+  ['Bitte sag es niemandem', 'Scham'],
+  ['Garantiert 20 % Rendite', 'Gewinn'],
+  ['Ich brauche kurz deinen Code', 'Vertrauen'],
+  ['Ihr Computer ist infiziert, rufen Sie uns an', 'Angst'],
+  ['Ich vermisse dich, kannst du mir helfen?', 'Zuneigung'],
+] as const;
+
+const rows = [phrases.slice(0, 6), phrases.slice(6)];
+---
+
+<section class="ticker" aria-labelledby="ticker-title" data-ticker>
+  <div class="wrap ticker-head">
+    <h2 id="ticker-title" class="ticker-title">
+      Sätze, bei denen Sie stutzig werden sollten.
+    </h2>
+    <button type="button" class="ticker-toggle" aria-pressed="false" data-ticker-toggle>
+      <span class="ticker-icon ticker-icon-pause">
+        <Icon name="pause" size={16} />
+      </span>
+      <span class="ticker-icon ticker-icon-play">
+        <Icon name="play" size={16} />
+      </span>
+      <span data-ticker-label>Band anhalten</span>
+    </button>
+  </div>
+
+  <div class="ticker-rows">
+    {rows.map((row, rowIndex) => (
+      <div class:list={['ticker-row', { 'ticker-row-reverse': rowIndex === 1 }]}>
+        <ul class="ticker-list">
+          {row.map(([phrase, lever]) => (
+            <li class="pill">
+              <span class="pill-text">«{phrase}»</span>
+              <span class="pill-lever mono">{lever}</span>
+            </li>
+          ))}
+        </ul>
+        <ul class="ticker-list ticker-copy" aria-hidden="true">
+          {row.map(([phrase, lever]) => (
+            <li class="pill">
+              <span class="pill-text">«{phrase}»</span>
+              <span class="pill-lever mono">{lever}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .ticker {
+    padding-block: clamp(3rem, 6vw, 4.5rem);
+    border-block: 1px solid var(--line);
+    background-color: var(--aubergine);
+    overflow: clip;
+  }
+
+  .ticker-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .ticker-title {
+    font-size: clamp(1.25rem, 1.05rem + 0.9vw, 1.625rem);
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    line-height: 1.2;
+    --casl: 0.6;
+  }
+
+  .ticker-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding-inline: 0.875rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-pill);
+    color: var(--soft);
+    font-size: var(--fs-micro);
+    font-weight: 600;
+  }
+
+  .ticker-icon {
+    display: grid;
+  }
+
+  .ticker-icon-play,
+  .ticker-toggle[aria-pressed='true'] .ticker-icon-pause {
+    display: none;
+  }
+
+  .ticker-toggle[aria-pressed='true'] .ticker-icon-play {
+    display: grid;
+  }
+
+  .ticker-rows {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 1.75rem;
+  }
+
+  .ticker-row {
+    display: flex;
+    width: max-content;
+    animation: ticker 48s linear infinite;
+  }
+
+  .ticker-row-reverse {
+    animation-direction: reverse;
+    animation-duration: 56s;
+  }
+
+  .ticker-list {
+    display: flex;
+    flex: none;
+    gap: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3rem;
+    padding: 0.5rem 0.625rem 0.5rem 1.125rem;
+    border: 1px solid var(--line);
+    border-radius: var(--r-pill);
+    background-color: var(--night);
+    white-space: nowrap;
+  }
+
+  .pill-text {
+    color: var(--white);
+    font-weight: 550;
+  }
+
+  .pill-lever {
+    padding: 0.1875rem 0.625rem;
+    border-radius: var(--r-pill);
+    background-color: color-mix(in srgb, var(--amber) 16%, transparent);
+    color: var(--amber);
+    font-size: var(--fs-micro);
+  }
+
+  /* Pausiert bei Hover, bei Fokus und wenn der Button gedrückt ist */
+  .ticker:global(.is-paused) .ticker-row,
+  .ticker:focus-within .ticker-row {
+    animation-play-state: paused;
+  }
+
+  @media (hover: hover) {
+    .ticker-rows:hover .ticker-row {
+      animation-play-state: paused;
+    }
+  }
+
+  @keyframes ticker {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Reduzierte Bewegung oder kein Skript für den Button: statisch und umbrechend */
+  @media (prefers-reduced-motion: reduce) {
+    .ticker-row {
+      width: auto;
+      animation: none;
+    }
+
+    .ticker-rows {
+      width: min(100% - 2 * var(--gutter), var(--container));
+      margin-inline: auto;
+    }
+
+    .ticker-list {
+      flex-wrap: wrap;
+      padding-right: 0;
+    }
+
+    .pill {
+      white-space: normal;
+    }
+
+    .ticker-copy,
+    .ticker-toggle {
+      display: none;
+    }
+  }
+
+  @media (scripting: none) {
+    .ticker-toggle {
+      display: none;
+    }
+  }
+</style>

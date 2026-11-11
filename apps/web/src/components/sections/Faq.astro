@@ -1,0 +1,145 @@
+---
+/**
+ * 0x0A FAQ: Akkordeon mit nativem <details>/<summary>.
+ */
+import Icon from '@psyber/ui/components/Icon.astro';
+import { isLaunch, sources } from '../../config/site.ts';
+import SectionHead from '../SectionHead.astro';
+
+const faqs = [
+  {
+    q: 'Für wen ist PSYber?',
+    a: 'Für Familien im Raum Zürich: Eltern, Kinder ab Schulalter, Jugendliche und Grosseltern. Technisches Vorwissen braucht es nicht.',
+  },
+  {
+    q: 'Überwacht ihr unsere Kinder?',
+    a: 'Nein. Kinderprofile und Bildschirmzeit richten wir gemeinsam mit Ihnen ein, ältere Kinder reden mit. Transparenz statt heimlicher Kontrolle.',
+  },
+  {
+    q: 'Was ist mit Handys?',
+    a: 'Handys schützen wir über die Einstellungen der Geräte und den DNS-Filter. Das Frühwarnsystem deckt vor allem Computer und Router ab.',
+  },
+  {
+    q: 'Was passiert mit unseren Daten und Passwörtern?',
+    a: 'Wir nehmen keine Passwörter mit. Alle Einstellungen dokumentieren wir für Sie. Fernwartung gibt es nur nach dem PSYber-Handshake.',
+  },
+  {
+    q: 'Ruft PSYber mich an?',
+    a: 'Nie unaufgefordert. Wenn jemand in unserem Namen anruft und Fernzugriff verlangt, legen Sie auf.',
+  },
+  {
+    q: 'Was kostet das?',
+    a: isLaunch
+      ? 'Die Preise finden Sie bei den Paketen.'
+      : 'Die Preise legen wir nach der Pilotphase fest. Founding Families erhalten einen Vorzugspreis. Machen Sie bei der Umfrage mit, dann reden Sie mit.',
+  },
+];
+---
+
+<section class="section" aria-labelledby="faq-title">
+  <div class="wrap faq">
+    <SectionHead num="0x0A" kicker="FAQ" title="Häufige Fragen." id="faq-title" />
+
+    <div class="faq-list">
+      {faqs.map((faq) => (
+        <details class="faq-item">
+          <summary>
+            <span class="faq-q">{faq.q}</span>
+            <span class="faq-toggle" aria-hidden="true">
+              <Icon name="plus" size={20} />
+            </span>
+          </summary>
+          <p class="faq-a">{faq.a}</p>
+        </details>
+      ))}
+      <details class="faq-item">
+        <summary>
+          <span class="faq-q">Uns ist schon etwas passiert. Was jetzt?</span>
+          <span class="faq-toggle" aria-hidden="true">
+            <Icon name="plus" size={20} />
+          </span>
+        </summary>
+        <p class="faq-a">
+          Erstens: Bank oder Kartenherausgeber sofort anrufen und die Karte sperren. Zweitens:
+          Passwörter ändern und den Zwei-Faktor-Login einschalten. Drittens: Anzeige bei der
+          Kantonspolizei. Viertens: Meldung ans{' '}
+          <a class="link" href={sources.bacsMelden.url} target="_blank" rel="noopener">
+            BACS<span class="sr-only"> (Meldeformular, externer Link)</span>
+          </a>
+          . Und: Es ist keine Schande. Betrug trifft Menschen jeden Alters.
+        </p>
+      </details>
+    </div>
+  </div>
+</section>
+
+<style>
+  .faq {
+    display: grid;
+    gap: clamp(2rem, 5vw, 3.5rem);
+  }
+
+  .faq-list {
+    border-top: 1px solid var(--line);
+  }
+
+  .faq-item {
+    border-bottom: 1px solid var(--line);
+  }
+
+  .faq-item summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    min-height: 4.25rem;
+    padding-block: 1rem;
+    list-style: none;
+  }
+
+  .faq-q {
+    color: var(--white);
+    font-size: clamp(1.125rem, 1.05rem + 0.4vw, 1.375rem);
+    font-weight: 750;
+    letter-spacing: -0.01em;
+    line-height: 1.3;
+    --casl: 0.5;
+  }
+
+  .faq-toggle {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 50%;
+    color: var(--white);
+    transition:
+      transform var(--dur-2) var(--ease),
+      border-color var(--dur-2) var(--ease);
+  }
+
+  .faq-item[open] .faq-toggle {
+    border-color: var(--lav);
+    transform: rotate(45deg);
+  }
+
+  .faq-a {
+    max-width: 38em;
+    padding-bottom: 1.75rem;
+  }
+
+  @media (hover: hover) {
+    .faq-item summary:hover .faq-toggle {
+      border-color: var(--lav);
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .faq {
+      grid-template-columns: minmax(0, 4fr) minmax(0, 8fr);
+      align-items: start;
+    }
+  }
+</style>

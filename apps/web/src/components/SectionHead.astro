@@ -1,0 +1,87 @@
+---
+/**
+ * Kopf einer Sektion: Hex-Nummer, Kicker als Code-Kommentar, H2 und optionaler Einleitungstext.
+ */
+interface Props {
+  /** Abschnittsnummer in Hex, z. B. '0x01'. Ohne Angabe entfällt die Nummer. */
+  num?: string;
+  kicker?: string;
+  title: string;
+  /** id der Überschrift, für aria-labelledby an der Sektion */
+  id: string;
+  lead?: string;
+  align?: 'left' | 'center';
+  class?: string;
+}
+
+const { num, kicker, title, id, lead, align = 'left', class: className } = Astro.props;
+---
+
+<header class:list={['section-head', { 'section-head-center': align === 'center' }, className]}>
+  {(num || kicker) && (
+    <p class="section-meta">
+      {num && (
+        <span class="hexnum" aria-hidden="true">
+          {num}
+        </span>
+      )}
+      {num && kicker && <span class="section-rule" aria-hidden="true" />}
+      {kicker && (
+        <span class="kicker">
+          <span aria-hidden="true">// </span>
+          {kicker}
+        </span>
+      )}
+    </p>
+  )}
+  <h2 id={id} class="display h2 section-title">
+    {title}
+  </h2>
+  {lead && <p class="lead section-lead">{lead}</p>}
+  <slot />
+</header>
+
+<style>
+  .section-head {
+    display: grid;
+    gap: 1.25rem;
+    max-width: 52rem;
+  }
+
+  .section-head-center {
+    justify-items: center;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .section-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .section-rule {
+    position: relative;
+    width: 2.5rem;
+    height: 1px;
+    background-color: var(--border);
+  }
+
+  /* Kleiner Knoten am Ende der Linie: Anklang ans Psi-Netz */
+  .section-rule::after {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background-color: var(--accent);
+    content: '';
+    transform: translate(50%, -50%);
+  }
+
+  .section-lead {
+    color: var(--fg);
+  }
+</style>

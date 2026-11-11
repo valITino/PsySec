@@ -1,0 +1,226 @@
+---
+/**
+ * «Der erste Schritt»: zentrierter Abschluss-CTA mit Mini-Check (drei Antwortkarten).
+ * survey: Button führt zur Umfrage, die Auswahl wandert als ?fokus= mit.
+ * launch: Button führt zum Kontakt, die Auswahl wird erste Zeile der Nachricht.
+ * Verhalten: src/scripts/first-step.ts. Ohne JS führt der Button ohne Fokus weiter.
+ */
+import Icon from '@psyber/ui/components/Icon.astro';
+import PsiNet from '@psyber/ui/components/PsiNet.astro';
+import { isLaunch, surveyUrl } from '../../config/site.ts';
+import SectionHead from '../SectionHead.astro';
+
+const choices = [
+  {
+    value: 'vor',
+    title: 'Vor dem Klick',
+    text: 'Betrug erkennen',
+    note: 'Schwerpunkt: vor dem Klick',
+  },
+  {
+    value: 'nach',
+    title: 'Nach dem Klick',
+    text: 'Geräte und Heimnetz',
+    note: 'Schwerpunkt: nach dem Klick',
+  },
+  {
+    value: 'unklar',
+    title: 'Keine Ahnung',
+    text: 'Genau dafür gibt es die Umfrage.',
+    note: 'Schwerpunkt: noch unklar',
+  },
+];
+
+const base = surveyUrl();
+---
+
+<section class="section first" aria-labelledby="first-title">
+  <div class="first-psi" aria-hidden="true">
+    <PsiNet fine class="first-psi-net" />
+  </div>
+
+  <div class="wrap first-inner">
+    <SectionHead
+      kicker="Der erste Schritt"
+      title="Wo fühlen Sie sich am unsichersten?"
+      id="first-title"
+      align="center"
+    />
+
+    <form
+      class="first-form"
+      data-first-step
+      data-mode={isLaunch ? 'launch' : 'survey'}
+      data-base={isLaunch ? undefined : base}
+    >
+      <fieldset class="choices">
+        <legend class="sr-only">Wo fühlen Sie sich am unsichersten?</legend>
+        {choices.map((choice) => (
+          <label class="choice">
+            <input type="radio" name="fokus" value={choice.value} data-note={choice.note} />
+            <span class="choice-mark" aria-hidden="true">
+              <Icon name="check" size={16} strokeWidth={2.6} />
+            </span>
+            <span class="choice-title">{choice.title}</span>
+            <span class="choice-text">{choice.text}</span>
+          </label>
+        ))}
+      </fieldset>
+
+      <div class="first-actions">
+        {isLaunch ? (
+          <a class="btn btn-primary" href="#kontakt" data-first-cta>
+            <span>Session anfragen</span>
+            <Icon name="arrow-right" size={18} class="icon-shift" />
+          </a>
+        ) : (
+          <a class="btn btn-primary" href={base} data-first-cta>
+            <span>Umfrage starten</span>
+            <Icon name="arrow-right" size={18} class="icon-shift" />
+          </a>
+        )}
+        <a class="btn-text" href="#kontakt">
+          Direkt Kontakt aufnehmen
+        </a>
+      </div>
+    </form>
+  </div>
+</section>
+
+<style>
+  .first {
+    position: relative;
+    overflow: clip;
+    border-top: 1px solid var(--line);
+    background-color: var(--aubergine);
+  }
+
+  .first-psi {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: 0;
+    width: min(70rem, 190%);
+    opacity: 0.12;
+    pointer-events: none;
+    transform: translate(-50%, -46%);
+  }
+
+  .first-psi :global(.first-psi-net) {
+    width: 100%;
+    height: auto;
+    --psi-bg: var(--aubergine);
+  }
+
+  .first-inner {
+    position: relative;
+    z-index: 1;
+    display: grid;
+    justify-items: center;
+    gap: clamp(2rem, 5vw, 3rem);
+  }
+
+  .first-form {
+    display: grid;
+    justify-items: center;
+    gap: 2rem;
+    width: 100%;
+  }
+
+  .choices {
+    display: grid;
+    gap: 0.875rem;
+    width: min(100%, 56rem);
+  }
+
+  .choice {
+    position: relative;
+    display: grid;
+    gap: 0.375rem;
+    padding: 1.25rem 3.5rem 1.25rem 1.25rem;
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--r-card);
+    background-color: var(--night);
+    text-align: left;
+    cursor: pointer;
+    transition:
+      border-color var(--dur-2) var(--ease),
+      transform var(--dur-2) var(--ease);
+  }
+
+  .choice input {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .choice-mark {
+    position: absolute;
+    top: 1.125rem;
+    right: 1.125rem;
+    display: grid;
+    place-items: center;
+    width: 1.625rem;
+    height: 1.625rem;
+    border: 1.5px solid var(--border-strong);
+    border-radius: 50%;
+    color: transparent;
+    transition:
+      background-color var(--dur-1) var(--ease),
+      border-color var(--dur-1) var(--ease),
+      color var(--dur-1) var(--ease);
+  }
+
+  .choice-title {
+    color: var(--white);
+    font-size: 1.375rem;
+    font-weight: 850;
+    letter-spacing: -0.01em;
+    line-height: 1.15;
+    --casl: 0.8;
+  }
+
+  .choice-text {
+    color: var(--soft);
+    font-size: var(--fs-small);
+    line-height: 1.45;
+  }
+
+  .choice:has(input:checked) {
+    border-color: var(--lav);
+  }
+
+  .choice:has(input:checked) .choice-mark {
+    border-color: var(--lav);
+    background-color: var(--lav);
+    color: var(--night);
+  }
+
+  .choice:has(input:focus-visible) {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  .first-actions {
+    display: grid;
+    justify-items: center;
+    gap: 0.75rem;
+  }
+
+  @media (hover: hover) and (pointer: fine) {
+    .choice:hover {
+      border-color: var(--lav);
+      transform: translateY(-2px);
+    }
+  }
+
+  @media (min-width: 48rem) {
+    .choices {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .choice {
+      padding: 1.5rem 3.5rem 1.75rem 1.5rem;
+    }
+  }
+</style>

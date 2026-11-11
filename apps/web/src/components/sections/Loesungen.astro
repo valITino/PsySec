@@ -1,0 +1,126 @@
+---
+/**
+ * 0x03 Lösungen: zwei nummerierte Karten, je mit Button.
+ */
+import Button from '@psyber/ui/components/Button.astro';
+import Card from '@psyber/ui/components/Card.astro';
+import Icon from '@psyber/ui/components/Icon.astro';
+import SectionHead from '../SectionHead.astro';
+
+const cards = [
+  {
+    num: '01',
+    title: 'Layer 8: Menschen stärken',
+    text: 'Wir erklären die Tricks hinter Phishing, Anlagebetrug, Romance Scam und Cybermobbing, zeigen, welche Spuren Ihre Familie online hinterlässt, und üben das Erkennen an echten Beispielen.',
+    points: [
+      'Familien-Session zu Hause',
+      'Vorträge für Schulen, Gemeinden und Firmen',
+      '«Ist das echt?»-Check per WhatsApp',
+    ],
+    button: { label: 'So läuft eine Session ab', href: '#ablauf' },
+  },
+  {
+    num: '02',
+    title: 'Heimnetz: Technik absichern',
+    text: 'Wir richten Router, Gästenetz und DNS-Filter ein, schützen die Geräte der Kinder, sorgen für Passwort-Manager und Backup und zeigen Ihnen, welche Geräte im Netz sind und was blockiert wird.',
+    points: [
+      'Router und Gästenetz',
+      'DNS-Filter und Überblick über den Netzwerkverkehr',
+      'Kinderprofile direkt auf den Geräten',
+      'Passwort-Manager und Backup',
+    ],
+    button: { label: 'Pakete ansehen', href: '#pakete' },
+  },
+];
+---
+
+<section class="section" id="angebot" aria-labelledby="angebot-title">
+  <div class="wrap">
+    <SectionHead
+      num="0x03"
+      kicker="Was wir tun"
+      title="Wir setzen dort an, wo Familien verwundbar sind."
+      id="angebot-title"
+    />
+
+    <div class="solutions">
+      {cards.map((card) => (
+        <Card as="article" hover class="solution">
+          <p class="solution-num mono" aria-hidden="true">
+            {card.num}
+          </p>
+          <h3 class="h3">{card.title}</h3>
+          <p class="solution-text">{card.text}</p>
+          <ul class="solution-points">
+            {card.points.map((point) => (
+              <li>
+                <Icon name="check" size={18} strokeWidth={2.2} />
+                <span>{point}</span>
+              </li>
+            ))}
+          </ul>
+          <div class="solution-action">
+            <Button href={card.button.href} variant="secondary" icon>
+              {card.button.label}
+            </Button>
+          </div>
+        </Card>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .solutions {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: clamp(2.5rem, 6vw, 4.5rem);
+  }
+
+  .solutions :global(.solution) {
+    display: grid;
+    grid-template-rows: auto auto auto 1fr auto;
+    gap: 1.25rem;
+  }
+
+  .solution-num {
+    color: var(--lav);
+    font-size: clamp(2.5rem, 5vw, 3.75rem);
+    font-weight: 300;
+    line-height: 1;
+  }
+
+  .solution-text {
+    max-width: 34em;
+  }
+
+  .solution-points {
+    display: grid;
+    align-content: start;
+    gap: 0.625rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line);
+  }
+
+  .solution-points li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .solution-points :global(.icon) {
+    flex: none;
+    margin-top: 0.3em;
+    color: var(--lav);
+  }
+
+  .solution-action {
+    margin-top: 0.75rem;
+  }
+
+  @media (min-width: 56rem) {
+    .solutions {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

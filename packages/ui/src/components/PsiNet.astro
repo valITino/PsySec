@@ -22,17 +22,23 @@ import {
 interface Props {
   class?: string;
   animated?: boolean;
+  /**
+   * Feine Variante für sehr grosse Darstellung (Hintergrund): Linien behalten ihre Strichstärke
+   * in Pixeln, die Knoten sind kleiner. So wirkt das Netz gross, aber nicht schwer.
+   */
+  fine?: boolean;
   /** Zugänglicher Name. Ohne Angabe ist das Netz Dekoration. */
   label?: string;
 }
 
-const { class: className, animated = false, label } = Astro.props;
+const { class: className, animated = false, fine = false, label } = Astro.props;
+const radius = fine ? { node: 0.55, side: 0.4, end: 0.95 } : { node: 1.5, side: 1, end: 2.5 };
 ---
 
 <svg
   xmlns="http://www.w3.org/2000/svg"
   viewBox={PSI_NET_VIEWBOX}
-  class:list={['psi-net', { 'is-animated': animated }, className]}
+  class:list={['psi-net', { 'is-animated': animated, 'is-fine': fine }, className]}
   role={label ? 'img' : undefined}
   aria-label={label}
   aria-hidden={label ? undefined : 'true'}
@@ -48,15 +54,15 @@ const { class: className, animated = false, label } = Astro.props;
   </g>
   <g class="psi-nodes">
     {whiteNodes.map(([x, y]) => (
-      <circle class="psi-node" cx={x} cy={y} r="1.5" />
+      <circle class="psi-node" cx={x} cy={y} r={radius.node} />
     ))}
     {sideNodes.map(([x, y]) => (
-      <circle class="psi-node psi-node-side" cx={x} cy={y} r="1" />
+      <circle class="psi-node psi-node-side" cx={x} cy={y} r={radius.side} />
     ))}
   </g>
   <g class="psi-ends">
     {amberEnds.map(([x, y]) => (
-      <circle class="psi-end" cx={x} cy={y} r="2.5" />
+      <circle class="psi-end" cx={x} cy={y} r={radius.end} />
     ))}
   </g>
   <g class="psi-arcs" data-tip={`${tip[0]},${tip[1]}`}>
@@ -109,6 +115,23 @@ const { class: className, animated = false, label } = Astro.props;
     stroke: var(--amber);
     stroke-linecap: round;
     stroke-width: 1.15;
+  }
+
+  /* Feine Variante: Strichstärken in Bildschirm-Pixeln */
+  .psi-net.is-fine .psi-main > *,
+  .psi-net.is-fine .psi-arc {
+    stroke-width: 1.5px;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .psi-net.is-fine .psi-cross {
+    stroke-width: 1px;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .psi-net.is-fine .psi-node,
+  .psi-net.is-fine .psi-end {
+    stroke-width: 0;
   }
 
   .psi-net .psi-arc-1 {

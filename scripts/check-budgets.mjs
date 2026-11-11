@@ -1,7 +1,7 @@
 // Prüft das JS-Budget der drei Websites (gzip, initial geladen, ohne Turnstile).
 //   web 120 KB · forms 60 KB · surprise 25 KB
-// Gezählt wird, was die Einstiegsseite sofort lädt: <script>-Dateien, modulepreload und
-// alle statisch importierten Module. Per import() nachgeladene Teile zählen nicht.
+// Gezählt wird, was die Einstiegsseite ohne Zutun lädt: <script>-Dateien, modulepreload,
+// statisch importierte Module und automatisch per import() nachgeladene Teile.
 // Aufruf: pnpm build && pnpm budgets
 import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
@@ -11,10 +11,19 @@ import { gzipSync } from 'node:zlib';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const KB = 1000;
 
+// `onDemand`: Teile, die erst auf eine Aktion hin laden (Formular in Sicht, Easter Egg).
+// Alles andere, was per import() automatisch nachlädt (z. B. GSAP und Lenis nach dem ersten
+// Eindruck), zählt ehrlicherweise zum Budget.
 const SITES = [
-  { name: 'web', dist: 'apps/web/dist', entry: 'index.html', budget: 120 },
-  { name: 'forms', dist: 'apps/forms/dist', entry: 'index.html', budget: 60 },
-  { name: 'surprise', dist: 'apps/surprise/dist', entry: 'gewinn.html', budget: 25 },
+  {
+    name: 'web',
+    dist: 'apps/web/dist',
+    entry: 'index.html',
+    budget: 120,
+    onDemand: [/^contact\./, /^terminal\./, /^turnstile\./],
+  },
+  { name: 'forms', dist: 'apps/forms/dist', entry: 'index.html', budget: 60, onDemand: [] },
+  { name: 'surprise', dist: 'apps/surprise/dist', entry: 'gewinn.html', budget: 25, onDemand: [] },
 ];
 
 const gzipSize = (content) => gzipSync(content, { level: 9 }).length;
@@ -27,11 +36,15 @@ function toFile(dist, url) {
   return join(dist, clean);
 }
 
-function staticImports(code) {
+/** Statische Importe und import()-Aufrufe eines Moduls */
+function imports(code) {
   const found = new Set();
-  // import x from"./a.js" · import"./a.js" · export*from"./a.js"   (nicht: import("./a.js"))
-  const pattern = /(?:\bimport|\bexport)\s*(?:[^"'()]*?\bfrom\s*)?["'](\.{1,2}\/[^"']+\.js)["']/g;
-  for (const match of code.matchAll(pattern)) found.add(match[1]);
+  // import x from"./a.js" · import"./a.js" · export*from"./a.js"
+  const fixed = /(?:\bimport|\bexport)\s*(?:[^"'()]*?\bfrom\s*)?["'](\.{1,2}\/[^"']+\.js)["']/g;
+  // import("./a.js")
+  const dynamic = /\bimport\(\s*["'`](\.{1,2}\/[^"'`]+\.js)["'`]\s*\)/g;
+  for (const match of code.matchAll(fixed)) found.add(match[1]);
+  for (const match of code.matchAll(dynamic)) found.add(match[1]);
   return [...found];
 }
 
@@ -50,6 +63,7 @@ for (const site of SITES) {
   }
   const html = readFileSync(entry, 'utf8');
   const files = new Map();
+  const skipped = [];
   let inlineBytes = 0;
   const queue = [];
 
@@ -71,9 +85,14 @@ for (const site of SITES) {
   while (queue.length > 0) {
     const file = queue.pop();
     if (files.has(file) || !existsSync(file)) continue;
+    const name = file.slice(file.lastIndexOf('/') + 1);
+    if (site.onDemand.some((pattern) => pattern.test(name))) {
+      skipped.push(name);
+      continue;
+    }
     const code = readFileSync(file, 'utf8');
     files.set(file, gzipSize(code));
-    for (const specifier of staticImports(code)) queue.push(resolve(dirname(file), specifier));
+    for (const specifier of imports(code)) queue.push(resolve(dirname(file), specifier));
   }
 
   const total = [...files.values()].reduce((sum, size) => sum + size, 0) + inlineBytes;
@@ -84,6 +103,9 @@ for (const site of SITES) {
   );
   for (const [file, size] of [...files.entries()].sort((a, b) => b[1] - a[1]).slice(0, 6)) {
     console.log(`    ${(size / KB).toFixed(1).padStart(6)} KB  ${file.slice(dist.length + 1)}`);
+  }
+  if (skipped.length > 0) {
+    console.log(`    nicht gezählt (lädt erst bei Bedarf): ${[...new Set(skipped)].join(', ')}`);
   }
 }
 

@@ -1,0 +1,81 @@
+---
+import Legal from '../components/Legal.astro';
+import { contact } from '../config/site.ts';
+import Page from '../layouts/Page.astro';
+---
+
+<Page
+  title="Impressum – PSYber"
+  description="Angaben zum Anbieter von psyber.tech."
+  path="/impressum"
+>
+  <Legal kicker="Rechtliches" title="Impressum" stand="November 2026">
+    <h2>Verantwortlich für diese Website</h2>
+    <dl>
+      <div>
+        <dt>Name oder Firma</dt>
+        <dd>
+          <span class="todo">[TODO: Name bzw. Firma und Rechtsform]</span>
+        </dd>
+      </div>
+      <div>
+        <dt>Adresse</dt>
+        <dd>
+          <span class="todo">[TODO: Strasse, PLZ, Ort]</span>
+        </dd>
+      </div>
+      <div>
+        <dt>E-Mail</dt>
+        <dd>
+          <span class="todo">{contact.email}</span>
+        </dd>
+      </div>
+      <div>
+        <dt>Telefon</dt>
+        <dd>
+          <span class="todo">{contact.phone}</span>
+        </dd>
+      </div>
+      <div>
+        <dt>UID</dt>
+        <dd>
+          <span class="todo">[TODO: UID, falls vorhanden]</span>
+        </dd>
+      </div>
+    </dl>
+
+    <h2>Haftung für Inhalte</h2>
+    <p>
+      Wir erstellen die Inhalte dieser Website sorgfältig und halten sie aktuell. Trotzdem können
+      wir keine Gewähr für Richtigkeit, Vollständigkeit und Aktualität übernehmen. Die Hinweise
+      ersetzen keine Rechtsberatung und keine Beratung im Einzelfall.
+    </p>
+
+    <h2>Links auf andere Websites</h2>
+    <p>
+      Diese Website verweist auf Quellen und Anlaufstellen von Dritten. Für deren Inhalte sind
+      allein die jeweiligen Betreiber verantwortlich.
+    </p>
+
+    <h2>Beispiele auf dieser Website</h2>
+    <p>
+      Alle gezeigten Betrugsnachrichten, Chats und Adressen sind erfunden und dienen nur der
+      Aufklärung. Ähnlichkeiten mit echten Firmen oder Personen sind nicht beabsichtigt.
+    </p>
+
+    <h2>Urheberrecht</h2>
+    <p>
+      Texte, Gestaltung und Grafiken dieser Website gehören PSYber, soweit nicht anders vermerkt.
+      Schrift: Recursive (SIL Open Font License). Icons: Lucide (ISC License).
+    </p>
+
+    <h2>Sicherheitslücke gefunden?</h2>
+    <p>
+      Bitte melden Sie sie an{' '}
+      <a class="link" href={`mailto:${contact.security}`}>
+        {contact.security}
+      </a>
+      . Danke, dass Sie uns helfen.
+    </p>
+  </Legal>
+</Page>

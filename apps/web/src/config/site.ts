@@ -4,9 +4,13 @@
  * ACHTUNG: Diese Datei nur serverseitig (Astro-Frontmatter) importieren, nie in <script>-Code.
  * So landen die Preise in der Phase `survey` garantiert nicht im ausgelieferten HTML oder JS.
  */
-import { joinPath, resolveSites, splitSiteUrl } from '@psyber/config/sites';
+import { TURNSTILE_TEST_KEYS, joinPath, resolveSites, splitSiteUrl } from '@psyber/config/sites';
 
 export const sites = resolveSites(import.meta.env, { dev: import.meta.env.DEV });
+
+/** Turnstile Site Key; im Dev-Modus ohne Angabe der offizielle Testkey (besteht immer). */
+export const turnstileSiteKey =
+  sites.turnstileSiteKey || (import.meta.env.DEV ? TURNSTILE_TEST_KEYS.visible : '');
 
 const { site: origin, base } = splitSiteUrl(sites.web);
 
@@ -58,6 +62,14 @@ export const contact = {
 } as const;
 
 export const isTodo = (value: string) => value.startsWith('[TODO');
+
+/** Sektion «Über»: Angaben folgen (siehe docs/TODO.md). Nichts erfinden. */
+export const about = {
+  name: '[TODO: Name]',
+  rolle: '[TODO: z. B. Cybersecurity-Spezialist]',
+  warum: '[TODO: 2–3 Sätze Motivation]',
+  foto: '[TODO: Foto]',
+} as const;
 
 // ---------------------------------------------------------------- Preise (nur bei `launch` anzeigen)
 

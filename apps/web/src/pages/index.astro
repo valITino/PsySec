@@ -1,12 +1,42 @@
 ---
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import Ablauf from '../components/sections/Ablauf.astro';
+import Check from '../components/sections/Check.astro';
+import Drehbuch from '../components/sections/Drehbuch.astro';
+import ErsterSchritt from '../components/sections/ErsterSchritt.astro';
+import Faq from '../components/sections/Faq.astro';
+import Haltung from '../components/sections/Haltung.astro';
+import Hero from '../components/sections/Hero.astro';
+import Kontakt from '../components/sections/Kontakt.astro';
+import Loesungen from '../components/sections/Loesungen.astro';
+import Maschen from '../components/sections/Maschen.astro';
+import Pakete from '../components/sections/Pakete.astro';
+import ProblemSplit from '../components/sections/ProblemSplit.astro';
+import Ticker from '../components/sections/Ticker.astro';
+import Ueber from '../components/sections/Ueber.astro';
 import Base from '../layouts/Base.astro';
 ---
 
 <Base title="PSYber – Cyber-Prävention für Familien in Zürich" path="/">
-  <section class="section wrap">
-    <p class="kicker">
-      <span aria-hidden="true">// </span>Fundament steht
-    </p>
-    <h1 class="display h1">Ein Klick zu viel?</h1>
-  </section>
+  <Header slot="header" home />
+  <Hero />
+  <ProblemSplit />
+  <Drehbuch />
+  <Loesungen />
+  <Maschen />
+  <Ticker />
+  <Haltung />
+  <Check />
+  <Ablauf />
+  <Pakete />
+  <Ueber />
+  <Faq />
+  <ErsterSchritt />
+  <Kontakt />
+  <Footer slot="footer" home />
 </Base>
+
+<script>
+  import '../scripts/home.ts';
+</script>

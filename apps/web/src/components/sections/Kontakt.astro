@@ -1,0 +1,491 @@
+---
+/**
+ * 0x0B Kontakt: Kontaktdaten und Formular.
+ * Validierung mit dem gemeinsamen Schema aus @psyber/survey, POST an {PUBLIC_API_BASE}/v1/contact.
+ * Verhalten: src/scripts/contact.ts (wird erst nachgeladen, wenn das Formular in Sicht kommt).
+ */
+import Icon from '@psyber/ui/components/Icon.astro';
+import { TURNSTILE_ORIGIN } from '@psyber/config/security';
+import { CONTACT_LIMITS, interessen } from '@psyber/survey';
+import { contact, href, isTodo, sites, turnstileSiteKey } from '../../config/site.ts';
+import SectionHead from '../SectionHead.astro';
+
+const useTurnstile = !sites.apiMock && turnstileSiteKey !== '';
+
+// Turnstile nur auf dieser Seite erlauben (CSP per Meta-Tag).
+if (useTurnstile) {
+  Astro.csp?.insertScriptResource(TURNSTILE_ORIGIN);
+  Astro.csp?.insertDirective(`frame-src ${TURNSTILE_ORIGIN}`);
+}
+
+const fields = {
+  name: 'kontakt-name',
+  email: 'kontakt-email',
+  phone: 'kontakt-phone',
+  plzOrt: 'kontakt-plz-ort',
+  nachricht: 'kontakt-nachricht',
+  datenschutz: 'kontakt-datenschutz',
+};
+---
+
+<section class="section kontakt" id="kontakt" aria-labelledby="kontakt-title">
+  <div class="wrap kontakt-grid">
+    <div class="kontakt-info">
+      <SectionHead
+        num="0x0B"
+        kicker="Kontakt"
+        title="Kontakt. Lassen Sie uns sprechen."
+        id="kontakt-title"
+      />
+
+      <dl class="kontakt-list">
+        <div>
+          <dt>
+            <Icon name="mail" size={20} />
+            E-Mail
+          </dt>
+          <dd>
+            {isTodo(contact.email) ? (
+              contact.email
+            ) : (
+              <a class="link" href={`mailto:${contact.email}`}>
+                {contact.email}
+              </a>
+            )}
+          </dd>
+        </div>
+        <div>
+          <dt>
+            <Icon name="phone" size={20} />
+            Telefon/WhatsApp
+          </dt>
+          <dd>
+            {isTodo(contact.phone) ? (
+              contact.phone
+            ) : (
+              <a class="link" href={`tel:${contact.phone.replace(/\s+/g, '')}`}>
+                {contact.phone}
+              </a>
+            )}
+          </dd>
+        </div>
+        <div>
+          <dt>
+            <Icon name="map-pin" size={20} />
+            Region
+          </dt>
+          <dd>{contact.region}</dd>
+        </div>
+      </dl>
+    </div>
+
+    <div class="kontakt-panel card">
+      <form
+        class="kontakt-form"
+        novalidate
+        data-contact
+        data-api={sites.api}
+        data-turnstile-key={useTurnstile ? turnstileSiteKey : undefined}
+      >
+        <p class="form-note">
+          Felder mit <span aria-hidden="true">*</span>
+          <span class="sr-only">Stern</span> sind Pflicht.
+        </p>
+
+        <div class="form-row">
+          <div class="field">
+            <label class="label" for={fields.name}>
+              Name{' '}
+              <span class="req" aria-hidden="true">
+                *
+              </span>
+            </label>
+            <input
+              class="input"
+              id={fields.name}
+              name="name"
+              type="text"
+              autocomplete="name"
+              required
+              maxlength={CONTACT_LIMITS.name.max}
+            />
+            <p class="field-error" id={`${fields.name}-error`} data-error-for="name" hidden></p>
+          </div>
+
+          <div class="field">
+            <label class="label" for={fields.email}>
+              E-Mail{' '}
+              <span class="req" aria-hidden="true">
+                *
+              </span>
+            </label>
+            <input
+              class="input"
+              id={fields.email}
+              name="email"
+              type="email"
+              autocomplete="email"
+              inputmode="email"
+              required
+              maxlength={CONTACT_LIMITS.email.max}
+            />
+            <p class="field-error" id={`${fields.email}-error`} data-error-for="email" hidden></p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="field">
+            <label class="label" for={fields.phone}>
+              Telefon <span class="label-hint">(optional)</span>
+            </label>
+            <input
+              class="input"
+              id={fields.phone}
+              name="phone"
+              type="tel"
+              autocomplete="tel"
+              inputmode="tel"
+              maxlength={CONTACT_LIMITS.phone.max}
+            />
+            <p class="field-error" id={`${fields.phone}-error`} data-error-for="phone" hidden></p>
+          </div>
+
+          <div class="field">
+            <label class="label" for={fields.plzOrt}>
+              PLZ und Ort{' '}
+              <span class="req" aria-hidden="true">
+                *
+              </span>
+            </label>
+            <input
+              class="input"
+              id={fields.plzOrt}
+              name="plzOrt"
+              type="text"
+              required
+              maxlength={CONTACT_LIMITS.plzOrt.max}
+            />
+            <p class="field-error" id={`${fields.plzOrt}-error`} data-error-for="plzOrt" hidden></p>
+          </div>
+        </div>
+
+        <fieldset class="field" aria-describedby="kontakt-interesse-error">
+          <legend class="label">
+            Interesse{' '}
+            <span class="req" aria-hidden="true">
+              *
+            </span>
+          </legend>
+          <div class="chips">
+            {Object.entries(interessen).map(([value, label]) => (
+              <label class="chip">
+                <input type="radio" name="interesse" value={value} required />
+                <span>{label}</span>
+              </label>
+            ))}
+          </div>
+          <p class="field-error" id="kontakt-interesse-error" data-error-for="interesse" hidden></p>
+        </fieldset>
+
+        <div class="field">
+          <label class="label" for={fields.nachricht}>
+            Nachricht <span class="label-hint">(optional)</span>
+          </label>
+          <textarea
+            class="input"
+            id={fields.nachricht}
+            name="nachricht"
+            rows="5"
+            maxlength={CONTACT_LIMITS.nachricht.max}
+            aria-describedby="kontakt-nachricht-count"
+          ></textarea>
+          <p class="form-count mono" id="kontakt-nachricht-count">
+            <span data-count-current>0</span> / 2000 Zeichen
+          </p>
+          <p
+            class="field-error"
+            id={`${fields.nachricht}-error`}
+            data-error-for="nachricht"
+            hidden
+          ></p>
+        </div>
+
+        <div class="field">
+          <label class="check">
+            <input
+              class="checkbox"
+              type="checkbox"
+              id={fields.datenschutz}
+              name="datenschutz"
+              required
+            />
+            <span>
+              Ich habe die
+              <a class="link" href={href('/datenschutz')}>
+                Datenschutzerklärung
+              </a>
+              gelesen.{' '}
+              <span class="req" aria-hidden="true">
+                *
+              </span>
+            </span>
+          </label>
+          <p
+            class="field-error"
+            id={`${fields.datenschutz}-error`}
+            data-error-for="datenschutz"
+            hidden
+          ></p>
+        </div>
+
+        <!-- Honeypot: für Menschen unsichtbar und nicht per Tab erreichbar -->
+        <div class="hp" aria-hidden="true">
+          <label>
+            Website (bitte leer lassen)
+            <input type="text" name="website" tabindex="-1" autocomplete="off" />
+          </label>
+        </div>
+
+        {useTurnstile && <div class="form-turnstile" data-turnstile></div>}
+
+        <div class="form-actions">
+          <button class="btn btn-primary" type="submit" data-submit>
+            <span data-submit-label>Anfrage senden</span>
+            <Icon name="send" size={18} />
+          </button>
+          {sites.apiMock && (
+            <p class="form-preview mono">
+              Vorschau: Die Anfrage wird nicht gesendet und nicht gespeichert.
+            </p>
+          )}
+        </div>
+
+        <p class="form-status form-error" role="alert" data-form-error hidden>
+          <Icon name="circle-alert" size={20} />
+          <span>
+            Das hat nicht geklappt. Bitte versuchen Sie es nochmals oder schreiben Sie uns direkt an
+            {contact.email}.
+          </span>
+        </p>
+      </form>
+
+      <div class="form-success" role="status" tabindex="-1" data-form-success hidden>
+        <span class="form-success-icon" aria-hidden="true">
+          <Icon name="check" size={28} />
+        </span>
+        <p class="h3">
+          Danke! Wir melden uns innert zwei Arbeitstagen per E-Mail oder auf der Nummer, die Sie
+          angegeben haben.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .kontakt {
+    border-top: 1px solid var(--line);
+  }
+
+  .kontakt-grid {
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 4rem);
+  }
+
+  .kontakt-info {
+    display: grid;
+    align-content: start;
+    gap: 2.5rem;
+  }
+
+  .kontakt-list {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .kontakt-list dt {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    color: var(--lav);
+    font-family: var(--ff-mono);
+    font-size: var(--fs-meta);
+    --mono: 1;
+  }
+
+  .kontakt-list dd {
+    margin-top: 0.25rem;
+    padding-left: 1.875rem;
+    color: var(--white);
+    font-size: var(--fs-lead);
+    font-weight: 600;
+    overflow-wrap: anywhere;
+  }
+
+  .kontakt-panel {
+    padding: clamp(1.25rem, 1rem + 2vw, 2.5rem);
+  }
+
+  .kontakt-form {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .form-note {
+    color: var(--lav);
+    font-size: var(--fs-small);
+  }
+
+  .form-row {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .req {
+    color: var(--amber);
+  }
+
+  fieldset.field {
+    min-width: 0;
+  }
+
+  fieldset.field legend {
+    margin-bottom: 0.5rem;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .chip {
+    position: relative;
+    display: inline-flex;
+    cursor: pointer;
+  }
+
+  .chip input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  .chip span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: 0.375rem 1rem;
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--r-pill);
+    background-color: var(--surface-deep);
+    color: var(--soft);
+    font-size: var(--fs-small);
+    font-weight: 600;
+    transition:
+      background-color var(--dur-1) var(--ease),
+      border-color var(--dur-1) var(--ease),
+      color var(--dur-1) var(--ease);
+  }
+
+  .chip input:checked + span {
+    border-color: var(--lav);
+    background-color: var(--violet);
+    color: var(--white);
+  }
+
+  .chip input:focus-visible + span {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  .chips:global([data-invalid]) .chip span {
+    border-color: var(--crit);
+  }
+
+  .form-count {
+    color: var(--lav);
+    font-size: var(--fs-micro);
+    text-align: right;
+  }
+
+  .form-turnstile {
+    min-height: 1px;
+  }
+
+  .form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .form-preview {
+    color: var(--lav);
+    font-size: var(--fs-micro);
+  }
+
+  .form-status {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 1rem 1.125rem;
+    border-radius: 12px;
+    line-height: 1.5;
+  }
+
+  .form-error {
+    border: 1.5px solid var(--crit);
+    background-color: color-mix(in srgb, var(--crit) 12%, transparent);
+    color: var(--white);
+  }
+
+  .form-error :global(.icon) {
+    flex: none;
+    margin-top: 0.15em;
+    color: var(--crit);
+  }
+
+  .form-success {
+    display: grid;
+    align-content: center;
+    gap: 1.5rem;
+    min-height: 18rem;
+    outline-offset: 6px;
+  }
+
+  .form-success-icon {
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background-color: var(--ok);
+    color: var(--white);
+  }
+
+  .form-success .h3 {
+    max-width: 22em;
+    color: var(--white);
+  }
+
+  @media (hover: hover) {
+    .chip:hover span {
+      border-color: var(--lav);
+    }
+  }
+
+  @media (min-width: 40rem) {
+    .form-row {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .kontakt-grid {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: 1.5rem;
+    }
+  }
+</style>

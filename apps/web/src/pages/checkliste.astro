@@ -1,0 +1,364 @@
+---
+/**
+ * /checkliste: «5 Warnsignale für Online-Betrug», druckbar (dunkel auf weiss).
+ * Mit ?ref=umfrage erscheint ein P.S., und einmal wird der anonyme Zähler `checklist_click` gesendet.
+ */
+import Icon from '@psyber/ui/components/Icon.astro';
+import Kicker from '@psyber/ui/components/Kicker.astro';
+import { sites, sources } from '../config/site.ts';
+import Page from '../layouts/Page.astro';
+
+const signals = [
+  {
+    title: 'Unerwarteter Kontakt',
+    text: 'Gewinn, Paket, Behörde oder Bank melden sich von selbst. Echte Stellen fragen nie per SMS, Mail oder Anruf nach Passwörtern, Codes oder Kartendaten.',
+  },
+  {
+    title: 'Zeitdruck',
+    text: '‹Nur heute›, ‹sofort›, ‹sonst wird Ihr Konto gesperrt›. Wer drängt, will verhindern, dass Sie nachdenken.',
+  },
+  {
+    title: 'Falsche Autorität',
+    text: 'Polizei, Bank, Vorgesetzte oder angeblicher Tech-Support. Auflegen und die offizielle Nummer selbst wählen.',
+  },
+  {
+    title: 'Starke Gefühle',
+    text: 'Liebe, Angst, Mitleid oder Gier. ‹Hallo Mama, das ist meine neue Nummer› oder die Online-Liebe, die plötzlich Geld braucht.',
+  },
+  {
+    title: 'Ungewöhnliche Zahlung oder Zugriff',
+    text: 'Krypto, Geschenkkarten, Bargeld-Abholung, Fernzugriff auf Ihr Gerät, Codes weitergeben oder Login über einen Link.',
+  },
+];
+---
+
+<Page
+  title="Checkliste: 5 Warnsignale für Online-Betrug – PSYber"
+  description="Fünf Warnsignale, an denen Sie Online-Betrug erkennen, und was zu tun ist, wenn es passiert ist. Zum Ausdrucken für den Kühlschrank."
+  path="/checkliste"
+  ogImage="/og/checkliste.png"
+>
+  <article class="wrap checklist" data-checklist data-api={sites.api}>
+    <header class="checklist-head">
+      <p class="print-brand" aria-hidden="true">
+        PSYber · psyber.tech/checkliste
+      </p>
+      <Kicker>Checkliste zum Ausdrucken</Kicker>
+      <h1 class="display h1 checklist-title">5 Warnsignale für Online-Betrug</h1>
+      <button type="button" class="btn btn-secondary no-print" data-print hidden>
+        <Icon name="printer" size={18} />
+        <span>Als PDF speichern</span>
+      </button>
+    </header>
+
+    <ol class="signals">
+      {signals.map((signal, index) => (
+        <li class="signal">
+          <span class="signal-num" aria-hidden="true">
+            {index + 1}
+          </span>
+          <div>
+            <h2 class="h3 signal-title">{signal.title}</h2>
+            <p>{signal.text}</p>
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <div class="boxes">
+      <section class="box box-pause" aria-labelledby="box-verdacht">
+        <h2 class="h3" id="box-verdacht">
+          Bei Verdacht
+        </h2>
+        <p class="box-lead">
+          Pause machen. Selbst über den offiziellen Kanal nachfragen. Nichts weitergeben.
+        </p>
+      </section>
+
+      <section class="box" aria-labelledby="box-passiert">
+        <h2 class="h3" id="box-passiert">
+          Wenn es passiert ist
+        </h2>
+        <ol class="box-steps">
+          <li>Bank anrufen und Karte sperren.</li>
+          <li>Passwörter ändern und Zwei-Faktor-Login einschalten.</li>
+          <li>Anzeige bei der Kantonspolizei.</li>
+          <li>
+            Meldung ans BACS:{' '}
+            <a class="link" href={sources.bacsMelden.url} rel="noopener">
+              report.ncsc.admin.ch
+            </a>
+          </li>
+          <li>Keine Scham: Betrug trifft Menschen jeden Alters.</li>
+        </ol>
+      </section>
+    </div>
+
+    <p class="ps" data-ps hidden>
+      <strong>P.S.</strong> Haben Sie den zweiten Link am Ende der Umfrage bemerkt? Er war ein Test.
+      Gut gemacht, wenn Sie nicht geklickt haben!
+    </p>
+
+    <p class="checklist-foot mono">
+      <span aria-hidden="true">// </span>PSYber · Cyber-Prävention für Familien · psyber.tech
+    </p>
+  </article>
+</Page>
+
+<script>
+  import { sendEvent } from '@psyber/ui/lib/api';
+
+  const root = document.querySelector<HTMLElement>('[data-checklist]');
+  const printButton = root?.querySelector<HTMLButtonElement>('[data-print]');
+  if (printButton) {
+    printButton.hidden = false;
+    printButton.addEventListener('click', () => window.print());
+  }
+
+  // Nur mit ?ref=umfrage: P.S. zeigen und den Klick einmal anonym zählen.
+  const ps = root?.querySelector<HTMLElement>('[data-ps]');
+  if (root && ps && new URLSearchParams(window.location.search).get('ref') === 'umfrage') {
+    ps.hidden = false;
+    const KEY = 'psyber:checklist';
+    let counted = false;
+    try {
+      counted = window.sessionStorage.getItem(KEY) === '1';
+      window.sessionStorage.setItem(KEY, '1');
+    } catch {
+      // Ohne Speicher zählen wir lieber einmal zu viel als gar nicht.
+    }
+    if (!counted) sendEvent(root.dataset.api ?? '', 'checklist_click');
+  }
+</script>
+
+<style>
+  .checklist {
+    display: grid;
+    gap: clamp(2rem, 5vw, 3.5rem);
+    padding-block: clamp(2.5rem, 7vw, 5rem) var(--section-y);
+  }
+
+  .checklist-head {
+    display: grid;
+    justify-items: start;
+    gap: 1.25rem;
+  }
+
+  .checklist-title {
+    max-width: 12em;
+    font-size: clamp(2.5rem, 1.4rem + 5.2vw, 5rem);
+  }
+
+  .print-brand {
+    display: none;
+  }
+
+  .signals {
+    display: grid;
+    border-top: 1px solid var(--line);
+  }
+
+  .signal {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: clamp(1rem, 3vw, 2rem);
+    padding-block: clamp(1.25rem, 3vw, 2rem);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .signal-num {
+    display: grid;
+    place-items: center;
+    width: clamp(2.75rem, 2rem + 3vw, 4rem);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background-color: var(--amber);
+    color: var(--ink);
+    font-size: clamp(1.375rem, 1rem + 1.5vw, 2rem);
+    font-weight: 900;
+    line-height: 1;
+    --casl: 1;
+  }
+
+  .signal-title {
+    margin-bottom: 0.5rem;
+  }
+
+  .signal p {
+    max-width: 36em;
+  }
+
+  .boxes {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .box {
+    display: grid;
+    align-content: start;
+    gap: 1rem;
+    padding: clamp(1.5rem, 1rem + 2vw, 2.25rem);
+    border: 1px solid var(--line);
+    border-radius: var(--r-card);
+    background-color: var(--aubergine);
+  }
+
+  .box-pause {
+    border-color: var(--lav);
+  }
+
+  .box-lead {
+    color: var(--white);
+    font-size: var(--fs-lead);
+    font-weight: 650;
+    line-height: 1.4;
+  }
+
+  .box-steps {
+    display: grid;
+    gap: 0.5rem;
+    padding-left: 1.5rem;
+    list-style: decimal;
+  }
+
+  .box-steps li::marker {
+    color: var(--lav);
+    font-weight: 700;
+  }
+
+  .ps {
+    max-width: 38em;
+    padding: 1.25rem 1.5rem;
+    border-left: 3px solid var(--amber);
+    border-radius: 0 12px 12px 0;
+    background-color: var(--deep);
+  }
+
+  .checklist-foot {
+    color: var(--lav);
+    font-size: var(--fs-micro);
+  }
+
+  @media (min-width: 56rem) {
+    .boxes {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    }
+  }
+
+  /* ---------- Druck: dunkel auf weiss, eine A4-Seite ---------- */
+  @page {
+    size: A4;
+    margin: 14mm 16mm;
+  }
+
+  @media print {
+    :global(.site-header),
+    :global(.skip-link),
+    .no-print,
+    .ps {
+      display: none !important;
+    }
+
+    :global(html),
+    :global(body) {
+      background: #fff !important;
+    }
+
+    .checklist {
+      --fg: #22172f;
+      --fg-strong: #22172f;
+      --fg-muted: #22172f;
+      --accent: #22172f;
+      --line: #22172f;
+      gap: 6.5mm;
+      width: 100%;
+      max-width: none;
+      padding: 0;
+      color: #22172f;
+      font-size: 11.5pt;
+      line-height: 1.4;
+    }
+
+    .checklist :global(.kicker) {
+      display: none;
+    }
+
+    .print-brand {
+      display: block;
+      font-size: 11pt;
+      font-weight: 900;
+      --casl: 1;
+    }
+
+    .checklist-head {
+      gap: 2mm;
+    }
+
+    .checklist-title {
+      max-width: none;
+      color: #22172f;
+      font-size: 29pt;
+    }
+
+    .signal {
+      gap: 5.5mm;
+      padding-block: 3.8mm;
+      break-inside: avoid;
+    }
+
+    .signal-num {
+      width: 12mm;
+      border: 1.5pt solid #22172f;
+      background: none;
+      color: #22172f;
+      font-size: 17pt;
+    }
+
+    .signal-title,
+    .box .h3 {
+      margin-bottom: 1mm;
+      color: #22172f;
+      font-size: 13.5pt;
+    }
+
+    .signal p {
+      max-width: none;
+    }
+
+    .boxes {
+      grid-template-columns: 5fr 7fr;
+      gap: 5mm;
+      break-inside: avoid;
+    }
+
+    .box {
+      gap: 2.2mm;
+      padding: 4.5mm;
+      border: 1pt solid #22172f;
+      background: none;
+    }
+
+    .box-lead {
+      color: #22172f;
+      font-size: 12pt;
+    }
+
+    .box-steps {
+      gap: 1.2mm;
+    }
+
+    .box-steps li::marker {
+      color: #22172f;
+    }
+
+    .box :global(.link) {
+      color: #22172f;
+      text-decoration: none;
+    }
+
+    .checklist-foot {
+      color: #22172f;
+      font-size: 9pt;
+    }
+  }
+</style>

@@ -21,17 +21,14 @@ export interface SmoothScroll {
   destroy(): void;
 }
 
-export interface SmoothScrollOptions {
-  /** Höhe des Sticky-Headers in Pixeln; Ankerziele landen entsprechend tiefer */
-  headerOffset?: number;
-}
-
 /**
  * Lenis-Smooth-Scroll (lerp 0.1), synchron zu ScrollTrigger.
  * Bei `prefers-reduced-motion` wird Lenis gar nicht erst gestartet.
+ *
+ * Der Abstand für den Sticky-Header kommt aus CSS (`scroll-padding-top` am <html>);
+ * Lenis und der Browser werten denselben Wert aus.
  */
-export function initSmoothScroll(options: SmoothScrollOptions = {}): SmoothScroll {
-  const offset = -(options.headerOffset ?? 0);
+export function initSmoothScroll(): SmoothScroll {
   const root = document.documentElement;
 
   if (!motionAllowed()) {
@@ -60,7 +57,7 @@ export function initSmoothScroll(options: SmoothScrollOptions = {}): SmoothScrol
   const lenis = new Lenis({
     lerp: 0.1,
     autoRaf: false,
-    anchors: { offset },
+    anchors: true,
     stopInertiaOnNavigate: true,
   });
 
@@ -72,7 +69,7 @@ export function initSmoothScroll(options: SmoothScrollOptions = {}): SmoothScrol
   return {
     lenis,
     scrollTo(target, scrollOptions) {
-      lenis.scrollTo(target, { offset, immediate: scrollOptions?.immediate ?? false });
+      lenis.scrollTo(target, { immediate: scrollOptions?.immediate ?? false });
     },
     stop() {
       lenis.stop();
