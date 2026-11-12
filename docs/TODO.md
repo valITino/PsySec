@@ -59,8 +59,8 @@ Eingebaut ist die von Ihnen gewählte Variante: eigene anonyme Tagessummen ohne 
 
 ## Vor dem Launch prüfen
 
-- [ ] Fiktive Beispiel-Domains gehören keiner echten Firma (sonst ersetzen): `paket-zustellung-ch.info`, `karten-sicherheit-ch.com`, `gutschein-sofort.ch`
-- [ ] Quellenlinks aus Abschnitt 5.17 des Auftrags sind noch erreichbar und stützen die Zahlen
+- [ ] Fiktive Beispiel-Domains gehören keiner echten Firma (sonst ersetzen): `paket-zustellung-ch.info`, `karten-sicherheit-ch.com`, `gutschein-sofort.ch`. Stand 12. November 2026: Alle drei sind nicht registriert. Kurz vor dem Start nochmals prüfen; wer sicher sein will, registriert sie selbst, bevor es jemand anders tut.
+- [ ] Quellenlinks aus Abschnitt 5.17 des Auftrags sind noch erreichbar und stützen die Zahlen. Stand 12. November 2026: Die vier verwendeten Links sind erreichbar und nennen die Zahlen der Website (15,9 % und 8,4 %; 729 und 3’485 Meldungen, also 4,8-mal so viele; 26 %). Kurz vor dem Start nochmals prüfen.
 - [ ] E-Mail-Adressen existieren: `security@psyber.tech` (steht in `security.txt`), `hallo@psyber.tech` (Absender der Benachrichtigung) und die Kontaktadresse
 - [ ] Texte der Easter Eggs gegenlesen (Konsole und Terminal, `apps/web/src/scripts/egg.ts` und `terminal.ts`)
 - [ ] Alle drei Websites einmal in Safari (iPhone und Mac) und Firefox ansehen: Die automatischen Tests laufen nur in Chromium
