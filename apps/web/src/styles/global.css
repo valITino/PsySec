@@ -45,3 +45,34 @@ html.scroll-locked {
 [data-lazy]:not([data-laid='']) *::after {
   transition: none !important;
 }
+
+/*
+ * Seitenwechsel innerhalb von psyber.tech: kurzes Überblenden statt eines harten Schnitts, wo
+ * der Browser das kann (View Transitions zwischen Dokumenten). Sonst ändert sich nichts.
+ */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+
+  ::view-transition-old(root) {
+    animation: 160ms var(--ease) both page-out;
+  }
+
+  ::view-transition-new(root) {
+    animation: 280ms var(--ease) both page-in;
+  }
+}
+
+@keyframes page-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes page-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+}

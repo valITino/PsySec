@@ -18,6 +18,7 @@ Neue Session? Zuerst `CLAUDE.md` lesen, dann diese Datei. Der Auftrag steht in `
 | S     | Sichtbarkeit in Suchmaschinen (SEO, robots.txt) | fertig                |
 | T     | Zählung der Reichweite (anonyme Tagessummen)    | fertig                |
 | I     | Inhalte in «Über» (Name, Rolle, CAS, Porträt)   | Motivation fehlt noch |
+| A     | Animationen: «Erwischt!» und kleine Auftritte   | fertig                |
 
 ## Phase 0: Fundament (fertig)
 
@@ -164,6 +165,16 @@ Variante A, vom Inhaber gewählt: eigene anonyme Tagessummen statt eines Analyse
 - **Texte:** Datenschutzerklärung nachgeführt (Abschnitt «Anonyme Zähler»).
 - **Tests:** `e2e/tracking.spec.ts` (Einstieg, Herkunft, Klicks, Umfrage, Signale, keine Cookies), dazu Unit-Tests für Schema, API, Herkunft und Bericht.
 - **Stand der Prüfkette:** 162 Unit-Tests, 312 E2E-Tests (46 übersprungen), 230 Header-Prüfungen, Lighthouse mobil 100 in allen Kategorien auf psyber.tech, der Checkliste und der Umfrage (surprise SEO 66, weil die Seite `noindex` trägt), JS gzip web 64,1 KB, forms 36,2 KB, surprise 1,7 KB.
+
+## Animationen (fertig)
+
+Wunsch des Inhabers nach der ersten Vorschau: «Erwischt!» länger und kräftiger, sonst mehr kleine Bewegungen, aber dezent (Entscheidungen 173 und 174; Liste in `docs/DESIGN.md`, Abschnitt 6).
+
+- **«Erwischt!»:** Übergang in vier Takten, 2,8 s bis zum Schnitt: Teaser, Störung (der Text zerfällt bis zu «ERWISCHT» in Hex), Spur (drei Zeilen wie aus einem Terminal), Einrasten mit Farbversatz. Überspringbar, ohne Blitzgewitter, bei reduzierter Bewegung sofort die Auflösung.
+- **Kleine Auftritte:** Kicker tippen sich ein, der Sucher stellt das Porträt scharf, 404-Glitch, Sticker reagieren auf den Zeiger, Seitenwechsel blenden über, Cookie-Hinweis wächst aus dem Knopf, Nummern der Checkliste und Danke-Screen gestaffelt, Häkchen federt.
+- **Gefunden dabei:** Der Build schreibt Zeiten im CSS um («2800ms» wird «2.8s»); das Überspringen las den Wert falsch und hätte nichts übersprungen. Ein Test hat es gezeigt, das Skript liest jetzt beide Schreibweisen. Und: Der Test des Terminals tippte den Konami-Code unter Last, bevor die Seite zuhörte (die Easter Eggs starten in einem ruhigen Moment nach dem Laden). Er wartet jetzt auf den Gruss in der Konsole, das Zeichen, dass sie bereit sind.
+- **Angaben:** Rechtsform, vorläufige Adresszeile und E-Mail eingetragen (Entscheidungen 171 und 172).
+- **Stand der Prüfkette:** 162 Unit-Tests, 321 E2E-Tests (47 übersprungen), 230 Header-Prüfungen, Lighthouse mobil 100, JS gzip web 64,1 KB, forms 36,2 KB, surprise 1,8 KB.
 
 ## Abschluss
 

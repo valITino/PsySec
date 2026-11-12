@@ -20,13 +20,15 @@ const { href, label } = Astro.props;
   <p class="hexnum" aria-hidden="true">
     0x194
   </p>
-  <h1 class="display h1">404 – Layer 8 nicht gefunden.</h1>
+  {/* Auf einer Zeile: Ein Umbruch nach «404» würde als doppeltes Leerzeichen sichtbar. */}
+  {/* prettier-ignore */}
+  <h1 class="display h1"><span class="notfound-code" data-text="404">404</span> – Layer 8 nicht gefunden.</h1>
   <div class="card card-deep notfound-terminal mono">
     <p>
       <span class="notfound-prompt" aria-hidden="true">
         $
       </span>
-      <span>ping diese-seite</span>
+      <span class="notfound-cmd">ping diese-seite</span>
     </p>
     <p class="notfound-out">ping: Seite nicht gefunden</p>
   </div>
@@ -60,6 +62,124 @@ const { href, label } = Astro.props;
   .notfound-prompt {
     margin-right: 0.5rem;
     color: var(--acid);
+  }
+
+  /*
+   * Kleiner Auftritt beim Laden: Die «404» zuckt einmal mit Farbversatz, der Befehl tippt sich,
+   * dann kommt die Antwort. Grundzustand ist die fertige Seite; die Kopien der Zahl sind für
+   * Screenreader stumm (leerer Alternativtext).
+   */
+  .notfound-code {
+    position: relative;
+    display: inline-block;
+    isolation: isolate;
+    animation: nf-jolt 640ms steps(1, end) 300ms both;
+  }
+
+  .notfound-code::before,
+  .notfound-code::after {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    content: attr(data-text) / '';
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .notfound-code::before {
+    color: var(--crit);
+    animation: nf-ghost 640ms steps(1, end) 300ms both;
+  }
+
+  .notfound-code::after {
+    --dir: -1;
+    color: var(--acid);
+    animation: nf-ghost 640ms steps(1, end) 300ms both;
+  }
+
+  .notfound-cmd {
+    display: inline-block;
+    vertical-align: bottom;
+    animation: nf-type 480ms steps(16, end) 700ms backwards;
+  }
+
+  .notfound-out {
+    animation: nf-wait 1300ms linear;
+  }
+
+  @keyframes nf-jolt {
+    0%,
+    70%,
+    100% {
+      transform: none;
+    }
+
+    4% {
+      transform: translateX(0.06em) skewX(-8deg);
+    }
+
+    22% {
+      transform: translateX(-0.04em) skewX(5deg);
+    }
+
+    40% {
+      transform: translateX(0.02em);
+    }
+
+    56% {
+      transform: translateX(-0.01em);
+    }
+  }
+
+  @keyframes nf-ghost {
+    0%,
+    100% {
+      opacity: 0;
+      transform: none;
+    }
+
+    4% {
+      opacity: 1;
+      transform: translateX(calc(var(--dir, 1) * 0.1em)) skewX(-8deg);
+    }
+
+    22% {
+      opacity: 1;
+      transform: translateX(calc(var(--dir, 1) * -0.07em));
+    }
+
+    40% {
+      opacity: 0.9;
+      transform: translateX(calc(var(--dir, 1) * 0.04em));
+    }
+
+    56% {
+      opacity: 0.7;
+      transform: translateX(calc(var(--dir, 1) * -0.02em));
+    }
+
+    70% {
+      opacity: 0.4;
+      transform: translateX(calc(var(--dir, 1) * 0.008em));
+    }
+  }
+
+  @keyframes nf-type {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+
+    to {
+      clip-path: inset(0);
+    }
+  }
+
+  /* Versteckt, solange die Animation läuft: Ihre Dauer ist die Wartezeit. */
+  @keyframes nf-wait {
+    from,
+    to {
+      visibility: hidden;
+    }
   }
 
   .notfound-terminal p:first-child {

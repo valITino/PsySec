@@ -341,6 +341,94 @@ test.describe('psyber.tech', () => {
     await expect(section).not.toContainText(/TODO: (Name|Foto|z\. B\.)/);
   });
 
+  test('Auftritte beim Hereinscrollen: Am Ende wartet nichts mehr, alles ist sichtbar', async ({
+    page,
+  }) => {
+    const errors = collectErrors(page);
+    await page.goto(`${WEB}/`);
+    await ready(page);
+    await expect(page.locator('html[data-scroll="ready"]')).toBeAttached({ timeout: 15_000 });
+    // Was beim Start unter dem Bild liegt, wartet auf seinen Auftritt (Kicker, Porträt, Terminal).
+    await expect.poll(() => page.locator('main [data-enter="wait"]').count()).toBeGreaterThan(5);
+
+    // Einmal durch die ganze Seite: Jedes Element bekommt sein Signal.
+    const height = await page.evaluate(() => document.documentElement.scrollHeight);
+    for (let top = 0; top <= height; top += 600) {
+      await page.evaluate((y) => window.scrollTo({ top: y, behavior: 'instant' }), top);
+      await page.waitForTimeout(70);
+    }
+    await expect(page.locator('main [data-enter="wait"]')).toHaveCount(0);
+
+    // Nach den Auftritten ist nichts mehr beschnitten oder durchsichtig.
+    await page.waitForTimeout(1600);
+    const unfinished = await page.evaluate(() =>
+      [
+        ...document.querySelectorAll(
+          'main [data-enter] .kicker, #ueber .portrait-photo, #ueber .portrait-corner, #ueber .portrait-caption, #ueber .portrait-sticker, #ueber .terminal-body > div',
+        ),
+      ]
+        .map((element) => {
+          const style = getComputedStyle(element);
+          const clipped = style.clipPath !== 'none' && !/^inset\(0(px)?\)$/.test(style.clipPath);
+          return style.opacity !== '1' || clipped ? element.className : '';
+        })
+        .filter(Boolean),
+    );
+    expect(unfinished).toEqual([]);
+    expect(errors).toEqual([]);
+  });
+
+  test('ohne Bewegung gibt es keine Auftritte: Nichts wartet, alles steht sofort da', async ({
+    browser,
+  }, testInfo) => {
+    const context = await browser.newContext({ ...testInfo.project.use, reducedMotion: 'reduce' });
+    const page = await context.newPage();
+    await page.goto(`${WEB}/#ueber`);
+    await page.locator('[data-sim][data-ready]').waitFor();
+    await page.mouse.move(200, 200);
+    await page.waitForTimeout(600);
+    await expect(page.locator('main [data-enter="wait"]')).toHaveCount(0);
+    await expect(page.locator('main [data-enter="in"]')).toHaveCount(0);
+    const kicker = page.locator('#ueber .kicker');
+    await expect(kicker).toBeVisible();
+    expect(await kicker.evaluate((element) => getComputedStyle(element).clipPath)).toBe('none');
+    await expect(page.locator('#ueber .portrait-photo')).toHaveCSS('opacity', '1');
+    await context.close();
+  });
+
+  test('der Sticker reagiert auf den Zeiger', async ({ page, isMobile }) => {
+    test.skip(isMobile, 'Einen Zeiger gibt es nur am Desktop');
+    await page.goto(`${WEB}/#ueber`);
+    await ready(page);
+    const sticker = page.locator('#ueber .portrait-sticker');
+    await sticker.scrollIntoViewIfNeeded();
+    await expect(sticker).toHaveCSS('rotate', 'none');
+    await sticker.hover();
+    await expect(sticker).toHaveCSS('rotate', '7deg');
+    await expect(sticker).toHaveCSS('scale', '1.06');
+  });
+
+  test('404: Die Überschrift bleibt lesbar, der kleine Auftritt endet von selbst', async ({
+    page,
+  }) => {
+    await page.goto(`${WEB}/gibt-es-nicht`);
+    const title = page.getByRole('heading', { level: 1 });
+    // Der Text ist unverändert; die farbigen Kopien der Zahl gehören nicht dazu.
+    await expect(title).toHaveText('404 – Layer 8 nicht gefunden.');
+    await expect(page.locator('.notfound-out')).toBeVisible();
+    await expect(page.locator('.notfound-out')).toHaveText('ping: Seite nicht gefunden');
+    // Nach dem Auftritt steht die Zahl ruhig an ihrem Platz, die Kopien sind unsichtbar.
+    await page.waitForTimeout(1200);
+    const code = page.locator('.notfound-code');
+    expect(await code.evaluate((element) => getComputedStyle(element).transform)).toBe('none');
+    expect(
+      await code.evaluate((element) => [
+        getComputedStyle(element, '::before').opacity,
+        getComputedStyle(element, '::after').opacity,
+      ]),
+    ).toEqual(['0', '0']);
+  });
+
   for (const reducedMotion of ['no-preference', 'reduce'] as const) {
     const mode = reducedMotion === 'reduce' ? 'reduzierte Bewegung' : 'mit Bewegung';
 

@@ -276,6 +276,7 @@ import Icon from '@psyber/ui/components/Icon.astro';
 
   /* Breite Streifen verschieben nur den Farbton dessen, was darunter liegt: Dunkles bleibt dunkel. */
   .glitch-shift {
+    -webkit-backdrop-filter: hue-rotate(150deg) saturate(2.4);
     backdrop-filter: hue-rotate(150deg) saturate(2.4);
     opacity: 0;
   }
@@ -287,6 +288,7 @@ import Icon from '@psyber/ui/components/Icon.astro';
 
   .glitch-shift-b {
     height: 8vh;
+    -webkit-backdrop-filter: hue-rotate(-110deg) saturate(3);
     backdrop-filter: hue-rotate(-110deg) saturate(3);
     animation: sp-shift-b var(--sp-noise) steps(1, end) var(--sp-hold) both;
   }

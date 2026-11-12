@@ -20,7 +20,7 @@ const lines = [
 
 <section data-lazy class="sheet" id="ueber" aria-labelledby="ueber-title">
   <div class="wrap about">
-    <div class="portrait">
+    <div class="portrait" data-enter>
       <figure class="portrait-frame">
         <span class="portrait-corner portrait-corner-tl" aria-hidden="true"></span>
         <span class="portrait-corner portrait-corner-tr" aria-hidden="true"></span>
@@ -63,7 +63,7 @@ const lines = [
         id="ueber-title"
       />
 
-      <div class="terminal">
+      <div class="terminal" data-enter>
         <div class="terminal-bar" aria-hidden="true">
           <span class="terminal-dots">
             <span></span>
@@ -280,6 +280,150 @@ const lines = [
     50% {
       opacity: 0;
     }
+  }
+
+  /*
+   * Auftritt, sobald die Sektion ins Bild kommt (reveal.ts setzt data-enter): Der Sucher stellt
+   * scharf (die Ecken rücken von aussen an ihren Platz), eine feine Linie tastet das Bild einmal
+   * ab, der Sticker klebt sich auf; im Terminal erscheinen die Zeilen nacheinander.
+   */
+  .portrait-frame::after {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background-image: linear-gradient(
+      to bottom,
+      rgb(var(--acid-rgb) / 0) 0,
+      rgb(var(--acid-rgb) / 0.85) 50%,
+      rgb(var(--acid-rgb) / 0) 100%
+    );
+    background-repeat: no-repeat;
+    background-size: 100% 0.375rem;
+    content: '';
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .portrait[data-enter='wait'] .portrait-photo,
+  .portrait[data-enter='wait'] .portrait-corner,
+  .portrait[data-enter='wait'] .portrait-caption,
+  .portrait[data-enter='wait'] .portrait-sticker,
+  .terminal[data-enter='wait'] .terminal-body > div {
+    opacity: 0;
+  }
+
+  .portrait[data-enter='in'] .portrait-photo {
+    animation: about-rise 700ms var(--ease) backwards;
+  }
+
+  .portrait[data-enter='in'] .portrait-caption {
+    animation: about-rise 500ms var(--ease) 260ms backwards;
+  }
+
+  .portrait[data-enter='in'] .portrait-corner {
+    animation: about-focus 560ms cubic-bezier(0.2, 1.5, 0.4, 1) 140ms backwards;
+  }
+
+  .portrait[data-enter='in'] .portrait-corner-tl {
+    --from: -0.875rem -0.875rem;
+  }
+
+  .portrait[data-enter='in'] .portrait-corner-tr {
+    --from: 0.875rem -0.875rem;
+  }
+
+  .portrait[data-enter='in'] .portrait-corner-bl {
+    --from: -0.875rem 0.875rem;
+  }
+
+  .portrait[data-enter='in'] .portrait-corner-br {
+    --from: 0.875rem 0.875rem;
+  }
+
+  .portrait[data-enter='in'] .portrait-frame::after {
+    animation: about-scan 950ms cubic-bezier(0.3, 0, 0.3, 1) 320ms;
+  }
+
+  .portrait[data-enter='in'] .portrait-sticker {
+    animation: about-stick 420ms cubic-bezier(0.2, 1.5, 0.4, 1) 780ms backwards;
+  }
+
+  .terminal[data-enter='in'] .terminal-body > div {
+    animation: about-line 320ms var(--ease) backwards;
+  }
+
+  .terminal[data-enter='in'] .terminal-body > div:nth-child(2) {
+    animation-delay: 160ms;
+  }
+
+  .terminal[data-enter='in'] .terminal-body > div:nth-child(3) {
+    animation-delay: 320ms;
+  }
+
+  .terminal[data-enter='in'] .terminal-body > div:nth-child(4) {
+    animation-delay: 480ms;
+  }
+
+  .terminal[data-enter='in'] .terminal-body > div:nth-child(5) {
+    animation-delay: 640ms;
+  }
+
+  @keyframes about-rise {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+  }
+
+  @keyframes about-focus {
+    from {
+      opacity: 0;
+      translate: var(--from);
+    }
+  }
+
+  @keyframes about-scan {
+    0% {
+      background-position: 0 0;
+      opacity: 1;
+    }
+
+    85% {
+      opacity: 1;
+    }
+
+    100% {
+      background-position: 0 100%;
+      opacity: 0;
+    }
+  }
+
+  @keyframes about-stick {
+    from {
+      opacity: 0;
+      scale: 1.5;
+    }
+  }
+
+  @keyframes about-line {
+    from {
+      opacity: 0;
+      transform: translateY(0.375rem);
+    }
+  }
+
+  /* Im Druck und bei angehaltener Bewegung wartet nichts auf seinen Auftritt. */
+  @media print {
+    .portrait[data-enter] *,
+    .terminal[data-enter] * {
+      opacity: 1;
+    }
+  }
+
+  :global(html[data-motion='off']) .portrait[data-enter] *,
+  :global(html[data-motion='off']) .terminal[data-enter] * {
+    opacity: 1;
+    animation: none;
   }
 
   @media (min-width: 56rem) {

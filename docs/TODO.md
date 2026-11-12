@@ -45,9 +45,9 @@ Eingebaut ist die von Ihnen gewählte Variante: eigene anonyme Tagessummen ohne 
 - [ ] Ausbildung: Titel und Schule des CAS bestätigen («CAS Digital Forensics & Cybercrime Investigation Fundamentals, Berner Fachhochschule»). Soll die Note stehen bleiben?
 - [ ] Motivation, 2–3 Sätze (Terminal-Karte `warum.txt`): Warum gibt es PSYber?
 - [ ] Foto: vorübergehend steht das Bild aus dem Lebenslauf da (579 px breit, auf grossen Bildschirmen etwas weich). Bitte ein grösseres liefern, mindestens 1200 px breit; freigestellt wird es hier.
-- [ ] E-Mail-Adresse für Kontakt (Header-Menü, Kontakt, Footer, Fehlermeldung des Formulars, Gruss in der Konsole): bewusst noch leer, bis es eine Geschäftsadresse gibt (Ihre Wahl)
-- [ ] Telefon/WhatsApp-Nummer (Header-Menü, Kontakt, Footer): ebenso
-- [ ] Angaben fürs Impressum: Der Name steht; es fehlen Adresse, Rechtsform und UID (falls vorhanden)
+- [ ] E-Mail-Adresse für Kontakt (Header-Menü, Kontakt, Footer, Impressum, Fehlermeldung des Formulars, Gruss in der Konsole): vorläufig die von Ihnen genannte Adresse. Ersetzen, sobald es eine Adresse unter der eigenen Domain gibt (`apps/web/src/config/site.ts`, `contact.email`), und dann `contact.provisional` auf `false` stellen.
+- [ ] Telefon/WhatsApp-Nummer (Header-Menü, Kontakt, Footer): noch offen
+- [ ] Impressum: Name, Rechtsform (Einzelunternehmen, nicht im Handelsregister) und E-Mail stehen. Die Adresszeile «Wo immer Sie sind, sind wir auch da.» ist ein Platzhalter mit Augenzwinkern: **Vor dem Start braucht es eine echte Postadresse** (wer online Leistungen anbietet, muss sie nennen). Eine UID nachtragen, falls eine vergeben wird.
 - [ ] Profile auf anderen Plattformen (zum Beispiel LinkedIn): Sollen sie verlinkt werden?
 - [ ] Finale Preise der vier Pakete (aktuell die Spannen aus dem Auftrag, nur bei `PUBLIC_SITE_PHASE=launch` sichtbar)
 

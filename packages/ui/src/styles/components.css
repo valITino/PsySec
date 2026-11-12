@@ -295,6 +295,17 @@
     border-radius: 50%;
     filter: drop-shadow(0 0.5rem 1.25rem rgb(0 0 0 / 0.45));
     transform: rotate(var(--sticker-tilt, -8deg));
+    transition:
+      rotate var(--dur-2) cubic-bezier(0.2, 1.6, 0.4, 1),
+      scale var(--dur-2) cubic-bezier(0.2, 1.6, 0.4, 1);
+  }
+
+  /* Der Sticker merkt den Zeiger: Er dreht sich ein Stück weiter und kommt etwas näher. */
+  @media (hover: hover) {
+    .sticker:hover {
+      rotate: 7deg;
+      scale: 1.06;
+    }
   }
 
   /* ---------- Buttons ---------- */

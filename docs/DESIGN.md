@@ -112,13 +112,27 @@ Bewegte Momente auf psyber.tech:
 8. «Haltung»: Wörter werden beim Scrollen hell.
 9. Paket-Treppe wächst einmal; Chat-Nachrichten erscheinen nacheinander.
 10. Footer: Cursor hinter der Wortmarke blinkt.
-11. «Über»: Die Eule schaut dem Zeiger nach, ihre LED blinkt.
+11. Kicker («0x01 // …») tippen sich wie eine Zeile im Terminal ein, sobald ihre Sektion ins Bild kommt.
+12. «Über»: Der Sucher stellt scharf (die Ecken rücken an ihren Platz), eine feine Linie tastet das Porträt einmal ab, der Sticker klebt sich auf; im Terminal erscheinen die Zeilen nacheinander.
+13. Sticker reagieren auf den Zeiger: ein Stück weiter gedreht, etwas näher.
+14. Cookie-Hinweis: wächst aus seinem Knopf und zieht sich dorthin zurück.
+15. Seitenwechsel innerhalb von psyber.tech: kurzes Überblenden (View Transitions, wo der Browser es kann).
+16. Checkliste: Die Nummern der fünf Signale federn beim Laden der Reihe nach herein; der Text steht sofort da.
+17. 404 (alle drei Sites): Die Zahl zuckt einmal mit Farbversatz, der Befehl im Terminal tippt sich, dann kommt die Antwort.
+
+Auf forms.psyber.tech: Fragen gleiten herein (vorwärts von unten, zurück von oben), das Häkchen der gewählten Antwort federt kurz, der Danke-Screen baut sich Block für Block auf.
+
+Auf surprise.psyber.tech: der Übergang zur Auflösung in vier Takten (Teaser, Störung, Spur, Einrasten; Zeiten als `--sp-*` in `apps/surprise/src/styles/global.css`, Entscheidung 173), danach kommen Untertitel, Text, Eule, Sticker und Adresse gestaffelt, zuletzt wischt der Marker ein.
+
+Die Eule, die dem Zeiger nachschaut, lebt im Styleguide.
 
 Kein Custom Cursor, kein Parallax auf Text.
 
+**Regeln für neue Auftritte:** einmalig, kurz (unter einer Sekunde), nur `opacity`, `transform` und `clip-path`. Grosse Texte, die beim Laden im Bild stehen, blenden nie aus dem Nichts ein: Der Browser malte sie sonst später, und die Seite wirkte langsamer (gemessen an der Checkliste). Der Grundzustand im CSS ist immer die fertige Seite; der Auftritt ist ein `from`-Keyframe obendrauf. Was erst beim Hereinscrollen auftritt, trägt `data-enter` und wird von `reveal.ts` gemeldet. Helle Flächen blinken nie: höchstens drei deutliche Helligkeitswechsel pro Sekunde, und nur auf kleinen Flächen.
+
 ### Reduzierte Bewegung und Pausieren
 
-Bei `prefers-reduced-motion` steht alles sofort im Endzustand: kein Lenis, kein Pinning, kein Autoplay, der Globus steht still (lässt sich aber drehen) und zeigt alle Knoten gepatcht, der Ticker bricht um. Nichts hängt dann am Scrollen. Übergänge sind dann ganz aus (0 s, nicht 0.01 ms): Auch ein winziger Übergang hält für ein Bild die alten Werte fest und verschiebt kurz das Layout. Der Schalter «Bewegung pausieren» hält Dauerbewegung an (`html[data-motion='off']`).
+Bei `prefers-reduced-motion` steht alles sofort im Endzustand: kein Lenis, kein Pinning, kein Autoplay, keine Auftritte, kein Überblenden beim Seitenwechsel, der Globus steht still (lässt sich aber drehen) und zeigt alle Knoten gepatcht, der Ticker bricht um. Nichts hängt dann am Scrollen. Übergänge sind dann ganz aus (0 s, nicht 0.01 ms): Auch ein winziger Übergang hält für ein Bild die alten Werte fest und verschiebt kurz das Layout. Der Schalter «Bewegung pausieren» hält Dauerbewegung an (`html[data-motion='off']`).
 
 ## 7. Technische Regeln fürs Markup
 
