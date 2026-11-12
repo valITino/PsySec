@@ -479,6 +479,8 @@ Die API schreibt nur eigene, knappe Meldungen ohne Angaben zu Personen. Automati
 
 Die Websites zählen selbst, über `api.psyber.tech`, und nur Tagessummen: Seitenaufrufe je Seite, Einstiege je Herkunft, Klicks auf die Haupt-Knöpfe, die erreichte Frage der Umfrage und die Zahl der Kontaktanfragen. Es gibt keine Cookies, keine Kennung und keine IP-Adressen in der Datenbank (Entscheidungen 164 bis 168). Ansehen: `pnpm export`, dann `pnpm analyze`.
 
+![Abschnitt «Reichweite» im Bericht, hier mit erfundenen Beispieldaten](screenshots/report-reichweite.jpg)
+
 **Links kennzeichnen.** Hängen Sie an Links, die Sie verteilen, `?quelle=` mit einem dieser Werte: `instagram`, `tiktok`, `facebook`, `linkedin`, `whatsapp`, `flyer`, `vortrag`, `empfehlung`. Beispiel für einen QR-Code auf einem Flyer: `https://forms.psyber.tech/?quelle=flyer`. Derselbe Wert steht dann auch bei den Antworten der Umfrage. Andere Werte zählen als «andere»; `website` setzen die Links von psyber.tech zur Umfrage selbst.
 
 **Ohne Kennzeichnung** steht im Bericht die Art der Seite, von der jemand kam: Suchmaschine, soziales Netz, andere Website oder direkt (Adresse eingetippt, Lesezeichen, viele Apps).

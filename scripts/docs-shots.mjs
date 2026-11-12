@@ -298,6 +298,18 @@ try {
         quality: 82,
       });
     console.log('✓ report-kurven.jpg');
+    // Reichweite: Überschrift, Kacheln, Verlauf und die erste Reihe der Listen
+    const reachTop = await page
+      .locator('h2', { hasText: 'Reichweite der Websites' })
+      .evaluate((element) => element.getBoundingClientRect().top + window.scrollY);
+    await page.screenshot({
+      path: `${OUT}/report-reichweite.jpg`,
+      type: 'jpeg',
+      quality: 82,
+      fullPage: true,
+      clip: { x: 0, y: reachTop - 24, width: 1180, height: 1230 },
+    });
+    console.log('✓ report-reichweite.jpg');
     await context.close();
   } else {
     console.log('– Bericht übersprungen: zuerst «node scripts/analyze.ts --demo» ausführen');
