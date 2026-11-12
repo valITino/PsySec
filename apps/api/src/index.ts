@@ -2,7 +2,8 @@
  * api.psyber.tech: Cloudflare Worker für Umfrage, Kontaktanfragen und anonyme Zähler.
  *
  * Datenschutz by Design: keine IP-Adressen, keine User-Agents, keine Fingerprints in der
- * Datenbank; Request-Bodies werden nie geloggt. Die IP dient nur flüchtig dem Rate Limiting.
+ * Datenbank; Request-Bodies werden nie geloggt. Die IP dient nur flüchtig dem Rate Limiting,
+ * der User-Agent nur flüchtig dazu, automatische Abrufe bei den Zählern auszusortieren.
  */
 import { Hono } from 'hono';
 import type { AppEnv, Env } from './env.ts';

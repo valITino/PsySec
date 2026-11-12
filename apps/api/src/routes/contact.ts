@@ -1,8 +1,9 @@
 import { contactSchema, interessen, type ContactPayload } from '@psyber/survey';
 import type { Context } from 'hono';
 import type { AppEnv, Env } from '../env.ts';
+import { bumpCounter } from '../lib/db.ts';
 import { fail, isHoneypotFilled, readJson } from '../lib/http.ts';
-import { CONTACT_RETENTION_DAYS } from '../lib/time.ts';
+import { CONTACT_RETENTION_DAYS, swissDay } from '../lib/time.ts';
 import { verifyTurnstile } from '../lib/turnstile.ts';
 
 /** Nur einfacher Text: Zeilenumbrüche in einzeiligen Feldern entfernen. */
@@ -65,22 +66,27 @@ export async function postContact(c: Context<AppEnv>) {
   if (turnstile === 'unavailable') return fail(c, 'turnstile_unavailable', 503);
   if (turnstile === 'failed') return fail(c, 'turnstile_failed', 403);
 
-  await c.env.DB.prepare(
-    `INSERT INTO contact_requests (id, created_at, name, email, phone, plz_ort, interesse, nachricht, ref)
-     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)`,
-  )
-    .bind(
-      crypto.randomUUID(),
-      new Date().toISOString(),
-      data.name,
-      data.email,
-      data.phone ?? null,
-      data.plzOrt,
-      data.interesse,
-      data.nachricht ?? null,
-      data.ref ?? null,
-    )
-    .run();
+  const db = c.env.DB;
+  await db.batch([
+    db
+      .prepare(
+        `INSERT INTO contact_requests (id, created_at, name, email, phone, plz_ort, interesse, nachricht, ref)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9)`,
+      )
+      .bind(
+        crypto.randomUUID(),
+        new Date().toISOString(),
+        data.name,
+        data.email,
+        data.phone ?? null,
+        data.plzOrt,
+        data.interesse,
+        data.nachricht ?? null,
+        data.ref ?? null,
+      ),
+    // Nur die Tagessumme: Sie bleibt, wenn die Anfrage nach 180 Tagen gelöscht ist.
+    bumpCounter(db, 'contact_sent', swissDay()),
+  ]);
 
   // Die Antwort wartet nicht auf den Mailversand.
   c.executionCtx.waitUntil(notify(c.env, data));

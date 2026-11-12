@@ -638,12 +638,83 @@ describe('POST /v1/event', () => {
     expect(outbound).toEqual([]);
   });
 
+  it('Reichweite: Seitenaufrufe je Seite, Einstiege je Herkunft, Klicks und erreichte Fragen', async () => {
+    const send = (origin: string, body: unknown) => call('/v1/event', { origin, body });
+    // Einstieg über die Suche, danach zwei Aufrufe innerhalb der Website (ohne Herkunft)
+    await send(WEB, { event: 'page_view', page: 'home', source: 'suche' });
+    await send(WEB, { event: 'page_view', page: 'home' });
+    await send(WEB, { event: 'page_view', page: 'checkliste' });
+    await send(FORMS, { event: 'page_view', page: 'umfrage', source: 'website' });
+    await send(FORMS, { event: 'page_view', page: 'umfrage', source: 'flyer' });
+    await send(WEB, { event: 'cta_click', target: 'hero_cta' });
+    await send(WEB, { event: 'cta_click', target: 'hero_cta' });
+    await send(SURPRISE, { event: 'cta_click', target: 'erwischt_code' });
+    await send(FORMS, { event: 'survey_step', step: 'q1' });
+    await send(FORMS, { event: 'survey_step', step: 'q1' });
+    await send(FORMS, { event: 'survey_step', step: 'q2' });
+
+    const result = await rows('SELECT event, dim, count FROM counters ORDER BY event, dim');
+    expect(result).toEqual([
+      { event: 'cta_click', dim: 'erwischt_code', count: 1 },
+      { event: 'cta_click', dim: 'hero_cta', count: 2 },
+      { event: 'page_view', dim: 'checkliste', count: 1 },
+      { event: 'page_view', dim: 'home', count: 2 },
+      { event: 'page_view', dim: 'umfrage', count: 2 },
+      { event: 'survey_step', dim: 'q1', count: 2 },
+      { event: 'survey_step', dim: 'q2', count: 1 },
+      { event: 'visit', dim: 'home:suche', count: 1 },
+      { event: 'visit', dim: 'umfrage:flyer', count: 1 },
+      { event: 'visit', dim: 'umfrage:website', count: 1 },
+    ]);
+    // Alles Tagessummen ohne Selbsteinschätzung
+    expect(await rows('SELECT DISTINCT s_bucket, day FROM counters')).toEqual([
+      { s_bucket: 0, day: swissDay() },
+    ]);
+  });
+
+  it('zählt automatische Abrufe nicht mit und speichert den User-Agent nirgends', async () => {
+    const machines = [
+      'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+      'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/140.0.0.0 Safari/537.36',
+      'facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)',
+      'Mozilla/5.0 (Linux; Android 11) Chrome-Lighthouse',
+    ];
+    for (const agent of machines) {
+      const response = await call('/v1/event', {
+        origin: WEB,
+        body: { event: 'page_view', page: 'home', source: 'direkt' },
+        headers: { 'User-Agent': agent },
+      });
+      // Die Antwort verrät nicht, dass nicht gezählt wurde.
+      expect(response.status).toBe(200);
+    }
+    expect(await count('counters')).toBe(0);
+
+    const human =
+      'Mozilla/5.0 (iPhone; CPU iPhone OS 19_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/19.1 Mobile/15E148 Safari/604.1';
+    await call('/v1/event', {
+      origin: WEB,
+      body: { event: 'page_view', page: 'home', source: 'direkt' },
+      headers: { 'User-Agent': human },
+    });
+    const stored = JSON.stringify(await rows('SELECT * FROM counters'));
+    expect(await count('counters')).toBe(2);
+    expect(stored).not.toMatch(/Mozilla|iPhone|Safari/);
+  });
+
   it('lehnt unbekannte Ereignisse und Felder ab', async () => {
     for (const body of [
       { event: 'survey_completed' },
       { event: 'bait_click', s: 6 },
       { event: 'bait_click', s: 0 },
       { event: 'bait_click', user: 'abc' },
+      { event: 'page_view', page: '/checkliste' },
+      { event: 'page_view', page: 'home', source: 'https://example.org/suche?q=name' },
+      { event: 'page_view', page: 'home', referrer: 'https://example.org' },
+      { event: 'cta_click', target: '<script>' },
+      { event: 'survey_step', step: 'q99' },
+      { event: 'visit', page: 'home', source: 'suche' },
+      { event: 'contact_sent' },
       {},
     ]) {
       const response = await call('/v1/event', { body });
@@ -697,6 +768,22 @@ describe('POST /v1/contact', () => {
     expect(String(sent[0]?.text)).toContain('PLZ und Ort: 8000 Zürich');
     expect(String(sent[0]?.text)).toContain('Wir haben drei Kinder und viele Geräte.');
     expect(sent[0]).not.toHaveProperty('html');
+  });
+
+  it('zählt jede gespeicherte Anfrage als Tagessumme, abgelehnte nicht', async () => {
+    await call('/v1/contact', { origin: WEB, body: validContact() });
+    await call('/v1/contact', { origin: WEB, body: validContact({ interesse: 'vortrag' }) });
+    await call('/v1/contact', { origin: WEB, body: validContact({ email: 'keine-adresse' }) });
+    await call('/v1/contact', {
+      origin: WEB,
+      body: validContact({ website: 'https://spam.example' }),
+    });
+
+    expect(await count('contact_requests')).toBe(2);
+    // Die Summe sagt nichts über die einzelne Anfrage: kein Name, kein Interesse, nur der Tag.
+    expect(await rows('SELECT * FROM counters')).toEqual([
+      { event: 'contact_sent', dim: '', s_bucket: 0, day: swissDay(), count: 2 },
+    ]);
   });
 
   it('akzeptiert die Anfrage auch, wenn der Mailversand scheitert', async () => {

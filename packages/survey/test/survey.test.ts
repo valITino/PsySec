@@ -1,6 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import {
+  CTAS,
+  PAGES,
+  QUELLEN,
   SCHEMA_VERSION,
+  SOURCES,
+  STEPS,
   answersSchema,
   buildSubmission,
   cleanAnswers,
@@ -504,14 +509,64 @@ describe('Absenden', () => {
 });
 
 describe('Zähler', () => {
-  it('kennt genau drei Ereignisse und s von 1 bis 5', () => {
-    expect(eventSchema.safeParse({ event: 'survey_started' }).success).toBe(true);
-    expect(eventSchema.safeParse({ event: 'bait_click', s: 5 }).success).toBe(true);
-    expect(eventSchema.safeParse({ event: 'checklist_click' }).success).toBe(true);
-    expect(eventSchema.safeParse({ event: 'survey_completed' }).success).toBe(false);
-    expect(eventSchema.safeParse({ event: 'bait_click', s: 0 }).success).toBe(false);
-    expect(eventSchema.safeParse({ event: 'bait_click', s: 6 }).success).toBe(false);
-    expect(eventSchema.safeParse({ event: 'bait_click', user: 'x' }).success).toBe(false);
+  const ok = (body: unknown) => eventSchema.safeParse(body).success;
+
+  it('kennt die drei Ereignisse der Umfrage und s von 1 bis 5', () => {
+    expect(ok({ event: 'survey_started' })).toBe(true);
+    expect(ok({ event: 'bait_click', s: 5 })).toBe(true);
+    expect(ok({ event: 'checklist_click' })).toBe(true);
+    expect(ok({ event: 'survey_completed' })).toBe(false);
+    expect(ok({ event: 'bait_click', s: 0 })).toBe(false);
+    expect(ok({ event: 'bait_click', s: 6 })).toBe(false);
+    expect(ok({ event: 'bait_click', user: 'x' })).toBe(false);
+  });
+
+  it('Reichweite: nur Werte aus den festen Listen, nie freier Text', () => {
+    expect(ok({ event: 'page_view', page: 'home' })).toBe(true);
+    expect(ok({ event: 'page_view', page: 'umfrage', source: 'flyer' })).toBe(true);
+    expect(ok({ event: 'page_view', page: 'home', source: 'suche' })).toBe(true);
+    expect(ok({ event: 'cta_click', target: 'hero_cta' })).toBe(true);
+    expect(ok({ event: 'survey_step', step: 'q7' })).toBe(true);
+
+    // Adressen, Pfade und fremde Werte kommen nicht durch.
+    expect(ok({ event: 'page_view', page: '/checkliste' })).toBe(false);
+    expect(ok({ event: 'page_view', page: 'home', source: 'https://example.org/?q=name' })).toBe(
+      false,
+    );
+    expect(ok({ event: 'page_view' })).toBe(false);
+    expect(ok({ event: 'page_view', page: 'home', s: 3 })).toBe(false);
+    expect(ok({ event: 'page_view', page: 'home', referrer: 'https://example.org' })).toBe(false);
+    expect(ok({ event: 'cta_click', target: 'irgendwas' })).toBe(false);
+    expect(ok({ event: 'cta_click' })).toBe(false);
+    expect(ok({ event: 'survey_step', step: 'q17' })).toBe(false);
+    expect(ok({ event: 'survey_step', step: 7 })).toBe(false);
+    // Diese beiden zählt nur die API selbst.
+    expect(ok({ event: 'visit', page: 'home', source: 'suche' })).toBe(false);
+    expect(ok({ event: 'contact_sent' })).toBe(false);
+  });
+
+  it('Herkunft: alle Werte von ?quelle= und die drei Arten verweisender Seiten', () => {
+    expect([...SOURCES].sort()).toEqual(
+      [...QUELLEN, 'andere', 'direkt', 'suche', 'social', 'verweis'].sort(),
+    );
+    expect(new Set(SOURCES).size).toBe(SOURCES.length);
+  });
+
+  it('jede zweite Dimension passt in die Spalte der Datenbank (höchstens 40 Zeichen)', () => {
+    const dims = [
+      ...PAGES,
+      ...CTAS,
+      ...STEPS,
+      ...PAGES.flatMap((page) => SOURCES.map((source) => `${page}:${source}`)),
+    ];
+    expect(Math.max(...dims.map((dim) => dim.length))).toBeLessThanOrEqual(40);
+    // Der Doppelpunkt trennt Seite und Herkunft: Er darf in keinem der Werte selbst vorkommen.
+    expect([...PAGES, ...SOURCES].filter((value) => value.includes(':'))).toEqual([]);
+  });
+
+  it('gezählt wird jede Frage der Umfrage', () => {
+    expect(STEPS).toEqual(questions.map((question) => question.id));
+    expect(STEPS).toHaveLength(16);
   });
 });
 

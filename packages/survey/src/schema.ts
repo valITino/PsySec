@@ -10,11 +10,15 @@
 import * as z from 'zod/mini';
 import {
   CONTACT_REFS,
+  CTAS,
   EVENTS,
   FOKUS,
+  PAGES,
   Q14_MAX,
   Q15_MAX_LENGTH,
   QUELLEN_STORED,
+  SOURCES,
+  STEPS,
   VW_MAX,
   VW_MIN,
   interessen,
@@ -124,10 +128,18 @@ export type ValidAnswers = z.infer<typeof answersSchema>;
 
 // ---------------------------------------------------------------- Zähler
 
-export const eventSchema = z.strictObject({
-  event: z.enum(EVENTS),
-  s: z.optional(scale),
-});
+export const eventSchema = z.union([
+  // Zähler der Umfrage und des Test-Links, auf Wunsch mit der Selbsteinschätzung
+  z.strictObject({ event: z.enum(EVENTS), s: z.optional(scale) }),
+  // Seitenaufruf. `source` steht nur beim Einstieg: Wer von einer unserer Seiten kommt, hat keine.
+  z.strictObject({
+    event: z.literal('page_view'),
+    page: z.enum(PAGES),
+    source: z.optional(z.enum(SOURCES)),
+  }),
+  z.strictObject({ event: z.literal('cta_click'), target: z.enum(CTAS) }),
+  z.strictObject({ event: z.literal('survey_step'), step: z.enum(STEPS) }),
+]);
 
 export type EventPayload = z.infer<typeof eventSchema>;
 
