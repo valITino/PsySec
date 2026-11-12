@@ -27,6 +27,7 @@ import {
   type ValidationCode,
 } from '@psyber/survey';
 import { postJson, sendEvent } from '@psyber/ui/lib/api';
+import { automated } from '@psyber/ui/lib/track';
 import { createTurnstile, noTurnstile, type TurnstileHandle } from '@psyber/ui/lib/turnstile';
 import type { SurveyConfig } from '../../lib/site.ts';
 
@@ -82,9 +83,12 @@ interface Stored {
   fokus?: Fokus | undefined;
   /** Kennung der Einsendung, sobald einmal gesendet wurde */
   id?: string | undefined;
+  /** Fragen, die schon als «erreicht» gezählt sind: Ein Neuladen zählt sie nicht noch einmal. */
+  seen?: string[] | undefined;
 }
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const STEP_ID = /^q\d{1,2}$/;
 
 /**
  * Zufällige Kennung dieser Einsendung. Sie bleibt über «Erneut senden» und ein Neuladen gleich:
@@ -112,6 +116,7 @@ function save(): void {
       quelle,
       fokus,
       id: submissionId,
+      seen: [...seen],
     };
     window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(data));
   } catch {
@@ -144,6 +149,9 @@ function load(): Stored | null {
       quelle: storedQuelle(data.quelle),
       fokus: normalizeFokus(data.fokus),
       id: typeof data.id === 'string' && UUID.test(data.id) ? data.id : undefined,
+      seen: Array.isArray(data.seen)
+        ? data.seen.filter((id): id is string => typeof id === 'string' && STEP_ID.test(id))
+        : [],
     };
   } catch {
     return null;
@@ -202,6 +210,7 @@ export function restore(): void {
   quelle = stored.quelle;
   fokus = stored.fokus ?? fokus;
   submissionId = stored.id;
+  for (const id of stored.seen ?? []) seen.add(id);
   draft.value = stored.draft;
   position.value = Math.min(stored.position, visibleQuestions(stored.draft.answers).length - 1);
   screen.value = 'question';
@@ -263,10 +272,25 @@ export function start(): void {
   position.value = 0;
   direction.value = 'forward';
   markChange();
+  countStep();
   save();
   // Einmal pro Sitzung zählen, auch wenn jemand zurück zum Start geht.
   if (!alreadyStarted()) sendEvent(config?.api ?? '', 'survey_started');
   startedInMemory = true;
+}
+
+/** Fragen, die in dieser Sitzung schon als «erreicht» gezählt sind */
+const seen = new Set<string>();
+
+/**
+ * Zählt einmal je Frage, dass jemand bis zu ihr gekommen ist: eine anonyme Tagessumme, aus der
+ * sich ablesen lässt, wo die Umfrage abgebrochen wird. Antworten werden dabei nicht gesendet.
+ */
+function countStep(): void {
+  const id = current.value?.id;
+  if (!id || seen.has(id) || automated()) return;
+  seen.add(id);
+  sendEvent(config?.api ?? '', 'survey_step', { step: id });
 }
 
 let startedInMemory = false;
@@ -314,6 +338,7 @@ export function next(): void {
   position.value += 1;
   matrixRow.value = 0;
   markChange();
+  countStep();
   save();
 }
 
@@ -381,6 +406,7 @@ export async function submit(): Promise<void> {
     // Die Antworten verschwinden aus dem Browser. Für den Danke-Screen bleibt nur der Merker.
     const marker = doneMarker(draft.value.answers);
     clear();
+    seen.clear();
     saveDone(marker);
     submissionId = undefined;
     done.value = marker;

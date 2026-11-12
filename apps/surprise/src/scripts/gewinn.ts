@@ -5,6 +5,7 @@
  * nicht nötig, es spult sie beim Überspringen nur vor.
  */
 import { sendEvent } from '@psyber/ui/lib/api';
+import { initTracking } from '@psyber/ui/lib/track';
 
 // ---------------------------------------------------------------- Teaser überspringen
 /** Ab hier beginnt der Glitch (entspricht --sp-hold in global.css). */
@@ -29,11 +30,16 @@ const page = document.querySelector<HTMLElement>('[data-surprise]');
 const params = new URLSearchParams(window.location.search);
 if (page && params.get('ref') === 'umfrage') {
   const s = Number(params.get('s'));
-  sendEvent(
-    page.dataset.api ?? '',
-    'bait_click',
-    Number.isInteger(s) && s >= 1 && s <= 5 ? s : undefined,
-  );
+  sendEvent(page.dataset.api ?? '', 'bait_click', {
+    s: Number.isInteger(s) && s >= 1 && s <= 5 ? s : undefined,
+  });
+}
+
+// Seitenaufruf und Klicks auf die beiden Knöpfe: ebenfalls nur anonyme Tagessummen. Muss vor dem
+// Aufräumen der Adresse laufen, damit `?ref=` noch als Hinweis «kommt von uns» gelesen wird.
+initTracking();
+
+if (page && params.get('ref') === 'umfrage') {
   window.history.replaceState(null, '', window.location.pathname);
 }
 

@@ -3,6 +3,8 @@ import '../styles/global.css';
 import BaseHead from '@psyber/ui/components/BaseHead.astro';
 import PreviewNote from '@psyber/ui/components/PreviewNote.astro';
 import { breadcrumbs, graph, organization, webPage, website } from '@psyber/ui/lib/structured-data';
+import { trackAttrs } from '@psyber/ui/lib/track';
+import type { PageKey } from '@psyber/survey';
 import Chrome from '../components/Chrome.astro';
 import { absoluteUrl, basePath, brand, contact, meta, sites } from '../config/site.ts';
 
@@ -30,6 +32,15 @@ const {
   progress = false,
   crumb,
 } = Astro.props;
+
+/** Seiten, deren Aufrufe als anonyme Tagessumme gezählt werden; der Styleguide gehört nicht dazu. */
+const COUNTED: Record<string, PageKey> = {
+  '/': 'home',
+  '/checkliste': 'checkliste',
+  '/impressum': 'impressum',
+  '/datenschutz': 'datenschutz',
+  '/404': 'notfound',
+};
 
 const url = absoluteUrl(path);
 const home = absoluteUrl('/');
@@ -73,7 +84,7 @@ const jsonLd = hidden
 ---
 
 <!doctype html>
-<html lang="de-CH">
+<html lang="de-CH" {...trackAttrs(sites, COUNTED[path])}>
   <head>
     <BaseHead
       title={title}

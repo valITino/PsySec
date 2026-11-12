@@ -7,6 +7,7 @@
  */
 import { countUp, motionAllowed, onceInView } from '@psyber/ui/motion';
 import type { SmoothScroll } from '@psyber/ui/motion/smooth';
+import { initTracking } from '@psyber/ui/lib/track';
 import { initChat } from './chat.ts';
 import { initMotionToggle, initProgress } from './chrome.ts';
 import { initEggs } from './egg.ts';
@@ -28,6 +29,7 @@ const idle = (callback: () => void) => {
 // ---------------------------------------------------------------- Sofort: der erste Eindruck
 
 initHeader(() => smooth);
+initTracking();
 
 const hero = document.querySelector<HTMLElement>('[data-hero]');
 if (hero) initHero(hero);

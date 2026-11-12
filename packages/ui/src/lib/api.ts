@@ -53,13 +53,22 @@ export async function postJson(
   }
 }
 
+/** Zusatzangaben zu einem Zähler; leere Werte werden nicht gesendet */
+export type EventFields = Record<string, string | number | undefined>;
+
 /**
- * Anonymer Zähler (survey_started, bait_click, checklist_click).
+ * Anonymer Zähler als Tagessumme, z. B. `survey_started`, `bait_click` (mit `s`), `page_view`
+ * (mit `page`, beim Einstieg auch `source`), `cta_click` (mit `target`), `survey_step` (mit `step`).
+ * Die API nimmt nur Werte aus festen Listen an (packages/survey).
  * Läuft im Hintergrund weiter, auch wenn die Seite verlassen wird; Fehler sind egal.
  */
-export function sendEvent(base: string, event: string, s?: number): void {
+export function sendEvent(base: string, event: string, fields: EventFields = {}): void {
   if (!base) return;
-  const body = JSON.stringify(s ? { event, s } : { event });
+  const payload: Record<string, string | number> = { event };
+  for (const [key, value] of Object.entries(fields)) {
+    if (value !== undefined && value !== '') payload[key] = value;
+  }
+  const body = JSON.stringify(payload);
   try {
     void fetch(`${base}/v1/event`, {
       method: 'POST',

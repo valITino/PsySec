@@ -37,7 +37,7 @@ const link = (hash: string) => (home ? hash : href(`/${hash}`));
     </nav>
 
     <div class="bar-actions">
-      <Button href={cta.href} size="sm" icon class="bar-cta">
+      <Button href={cta.href} size="sm" icon class="bar-cta" data-track="header_cta">
         {cta.label}
       </Button>
       <button
@@ -83,7 +83,7 @@ const link = (hash: string) => (home ? hash : href(`/${hash}`));
       </nav>
 
       <div class="menu-foot">
-        <Button href={cta.href} block icon data-menu-link>
+        <Button href={cta.href} block icon data-menu-link data-track="menu_cta">
           {cta.label}
         </Button>
         <dl class="menu-contact">

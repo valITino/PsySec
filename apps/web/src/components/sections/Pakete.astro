@@ -151,14 +151,14 @@ const extras = [
     {isLaunch ? (
       <div class="stage paket-cta">
         <p>Welches Paket passt zu Ihrer Familie? Das klären wir im Kennenlern-Gespräch.</p>
-        <Button href="#kontakt" icon>
+        <Button href="#kontakt" icon data-track="pakete_cta">
           Session anfragen
         </Button>
       </div>
     ) : (
       <div class="stage paket-cta">
         <p>Preise folgen nach der Pilotphase. Founding Families erhalten einen Vorzugspreis.</p>
-        <Button href={surveyUrl()} icon>
+        <Button href={surveyUrl()} icon data-track="pakete_cta">
           Founding Family werden
         </Button>
       </div>
