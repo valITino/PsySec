@@ -2,12 +2,22 @@ version: 2
 updates:
   - package-ecosystem: npm
     directory: /
+    # Am ersten Tag des Monats. Sicherheitsupdates kommen unabhängig davon sofort,
+    # sobald «Dependabot security updates» im Repository eingeschaltet ist.
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
       time: '06:00'
       timezone: Europe/Zurich
     open-pull-requests-limit: 8
+    ignore:
+      # Die Typen folgen der Node-Version, die wirklich läuft (.nvmrc: 22). Typen einer
+      # neueren Hauptversion passen nicht dazu und brechen den Typecheck.
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+      # Hauptversionen von TypeScript bewusst von Hand: typescript-eslint unterstützt
+      # TypeScript 7.0 nicht (Lint bricht ab). Regel entfernen, sobald das geklärt ist.
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
     groups:
       astro:
         patterns: ['astro', '@astrojs/*']
@@ -34,8 +44,7 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
-      day: monday
+      interval: monthly
       time: '06:00'
       timezone: Europe/Zurich
     commit-message:

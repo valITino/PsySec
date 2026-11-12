@@ -4,7 +4,7 @@ Sichtbare Platzhalter auf den Websites haben das Format `[TODO: …]`. Zentrale 
 
 ## Nach dem Redesign: Ihre Rückmeldung
 
-- [ ] Look ansehen (lokal `pnpm dev:web`, oder die Vorschau auf GitHub Pages, sobald der Stand auf `main` liegt)
+- [ ] Look ansehen: Die Vorschau liegt unter `https://valitino.github.io/PsySec/` (Umfrage: `/forms/`, «Erwischt!»: `/surprise/gewinn`); lokal mit `pnpm dev:web`
 - [ ] Region im Kontakt und im Footer lautet jetzt «Schweiz» (Entscheidung 123). Falls Sie vorerst nur einen Teil der Schweiz abdecken, hier genauer werden: `apps/web/src/config/site.ts`
 - [ ] Logo-Kit Runde 6 ist eingebaut. Die Eule im Foto-Platzhalter von «Über» schaut dem Zeiger nach (Entscheidung 121): gefällt das, oder soll sie stillhalten?
 - [ ] Sticker-Sprüche und ergänzte Texte gegenlesen (Liste in Entscheidung 112)
@@ -67,7 +67,9 @@ Noch nicht eingebaut. Der Auftrag verbietet Tracking und Cookies; die Website sa
 - [ ] Vier Workers mit dem Repository verbinden, Variablen setzen, Weiterleitung von www
 - [ ] Domain-Härtung: CAA, DMARC; HSTS-Preload erst nach stabilem Betrieb
 - [ ] Checks nach dem Go-Live: Observatory, Lighthouse, Formulare, Zähler
-- [ ] GitHub Pages aktivieren, falls die Vorschau gewünscht ist: Repository → Settings → Pages → Source «GitHub Actions» (wirkt, sobald der Stand auf `main` liegt)
+- [x] GitHub Pages aktivieren (erledigt, die Vorschau ist online)
+- [ ] Vorschau wieder abschalten, sobald sie nicht mehr gebraucht wird (`docs/DEPLOY.md`, Abschnitt «Vorschau auf GitHub Pages»)
+- [ ] Dependabot: grüne Update-PRs mergen, rote schliessen; in den Sicherheits-Einstellungen des Repositorys «Dependabot security updates» einschalten (`docs/DEPLOY.md`, Abschnitt «Updates»)
 - [ ] Erinnerung eintragen: mindestens einmal pro Jahr neu bauen und deployen (`security.txt` läuft sonst ab)
 
 ## Annahmen, die Sie bestätigen oder ändern können

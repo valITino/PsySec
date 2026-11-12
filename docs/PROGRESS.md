@@ -154,7 +154,15 @@ Alle Phasen aus dem Auftrag sind umgesetzt. Deployt wurde nichts; es liegen kein
 
 Was jetzt bei Ihnen liegt, steht in `docs/TODO.md`: Inhalte (Name, Rolle, Motivation, Foto, Kontaktdaten, Impressum, Preise), rechtliche Prüfung und das Einrichten von Cloudflare nach `docs/DEPLOY.md`.
 
-Zum Testen: Sobald dieser Stand auf `main` liegt und GitHub Pages auf «GitHub Actions» steht, veröffentlicht der Workflow `pages.yml` die Vorschau aller drei Websites.
+Seit dem 12. November 2026 liegt der Stand auf `main` (Pull Request 1). Die CI lief dabei zum ersten Mal auf GitHub und war grün; vorher war alles nur lokal geprüft.
+
+Die Vorschau ist online und im Browser geprüft (Status, Konsole, interne Links, Kontaktformular, Start der Umfrage, keine Anfragen an fremde Hosts):
+
+- `https://valitino.github.io/PsySec/` (psyber.tech)
+- `https://valitino.github.io/PsySec/forms/` (Umfrage)
+- `https://valitino.github.io/PsySec/surprise/gewinn` («Erwischt!»)
+
+Nach dem Merge angepasst (Entscheidungen 160 und 161): Dependabot prüft monatlich und lässt die Hauptversionen von `typescript` und `@types/node` aus; der Vorschau-Hinweis der Umfrage steht in derselben Schrift wie auf den anderen Sites.
 
 ## Arbeitsnotizen für Folge-Sessions
 

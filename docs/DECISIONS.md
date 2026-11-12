@@ -249,3 +249,8 @@ Auftrag: SEO, Sichtbarkeit in den Suchergebnissen, robots.txt. Grundlage sind di
      - **`lastmod` in der Sitemap.** Google nutzt das Datum nur, wenn es verlässlich stimmt. Bei vier Seiten ohne gepflegtes Änderungsdatum wäre ein ungenaues schlechter als keines.
      - **Eigene Seiten je Masche.** Sie wären der grösste Hebel für Sichtbarkeit, aber die fünf Fallakten haben je rund 55 Wörter: zu dünn für eigene Seiten. Dafür braucht es Texte aus Ihrer Erfahrung (`docs/TODO.md`).
      - **IndexNow.** Bei vier Seiten genügt die Sitemap; in `docs/DEPLOY.md` steht, wie es ginge.
+
+## Nach dem Merge (November 2026)
+
+160. **Dependabot prüft monatlich und schlägt zwei Sprünge nicht vor:** neue Hauptversionen von `typescript` und von `@types/node` (`.github/dependabot.yml`). – Gleich nach dem Merge öffnete Dependabot PRs für TypeScript 7.0 und `@types/node` 26; beide scheiterten in der CI. typescript-eslint unterstützt TypeScript 7.0 nicht (der Lint bricht mit genau dieser Meldung ab), und die Typen von Node gehören zur Version, die wirklich läuft (`.nvmrc`: 22). Der Takt war wöchentlich eingestellt, `docs/DEPLOY.md` versprach monatlich; für ein kleines Projekt ohne Entwicklerteam ist monatlich ruhiger. Sicherheitsupdates sind davon unabhängig (in den Sicherheits-Einstellungen des Repositorys einschalten). – Alternative: die roten PRs jeden Monat von Hand schliessen. Die Regel für `typescript` entfernen, sobald typescript-eslint TypeScript 7 unterstützt; die für `@types/node` zusammen mit `.nvmrc` anheben.
+161. **Der Vorschau-Hinweis der Umfrage steht in Manrope wie auf den anderen beiden Sites.** – Er war als einziger in Geist Mono gesetzt; die Schrift ist Code vorbehalten.

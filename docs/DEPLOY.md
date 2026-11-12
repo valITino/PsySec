@@ -421,7 +421,11 @@ In der Phase `survey` stehen die Preise nicht einmal im HTML-Quelltext. Ein Test
 
 ### Updates
 
-Dependabot öffnet monatlich Pull Requests für Abhängigkeiten und GitHub Actions. Die CI prüft jeden PR: Lint, Typecheck, Unit-Tests, Build, JS-Budgets, Header-Prüfung und die Playwright-Tests. Erst mergen, wenn alles grün ist.
+Dependabot öffnet am ersten Tag jedes Monats Pull Requests für Abhängigkeiten und GitHub Actions. Die CI prüft jeden PR: Lint, Typecheck, Unit-Tests, Build, JS-Budgets, Header-Prüfung und die Playwright-Tests. Erst mergen, wenn alles grün ist. Ein roter PR kann liegen bleiben oder geschlossen werden: Dependabot meldet sich mit der nächsten Version wieder.
+
+Zwei Sprünge schlägt Dependabot bewusst nicht vor (Entscheidung 160): neue Hauptversionen von `typescript` (typescript-eslint unterstützt TypeScript 7.0 nicht) und von `@types/node` (die Typen gehören zur Node-Version aus `.nvmrc`).
+
+Empfohlen: in den Sicherheits-Einstellungen des Repositorys «Dependabot alerts» und «Dependabot security updates» einschalten, falls sie noch aus sind. Dann kommen Sicherheitsupdates sofort und nicht erst zum Monatsanfang.
 
 ### Rollback
 
@@ -515,6 +519,8 @@ Alle drei Websites lassen sich als Vorschau unter einer GitHub-Pages-Adresse ans
 | `https://<user>.github.io/<repo>/surprise/gewinn` | surprise.psyber.tech/gewinn |
 
 Einmalig einrichten: Repository → **Settings → Pages → Source: «GitHub Actions»**. Danach veröffentlicht der Workflow `.github/workflows/pages.yml` bei jedem Push auf `main` automatisch (oder von Hand über «Run workflow»).
+
+Wieder abschalten, sobald die Vorschau nicht mehr gebraucht wird: **Settings → Pages**, im Menü neben der Adresse **Unpublish site**. Damit der Workflow nicht bei jedem Push weiterläuft: **Actions → «Vorschau auf GitHub Pages» → Disable workflow**.
 
 Lokal ansehen:
 

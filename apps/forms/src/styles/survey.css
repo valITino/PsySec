@@ -945,7 +945,7 @@
   padding: 0.4rem var(--gutter);
   background-color: var(--amber);
   color: var(--ink);
-  font-family: var(--ff-mono);
+  font-family: var(--ff-sans);
   font-size: var(--fs-micro);
   font-weight: 600;
   text-align: center;
