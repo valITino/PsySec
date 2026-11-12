@@ -35,6 +35,6 @@
   "devDependencies": {
     "astro": "^7.4.10",
     "eslint": "^10.14.0",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   }
 }

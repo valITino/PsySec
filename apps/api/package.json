@@ -21,7 +21,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^5.20261110.1",
     "@psyber/config": "workspace:*",
-    "typescript": "^6.0.3",
+    "typescript": "^7.0.2",
     "vitest": "^5.1.0",
     "wrangler": "^4.160.0",
     "@cloudflare/vitest-plugin": "^1.7.0"

@@ -30,7 +30,7 @@
     "astro": "^7.4.10",
     "lucide-static": "^1.71.0",
     "tailwindcss": "^4.3.5",
-    "typescript": "^6.0.3"
+    "typescript": "^7.0.2"
   },
   "peerDependencies": {
     "astro": "^7.0.0"
