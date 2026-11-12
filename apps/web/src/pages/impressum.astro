@@ -1,6 +1,6 @@
 ---
 import Legal from '../components/Legal.astro';
-import { about, contact } from '../config/site.ts';
+import { about, contact, isTodo, legal } from '../config/site.ts';
 import Page from '../layouts/Page.astro';
 ---
 
@@ -14,35 +14,28 @@ import Page from '../layouts/Page.astro';
     <h2>Verantwortlich für diese Website</h2>
     <dl>
       <div>
-        <dt>Name oder Firma</dt>
-        <dd>
-          {about.name}
-          <span class="todo">[TODO: Firma und Rechtsform, sobald vorhanden]</span>
-        </dd>
+        <dt>Name</dt>
+        <dd>{about.name}</dd>
+      </div>
+      <div>
+        <dt>Rechtsform</dt>
+        <dd>{legal.form}</dd>
       </div>
       <div>
         <dt>Adresse</dt>
-        <dd>
-          <span class="todo">[TODO: Strasse, PLZ, Ort]</span>
-        </dd>
+        <dd>{legal.address}</dd>
       </div>
       <div>
         <dt>E-Mail</dt>
         <dd>
-          <span class="todo">{contact.email}</span>
+          <a class="link" href={`mailto:${contact.email}`}>
+            {contact.email}
+          </a>
         </dd>
       </div>
       <div>
         <dt>Telefon</dt>
-        <dd>
-          <span class="todo">{contact.phone}</span>
-        </dd>
-      </div>
-      <div>
-        <dt>UID</dt>
-        <dd>
-          <span class="todo">[TODO: UID, falls vorhanden]</span>
-        </dd>
+        <dd>{isTodo(contact.phone) ? <span class="todo">{contact.phone}</span> : contact.phone}</dd>
       </div>
     </dl>
 

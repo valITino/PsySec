@@ -257,7 +257,8 @@ try {
       await page.evaluate(() => window.__seek(600));
       await page.waitForTimeout(80);
       await shot(page, 'surprise-teaser-desktop');
-      await page.evaluate(() => window.__seek(1250));
+      // kurz nach dem Schnitt (2800 ms): «ERWISCHT!» rastet mit Farbversatz ein
+      await page.evaluate(() => window.__seek(2830));
       await page.waitForTimeout(80);
       await shot(page, 'surprise-glitch-desktop');
     }

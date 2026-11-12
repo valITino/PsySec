@@ -38,8 +38,8 @@ test.describe('Easter Eggs auf psyber.tech', () => {
       .poll(() => messages.join('\n'))
       .toContain('Du liest Quellcode? Layer 8 ist bei dir offensichtlich gepatcht.');
     const text = messages.join('\n');
-    // Die Kontaktadresse ist noch offen: der Platzhalter steht sichtbar da, nichts Erfundenes.
-    expect(text).toContain('Sag hallo: [TODO: E-Mail]');
+    // Die vorläufige Kontaktadresse aus der Konfiguration
+    expect(text).toContain('Sag hallo: youkn0wm3@proton.me');
     expect(text).toContain('↑ ↑ ↓ ↓ ← → ← → B A');
   });
 

@@ -103,7 +103,13 @@ test.describe('psyber.tech', () => {
     const menu = page.locator('#mobile-menu');
     await expect(menu).toBeVisible();
     await expect(menu.getByRole('link', { name: /Kontakt/ })).toBeVisible();
-    await expect(menu.getByText('[TODO: E-Mail]')).toBeVisible();
+    // Die vorläufige Kontaktadresse ist ein Link, der das Mailprogramm öffnet.
+    await expect(menu.getByRole('link', { name: 'youkn0wm3@proton.me' })).toHaveAttribute(
+      'href',
+      'mailto:youkn0wm3@proton.me',
+    );
+    // Die Telefonnummer ist noch offen: Der Platzhalter steht sichtbar da, nichts Erfundenes.
+    await expect(menu.getByText('[TODO: Telefon/WhatsApp]')).toBeVisible();
 
     // Fokus bleibt im Menü: auch nach vielen Tabs liegt er im Header.
     for (let index = 0; index < 14; index++) await page.keyboard.press('Tab');

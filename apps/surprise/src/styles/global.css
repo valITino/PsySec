@@ -4,14 +4,16 @@
 @source '../../../../packages/ui/src';
 
 /*
- * Zeitleiste der Auflösung (Auftrag 7.1): Teaser höchstens 1.2 s, Glitch rund 400 ms.
- * Alle Animationen starten beim Laden und hängen an diesen Werten; das Skript kann sie beim
- * Überspringen gemeinsam vorspulen (gewinn.ts, gleicher Wert wie --sp-hold).
+ * Zeitleiste der Auflösung in vier Takten (Teaser.astro, gewinn.astro). Der Auftrag (7.1) sah
+ * 1.2 s Teaser und 400 ms Glitch vor; auf Wunsch des Inhabers läuft der Übergang länger und
+ * kräftiger (Entscheidung 173). Alle Animationen starten beim Laden und hängen an diesen Werten;
+ * das Skript liest --sp-cut und spult beim Überspringen alle gemeinsam vor (gewinn.ts).
  */
 :root {
-  --sp-hold: 1000ms; /* Teaser steht ruhig */
-  --sp-half: 200ms; /* halber Glitch */
-  --sp-glitch: 400ms; /* ganzer Glitch: Teaser reisst, Auflösung rastet ein */
-  --sp-cut: 1200ms; /* Schnitt vom Teaser zur Auflösung */
-  --sp-mark: 1900ms; /* der Marker wischt ein */
+  --sp-hold: 1000ms; /* 1. Teaser steht ruhig, der Balken füllt sich */
+  --sp-break: 700ms; /* 2. Störung: Der Teaser reisst, sein Text zerfällt */
+  --sp-trace: 1100ms; /* 3. Spur: drei Zeilen wie aus einem Terminal */
+  --sp-cut: 2800ms; /* Schnitt zur Auflösung: hold + break + trace */
+  --sp-snap: 700ms; /* 4. «ERWISCHT!» rastet ein, die Scanlines klingen aus */
+  --sp-mark: 3900ms; /* der Marker wischt ein */
 }

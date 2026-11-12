@@ -55,10 +55,20 @@ export const nav = [
 
 /** Fehlende Angaben bleiben als sichtbare Platzhalter stehen (siehe docs/TODO.md). */
 export const contact = {
-  email: '[TODO: E-Mail]',
+  /** Vorübergehend, bis es eine Adresse unter der eigenen Domain gibt */
+  email: 'youkn0wm3@proton.me',
   phone: '[TODO: Telefon/WhatsApp]',
   region: 'Schweiz',
   security: 'security@psyber.tech',
+  /** `true`: Die Kontaktangaben sind vorläufig und stehen darum nicht in den strukturierten Daten. */
+  provisional: true,
+} as const;
+
+/** Angaben fürs Impressum und für die Datenschutzerklärung */
+export const legal = {
+  form: 'Einzelunternehmen, nicht im Handelsregister eingetragen',
+  /** Vorübergehend und mit Augenzwinkern, bis es eine Geschäftsadresse gibt (docs/TODO.md) */
+  address: 'Wo immer Sie sind, sind wir auch da.',
 } as const;
 
 export const isTodo = (value: string) => value.startsWith('[TODO');
@@ -150,6 +160,6 @@ export const brand = {
     'Sicheres Heimnetz',
     'Kinderschutz im Internet',
   ],
-  email: isTodo(contact.email) ? undefined : contact.email,
-  telephone: isTodo(contact.phone) ? undefined : contact.phone,
+  email: isTodo(contact.email) || contact.provisional ? undefined : contact.email,
+  telephone: isTodo(contact.phone) || contact.provisional ? undefined : contact.phone,
 } as const;

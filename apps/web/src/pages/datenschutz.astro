@@ -1,6 +1,6 @@
 ---
 import Legal from '../components/Legal.astro';
-import { about, contact } from '../config/site.ts';
+import { about, contact, legal } from '../config/site.ts';
 import Page from '../layouts/Page.astro';
 ---
 
@@ -38,14 +38,15 @@ import Page from '../layouts/Page.astro';
       <div>
         <dt>Name und Adresse</dt>
         <dd>
-          {about.name}
-          <span class="todo">[TODO: Strasse, PLZ, Ort]</span>
+          {about.name} ({legal.form}). {legal.address}
         </dd>
       </div>
       <div>
         <dt>Kontakt für Datenschutzfragen</dt>
         <dd>
-          <span class="todo">{contact.email}</span>
+          <a class="link" href={`mailto:${contact.email}`}>
+            {contact.email}
+          </a>
         </dd>
       </div>
     </dl>
@@ -179,9 +180,13 @@ import Page from '../layouts/Page.astro';
     <p>
       Sie können Auskunft über Ihre Daten verlangen, sie berichtigen oder löschen lassen, eine
       Bearbeitung einschränken oder ihr widersprechen und die Herausgabe Ihrer Daten verlangen.
-      Schreiben Sie uns dazu an <span class="todo">{contact.email}</span>. Weil die Umfrage anonym
-      ist, können wir einzelne Antworten keiner Person zuordnen. Sie haben zudem das Recht, sich an
-      den Eidgenössischen Datenschutz- und Öffentlichkeitsbeauftragten (EDÖB) zu wenden.
+      Schreiben Sie uns dazu an{' '}
+      {/* Auf einer Zeile: Ein Umbruch vor dem Punkt würde als Leerzeichen sichtbar. */}
+      {/* prettier-ignore */}
+      <span><a class="link" href={`mailto:${contact.email}`}>{contact.email}</a>.</span> Weil die
+      Umfrage anonym ist, können wir einzelne Antworten keiner Person zuordnen. Sie haben zudem das
+      Recht, sich an den Eidgenössischen Datenschutz- und Öffentlichkeitsbeauftragten (EDÖB) zu
+      wenden.
     </p>
 
     <h2>Keine Cookies, keine Profile</h2>

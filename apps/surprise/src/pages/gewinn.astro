@@ -245,7 +245,7 @@ const signals = [
 
   .sp-title-text {
     display: block;
-    animation: sp-jolt var(--sp-half) steps(1, end) var(--sp-cut) both;
+    animation: sp-jolt var(--sp-snap) steps(1, end) var(--sp-cut) both;
   }
 
   /*
@@ -265,38 +265,55 @@ const signals = [
 
   .sp-title::before {
     color: var(--crit);
-    animation: sp-ghost-a var(--sp-half) steps(1, end) var(--sp-cut) both;
+    animation: sp-ghost-a var(--sp-snap) steps(1, end) var(--sp-cut) both;
   }
 
   .sp-title::after {
     color: var(--acid);
-    animation: sp-ghost-b var(--sp-half) steps(1, end) var(--sp-cut) both;
+    animation: sp-ghost-b var(--sp-snap) steps(1, end) var(--sp-cut) both;
   }
 
+  /*
+   * Einrasten: Das Wort zuckt in immer kleineren Schritten an seinen Platz. Abgeschnitten wird
+   * es nur dreimal und nur am Anfang; danach versetzt es sich bloss noch (kein Flackern).
+   */
   @keyframes sp-jolt {
     0% {
       clip-path: none;
       transform: none;
     }
     2% {
-      clip-path: inset(0 0 38% 0);
-      transform: translateX(0.05em) skewX(-8deg);
+      clip-path: inset(0 0 34% 0);
+      transform: translateX(0.07em) skewX(-9deg);
     }
-    30% {
-      clip-path: inset(22% 0 0 0);
-      transform: translateX(-0.03em) skewX(5deg);
+    14% {
+      clip-path: inset(20% 0 0 0);
+      transform: translateX(-0.05em) skewX(6deg);
     }
-    58% {
+    26% {
+      clip-path: none;
+      transform: translateX(0.03em) skewX(-3deg);
+    }
+    38% {
       clip-path: inset(0 0 12% 0);
-      transform: translateX(0.012em);
+      transform: translateX(-0.018em);
     }
-    80%,
+    50% {
+      clip-path: none;
+      transform: translateX(0.012em) skewX(1.5deg);
+    }
+    64% {
+      clip-path: none;
+      transform: translateX(-0.006em);
+    }
+    78%,
     100% {
       clip-path: none;
       transform: none;
     }
   }
 
+  /* Die beiden Farbkanäle schwingen gegenläufig aus. */
   @keyframes sp-ghost-a {
     0% {
       opacity: 0;
@@ -304,19 +321,35 @@ const signals = [
     }
     2% {
       opacity: 1;
-      transform: translateX(-0.075em) skewX(-8deg);
+      transform: translate(-0.11em, 0.012em) skewX(-9deg);
     }
-    30% {
+    14% {
       opacity: 1;
-      transform: translateX(0.05em);
+      transform: translate(0.075em, -0.008em) skewX(6deg);
     }
-    58% {
+    26% {
+      opacity: 1;
+      transform: translateX(-0.05em);
+    }
+    38% {
+      opacity: 0.95;
+      transform: translateX(0.032em);
+    }
+    50% {
       opacity: 0.9;
-      transform: translateX(-0.028em);
+      transform: translateX(-0.02em);
     }
-    80% {
-      opacity: 0.7;
+    64% {
+      opacity: 0.8;
       transform: translateX(0.012em);
+    }
+    78% {
+      opacity: 0.6;
+      transform: translateX(-0.006em);
+    }
+    90% {
+      opacity: 0.35;
+      transform: translateX(0.003em);
     }
     100% {
       opacity: 0;
@@ -331,19 +364,35 @@ const signals = [
     }
     2% {
       opacity: 1;
-      transform: translateX(0.085em) skewX(-8deg);
+      transform: translate(0.12em, -0.012em) skewX(-9deg);
     }
-    30% {
+    14% {
       opacity: 1;
-      transform: translateX(-0.055em);
+      transform: translate(-0.08em, 0.008em) skewX(6deg);
     }
-    58% {
+    26% {
+      opacity: 1;
+      transform: translateX(0.055em);
+    }
+    38% {
+      opacity: 0.95;
+      transform: translateX(-0.034em);
+    }
+    50% {
       opacity: 0.9;
-      transform: translateX(0.03em);
+      transform: translateX(0.022em);
     }
-    80% {
-      opacity: 0.7;
-      transform: translateX(-0.012em);
+    64% {
+      opacity: 0.8;
+      transform: translateX(-0.013em);
+    }
+    78% {
+      opacity: 0.6;
+      transform: translateX(0.007em);
+    }
+    90% {
+      opacity: 0.35;
+      transform: translateX(-0.003em);
     }
     100% {
       opacity: 0;
@@ -369,10 +418,23 @@ const signals = [
     font-weight: 600;
     letter-spacing: -0.04em;
     line-height: 1.04;
+    animation: sp-rise 520ms var(--ease) calc(var(--sp-cut) + 260ms) backwards;
   }
 
   .sp-lead {
     color: var(--fg-muted);
+    animation: sp-rise 520ms var(--ease) calc(var(--sp-cut) + 380ms) backwards;
+  }
+
+  /*
+   * Nach dem Schnitt kommt der Rest gestaffelt nach. Grundzustand ist die fertige Seite: Ohne
+   * Animation (kein JavaScript, reduzierte Bewegung) steht alles sofort da.
+   */
+  @keyframes sp-rise {
+    from {
+      opacity: 0;
+      transform: translateY(0.875rem);
+    }
   }
 
   /* Container: Die Adresse darunter richtet ihre Schriftgrösse an dieser Spalte aus. */
@@ -383,12 +445,40 @@ const signals = [
     container-type: inline-size;
   }
 
-  /* Die Eule hat es gesehen */
+  /* Die Eule hat es gesehen: Sie taucht nach dem Schnitt auf, der Sticker klebt sich dazu. */
   .sp-witness {
     display: flex;
     align-items: flex-end;
     gap: 0.5rem;
     margin-bottom: 0.75rem;
+  }
+
+  .sp-witness :global(.sp-owl) {
+    transform-origin: 50% 100%;
+    animation: sp-peek 620ms cubic-bezier(0.2, 1.4, 0.4, 1) calc(var(--sp-cut) + 420ms) backwards;
+  }
+
+  .sp-witness .sp-sticker {
+    animation: sp-stick 420ms cubic-bezier(0.2, 1.5, 0.4, 1) calc(var(--sp-cut) + 760ms) backwards;
+  }
+
+  .sp-clicked-label,
+  .sp-url {
+    animation: sp-rise 520ms var(--ease) calc(var(--sp-cut) + 520ms) backwards;
+  }
+
+  @keyframes sp-peek {
+    from {
+      opacity: 0;
+      transform: translateY(1.5rem) scale(0.86);
+    }
+  }
+
+  @keyframes sp-stick {
+    from {
+      opacity: 0;
+      scale: 1.5;
+    }
   }
 
   .sp-witness :global(.sp-owl) {

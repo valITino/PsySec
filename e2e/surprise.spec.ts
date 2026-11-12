@@ -18,13 +18,23 @@ const freezeAt = (page: Page, time: number) =>
     }
   }, time);
 
+/** Stand der Zeitleiste in ms, abgelesen an der Animation, die den Teaser am Schnitt versteckt. */
 const teaserOffTime = (page: Page) =>
   page.evaluate(() => {
+    const teaser = document.querySelector('[data-teaser]');
     const animation = document
       .getAnimations()
-      .find((item) => (item as CSSAnimation).animationName === 'sp-teaser-off');
+      .find(
+        (item) =>
+          (item as CSSAnimation).animationName === 'sp-off' &&
+          (item.effect as KeyframeEffect).target === teaser,
+      );
     return animation ? Number(animation.currentTime) : -1;
   });
+
+/** Zeiten der Zeitleiste (ms): wie --sp-* in apps/surprise/src/styles/global.css */
+const CUT = 2800;
+const SKIP_TO = CUT - 300;
 
 test.describe('surprise.psyber.tech', () => {
   test('Auflösung: Teaser endet von selbst, keine Fehler, kein horizontales Scrollen', async ({
@@ -35,7 +45,7 @@ test.describe('surprise.psyber.tech', () => {
     await ready(page);
 
     const teaser = page.locator('[data-teaser]');
-    await expect(teaser).toBeHidden({ timeout: 4000 });
+    await expect(teaser).toBeHidden({ timeout: 8000 });
     await expect(page.getByRole('heading', { level: 1 })).toHaveText('Erwischt!');
     await expect(page.getByText('Zum Glück nur von uns.')).toBeVisible();
     await expect(page.getByText('Diesen Link haben Sie angeklickt:')).toBeVisible();
@@ -48,31 +58,86 @@ test.describe('surprise.psyber.tech', () => {
     expect(errors).toEqual([]);
   });
 
-  test('Teaser: sichtbar bis zum Schnitt, per Taste überspringbar', async ({ page }) => {
+  test('Übergang in vier Takten: Teaser, Störung, Spur, Schnitt; per Taste überspringbar', async ({
+    page,
+  }) => {
     await page.goto(URL);
     await ready(page);
     const teaser = page.locator('[data-teaser]');
+    const takes = teaser.locator('.teaser-take');
+    const lines = teaser.locator('.trace-line');
 
-    // Zeitleiste anhalten: bei 300 ms steht der Teaser, nach dem Schnitt (1200 ms) ist er weg.
+    // 1. Zeitleiste anhalten: Bei 300 ms steht der Teaser ruhig da, die Spur ist noch versteckt.
     await freezeAt(page, 300);
     await expect(teaser).toBeVisible();
-    await expect(teaser).toContainText('Ihr Gutschein wird vorbereitet');
     await expect(teaser).toHaveAttribute('aria-hidden', 'true');
-    await freezeAt(page, 1250);
-    await expect(teaser).toBeHidden();
+    await expect(takes.nth(0)).toBeVisible();
+    await expect(takes.nth(0)).toHaveText(/Ihr Gutschein wird vorbereitet/);
+    await expect(takes.nth(3)).toBeHidden();
+    await expect(lines.first()).toBeHidden();
 
-    // Zurück an den Anfang: eine Taste spult alles an den Beginn des Glitchs (1000 ms).
+    // 2. Störung: Der Text ist zerfallen, am Ende steht «ERWISCHT» in Hex.
+    await freezeAt(page, 1650);
+    await expect(takes.nth(0)).toBeHidden();
+    await expect(takes.nth(3)).toBeVisible();
+    await expect(takes.nth(3)).toHaveText('45 52 57 49 53 43 48 54');
+    expect(
+      String.fromCharCode(
+        ...'45 52 57 49 53 43 48 54'.split(' ').map((byte) => Number.parseInt(byte, 16)),
+      ),
+    ).toBe('ERWISCHT');
+
+    // 3. Spur: Die drei Zeilen stehen, der Teaser selbst ist weg.
+    await freezeAt(page, 2700);
+    await expect(teaser.locator('.teaser-inner')).toBeHidden();
+    await expect(lines).toHaveCount(3);
+    for (const index of [0, 1, 2]) await expect(lines.nth(index)).toBeVisible();
+    await expect(lines.nth(2)).toHaveText(/schaden berechnen\s*…\s*0/);
+
+    // 4. Nach dem Schnitt ist alles davon weg, auch die Zeilen der Spur.
+    await freezeAt(page, CUT + 50);
+    await expect(teaser).toBeHidden();
+    for (const index of [0, 1, 2]) await expect(lines.nth(index)).toBeHidden();
+    await expect(teaser.locator('.trace-cursor')).toBeHidden();
+
+    // Zurück an den Anfang: Eine Taste spult alles kurz vor den Schnitt.
     await freezeAt(page, 300);
     await page.keyboard.press('Space');
-    expect(await teaserOffTime(page)).toBe(1000);
+    expect(await teaserOffTime(page)).toBe(SKIP_TO);
   });
 
-  test('Teaser: per Klick überspringbar', async ({ page }) => {
+  test('Übergang: per Klick überspringbar', async ({ page }) => {
     await page.goto(URL);
     await ready(page);
     await freezeAt(page, 200);
     await page.locator('[data-teaser]').click();
-    expect(await teaserOffTime(page)).toBe(1000);
+    expect(await teaserOffTime(page)).toBe(SKIP_TO);
+  });
+
+  test('Übergang ohne Blitzgewitter: Helle Streifen bleiben schmal', async ({ page }) => {
+    await page.goto(URL);
+    await ready(page);
+    // Farbige Flächen, die springen, sind höchstens 5 % des Fensters hoch. Die breiteren
+    // Streifen ändern nur den Farbton dessen, was darunter liegt, und sind selbst durchsichtig.
+    const sizes = await page.evaluate(() => {
+      const glitch = document.querySelector('[data-glitch]')!;
+      const share = (value: string) => Number.parseFloat(value) / window.innerHeight;
+      return {
+        bands: ['::before', '::after'].map((pseudo) =>
+          share(getComputedStyle(glitch, pseudo).height),
+        ),
+        shifts: [...glitch.querySelectorAll('.glitch-shift')].map((element) => {
+          const style = getComputedStyle(element);
+          return { background: style.backgroundColor, filter: style.backdropFilter };
+        }),
+      };
+    });
+    for (const band of sizes.bands) expect(band).toBeLessThanOrEqual(0.0501);
+    for (const shift of sizes.shifts) {
+      expect(shift.background).toBe('rgba(0, 0, 0, 0)');
+      expect(shift.filter).toMatch(/hue-rotate/);
+      expect(shift.filter).not.toMatch(/invert|brightness/);
+    }
   });
 
   test('fragt nichts ab: keine Eingabefelder, keine Cookies, kein Speicher', async ({
@@ -166,7 +231,7 @@ test.describe('surprise.psyber.tech', () => {
   test('«Adressen lesen»: Umschalter Echt / Fälschung, auch per Tastatur', async ({ page }) => {
     await page.goto(URL);
     await ready(page);
-    await page.keyboard.press('Shift'); // Teaser überspringen
+    await page.keyboard.press('Shift'); // Übergang überspringen
     const echt = page.getByRole('button', { name: 'Echt', exact: true });
     const fake = page.getByRole('button', { name: 'Fälschung' });
     const echtPanel = page.locator('[data-reader-panel="echt"]');
