@@ -1,33 +1,46 @@
 ---
 /**
- * 0x09 Über: Foto-Platzhalter als Punktraster-Karte, daneben Überschrift und Terminal-Karte.
- * Im Platzhalter hält die Eule die Stellung und schaut dem Zeiger nach (home.ts, owl-eyes.ts).
+ * 0x09 Über: Porträt in der Punktraster-Karte, daneben Überschrift und Terminal-Karte.
+ * Das Foto ist freigestellt (durchsichtiger Grund) und steht auf der unteren Kante der Karte.
  * Keine erfundenen Angaben.
  */
-import OwlLive from '@psyber/ui/components/OwlLive.astro';
 import stickerUrl from '@psyber/ui/brand/sticker-blick.svg?url';
+import portraitAvif from '../../assets/portrait.avif?url';
+import portraitWebp from '../../assets/portrait.webp?url';
 import { about } from '../../config/site.ts';
 import SectionHead from '../SectionHead.astro';
 
 const lines = [
   { command: 'whoami', output: about.name },
   { command: 'cat rolle.txt', output: about.rolle },
+  { command: 'cat ausbildung.txt', output: about.ausbildung },
   { command: 'cat warum.txt', output: about.warum },
 ];
 ---
 
 <section data-lazy class="sheet" id="ueber" aria-labelledby="ueber-title">
   <div class="wrap about">
-    <div class="portrait">
+    <div class="portrait" data-enter>
       <figure class="portrait-frame">
         <span class="portrait-corner portrait-corner-tl" aria-hidden="true"></span>
         <span class="portrait-corner portrait-corner-tr" aria-hidden="true"></span>
         <span class="portrait-corner portrait-corner-bl" aria-hidden="true"></span>
         <span class="portrait-corner portrait-corner-br" aria-hidden="true"></span>
-        <OwlLive class="portrait-owl" />
+        <picture>
+          <source type="image/avif" srcset={portraitAvif} />
+          <img
+            class="portrait-photo"
+            src={portraitWebp}
+            width={about.foto.width}
+            height={about.foto.height}
+            alt={about.foto.alt}
+            loading="lazy"
+            decoding="async"
+          />
+        </picture>
         <figcaption class="portrait-caption">
-          <span class="label-up">{about.foto}</span>
-          <span>Solange hält die Eule die Stellung.</span>
+          <span class="label-up">{about.name}</span>
+          <span>{about.rolle}</span>
         </figcaption>
       </figure>
       <img
@@ -50,7 +63,7 @@ const lines = [
         id="ueber-title"
       />
 
-      <div class="terminal">
+      <div class="terminal" data-enter>
         <div class="terminal-bar" aria-hidden="true">
           <span class="terminal-dots">
             <span></span>
@@ -95,18 +108,19 @@ const lines = [
     gap: clamp(2rem, 4vw, 3rem);
   }
 
-  /* ---------- Foto-Platzhalter ---------- */
+  /* ---------- Porträt ---------- */
 
   .portrait-frame {
     position: relative;
     display: grid;
-    align-content: center;
+    align-content: end;
     justify-items: center;
-    gap: 1.5rem;
+    /* Die Figur steht auf der unteren Kante und folgt dort der Rundung der Karte. */
+    overflow: hidden;
     min-height: clamp(20rem, 60vw, 38rem);
     height: 100%;
-    /* unten Platz für den Sticker, damit er die Bildunterschrift nicht verdeckt */
-    padding: 2rem 2rem calc(var(--sticker-size) * 0.6 + 0.75rem);
+    /* oben Platz für die Bildunterschrift, damit sie nie über dem Gesicht liegt */
+    padding-top: 5.5rem;
     border: 1px solid var(--hairline);
     border-radius: var(--r-panel);
     background-color: var(--carbon);
@@ -123,17 +137,26 @@ const lines = [
     position: relative;
   }
 
-  .portrait-frame :global(.portrait-owl) {
-    width: min(58%, 15rem);
+  /* Das Bild selbst ist das Rasterelement: So steht es mittig und misst sich an der Karte. */
+  .portrait-frame picture {
+    display: contents;
+  }
+
+  /* Nie grösser als die Datei hergibt (579 px breit): Darüber würde das Bild unscharf. */
+  .portrait-photo {
+    width: min(94%, 36rem);
+    height: auto;
   }
 
   .portrait-caption {
+    position: absolute;
+    top: 2rem;
+    left: 2.25rem;
     display: grid;
-    justify-items: center;
-    gap: 0.375rem;
+    justify-items: start;
+    gap: 0.25rem;
     color: var(--ash);
     font-size: var(--fs-small);
-    text-align: center;
   }
 
   .portrait-caption .label-up {
@@ -148,8 +171,10 @@ const lines = [
     bottom: calc(var(--sticker-size) * -0.4);
   }
 
+  /* Die Ecken liegen wie ein Sucher über dem Bild. */
   .portrait-corner {
     position: absolute;
+    z-index: 1;
     width: 1.125rem;
     height: 1.125rem;
     border: 1px solid var(--ash);
@@ -255,6 +280,150 @@ const lines = [
     50% {
       opacity: 0;
     }
+  }
+
+  /*
+   * Auftritt, sobald die Sektion ins Bild kommt (reveal.ts setzt data-enter): Der Sucher stellt
+   * scharf (die Ecken rücken von aussen an ihren Platz), eine feine Linie tastet das Bild einmal
+   * ab, der Sticker klebt sich auf; im Terminal erscheinen die Zeilen nacheinander.
+   */
+  .portrait-frame::after {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background-image: linear-gradient(
+      to bottom,
+      rgb(var(--acid-rgb) / 0) 0,
+      rgb(var(--acid-rgb) / 0.85) 50%,
+      rgb(var(--acid-rgb) / 0) 100%
+    );
+    background-repeat: no-repeat;
+    background-size: 100% 0.375rem;
+    content: '';
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .portrait[data-enter='wait'] .portrait-photo,
+  .portrait[data-enter='wait'] .portrait-corner,
+  .portrait[data-enter='wait'] .portrait-caption,
+  .portrait[data-enter='wait'] .portrait-sticker,
+  .terminal[data-enter='wait'] .terminal-body > div {
+    opacity: 0;
+  }
+
+  .portrait[data-enter='in'] .portrait-photo {
+    animation: about-rise 700ms var(--ease) backwards;
+  }
+
+  .portrait[data-enter='in'] .portrait-caption {
+    animation: about-rise 500ms var(--ease) 260ms backwards;
+  }
+
+  .portrait[data-enter='in'] .portrait-corner {
+    animation: about-focus 560ms cubic-bezier(0.2, 1.5, 0.4, 1) 140ms backwards;
+  }
+
+  .portrait[data-enter='in'] .portrait-corner-tl {
+    --from: -0.875rem -0.875rem;
+  }
+
+  .portrait[data-enter='in'] .portrait-corner-tr {
+    --from: 0.875rem -0.875rem;
+  }
+
+  .portrait[data-enter='in'] .portrait-corner-bl {
+    --from: -0.875rem 0.875rem;
+  }
+
+  .portrait[data-enter='in'] .portrait-corner-br {
+    --from: 0.875rem 0.875rem;
+  }
+
+  .portrait[data-enter='in'] .portrait-frame::after {
+    animation: about-scan 950ms cubic-bezier(0.3, 0, 0.3, 1) 320ms;
+  }
+
+  .portrait[data-enter='in'] .portrait-sticker {
+    animation: about-stick 420ms cubic-bezier(0.2, 1.5, 0.4, 1) 780ms backwards;
+  }
+
+  .terminal[data-enter='in'] .terminal-body > div {
+    animation: about-line 320ms var(--ease) backwards;
+  }
+
+  .terminal[data-enter='in'] .terminal-body > div:nth-child(2) {
+    animation-delay: 160ms;
+  }
+
+  .terminal[data-enter='in'] .terminal-body > div:nth-child(3) {
+    animation-delay: 320ms;
+  }
+
+  .terminal[data-enter='in'] .terminal-body > div:nth-child(4) {
+    animation-delay: 480ms;
+  }
+
+  .terminal[data-enter='in'] .terminal-body > div:nth-child(5) {
+    animation-delay: 640ms;
+  }
+
+  @keyframes about-rise {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+  }
+
+  @keyframes about-focus {
+    from {
+      opacity: 0;
+      translate: var(--from);
+    }
+  }
+
+  @keyframes about-scan {
+    0% {
+      background-position: 0 0;
+      opacity: 1;
+    }
+
+    85% {
+      opacity: 1;
+    }
+
+    100% {
+      background-position: 0 100%;
+      opacity: 0;
+    }
+  }
+
+  @keyframes about-stick {
+    from {
+      opacity: 0;
+      scale: 1.5;
+    }
+  }
+
+  @keyframes about-line {
+    from {
+      opacity: 0;
+      transform: translateY(0.375rem);
+    }
+  }
+
+  /* Im Druck und bei angehaltener Bewegung wartet nichts auf seinen Auftritt. */
+  @media print {
+    .portrait[data-enter] *,
+    .terminal[data-enter] * {
+      opacity: 1;
+    }
+  }
+
+  :global(html[data-motion='off']) .portrait[data-enter] *,
+  :global(html[data-motion='off']) .terminal[data-enter] * {
+    opacity: 1;
+    animation: none;
   }
 
   @media (min-width: 56rem) {

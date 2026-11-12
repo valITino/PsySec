@@ -494,6 +494,14 @@
   border-color: var(--acid);
   background-color: var(--acid);
   color: var(--ink);
+  /* Das Häkchen federt kurz: eine kleine Quittung für die Wahl. */
+  animation: sv-pop 300ms cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+
+@keyframes sv-pop {
+  from {
+    scale: 0.55;
+  }
 }
 
 .sv-option:has(input:focus-visible) {
@@ -813,6 +821,23 @@
   outline-offset: 6px;
 }
 
+/* Die Blöcke des Danke-Screens kommen nacheinander, beide Links gemeinsam im selben Block. */
+.sv-done > * {
+  animation: sv-in-forward 460ms var(--ease) backwards;
+}
+
+.sv-done > :nth-child(2) {
+  animation-delay: 140ms;
+}
+
+.sv-done > :nth-child(3) {
+  animation-delay: 280ms;
+}
+
+.sv-done > :nth-child(4) {
+  animation-delay: 420ms;
+}
+
 .sv-block {
   display: grid;
   gap: 1rem;
@@ -945,7 +970,7 @@
   padding: 0.4rem var(--gutter);
   background-color: var(--amber);
   color: var(--ink);
-  font-family: var(--ff-mono);
+  font-family: var(--ff-sans);
   font-size: var(--fs-micro);
   font-weight: 600;
   text-align: center;

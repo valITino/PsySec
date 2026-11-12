@@ -4,19 +4,21 @@ Neue Session? Zuerst `CLAUDE.md` lesen, dann diese Datei. Der Auftrag steht in `
 
 ## Stand je Phase
 
-| Phase | Inhalt                                          | Stand                     |
-| ----- | ----------------------------------------------- | ------------------------- |
-| 0     | Fundament, Tooling, `packages/ui`, Styleguide   | fertig                    |
-| 1     | psyber.tech (One-Pager und Unterseiten)         | fertig                    |
-| 2     | API (Cloudflare Worker)                         | fertig                    |
-| 3     | forms.psyber.tech (Umfrage)                     | fertig                    |
-| 4     | surprise.psyber.tech («Erwischt!»)              | fertig                    |
-| 5     | Härtung, E2E, DEPLOY.md                         | fertig                    |
-| 6     | Extras (Auswertung, Easter Eggs)                | fertig                    |
-| R     | Redesign (neuer Look, Logo-Kit, Slogan)         | fertig                    |
-| G     | Gesamt-Review (alles prüfen, vereinheitlichen)  | fertig                    |
-| S     | Sichtbarkeit in Suchmaschinen (SEO, robots.txt) | fertig                    |
-| T     | Tracking und Analysen                           | offen: Entscheidung nötig |
+| Phase | Inhalt                                          | Stand                 |
+| ----- | ----------------------------------------------- | --------------------- |
+| 0     | Fundament, Tooling, `packages/ui`, Styleguide   | fertig                |
+| 1     | psyber.tech (One-Pager und Unterseiten)         | fertig                |
+| 2     | API (Cloudflare Worker)                         | fertig                |
+| 3     | forms.psyber.tech (Umfrage)                     | fertig                |
+| 4     | surprise.psyber.tech («Erwischt!»)              | fertig                |
+| 5     | Härtung, E2E, DEPLOY.md                         | fertig                |
+| 6     | Extras (Auswertung, Easter Eggs)                | fertig                |
+| R     | Redesign (neuer Look, Logo-Kit, Slogan)         | fertig                |
+| G     | Gesamt-Review (alles prüfen, vereinheitlichen)  | fertig                |
+| S     | Sichtbarkeit in Suchmaschinen (SEO, robots.txt) | fertig                |
+| T     | Zählung der Reichweite (anonyme Tagessummen)    | fertig                |
+| I     | Inhalte in «Über» (Name, Rolle, CAS, Porträt)   | Motivation fehlt noch |
+| A     | Animationen: «Erwischt!» und kleine Auftritte   | fertig                |
 
 ## Phase 0: Fundament (fertig)
 
@@ -148,13 +150,47 @@ Grundlage: die aktuellen Dokumente von Google Search Central, OpenAI, Anthropic 
 
 **Offen (nächster Meilenstein): Tracking.** Noch nicht begonnen. Es berührt die Regeln «kein Tracking, keine Cookies» aus dem Auftrag, die Datenschutzerklärung, den Cookie-Hinweis und die CSP; vor dem Einbau braucht es Ihre Entscheidung für eine Variante.
 
+## Inhalte in «Über» (Motivation fehlt noch)
+
+Aus dem Lebenslauf des Inhabers, soweit freigegeben (Entscheidungen 162 und 163): Name, die neutrale Rolle «Cybersecurity-Spezialist», das abgeschlossene CAS und vorübergehend das Bild aus dem Lebenslauf als freigestelltes Porträt. Arbeitgeber und private Kontaktdaten stehen bewusst nicht da. Offen: die Motivation (`warum.txt`), ein grösseres Foto, Kontaktdaten und die Adresse fürs Impressum (`docs/TODO.md`).
+
+## Zählung der Reichweite (fertig)
+
+Variante A, vom Inhaber gewählt: eigene anonyme Tagessummen statt eines Analysedienstes (Entscheidungen 164 bis 170).
+
+- **Was:** Seitenaufrufe je Seite, Einstiege je Herkunft, Klicks auf die Haupt-Knöpfe, die erreichte Frage der Umfrage, Zahl der Kontaktanfragen.
+- **Wie:** `packages/ui/src/lib/track.ts` meldet sich über Attribute am `<html>`-Element an; Knöpfe tragen `data-track`. Die API nimmt nur Werte aus festen Listen an (`packages/survey/src/questions.ts`) und speichert Tagessummen in `counters` (neue Spalte `dim`, Migration 0002).
+- **Was nicht:** keine Cookies, kein Speicher im Browser, keine Kennung, keine IP-Adressen, kein Dritter. Mit «Global Privacy Control» oder «Do Not Track», in ferngesteuerten Browsern und in der Vorschau wird nichts gezählt.
+- **Auswertung:** `pnpm analyze` zeigt am Schluss den Abschnitt «Reichweite der Websites».
+- **Texte:** Datenschutzerklärung nachgeführt (Abschnitt «Anonyme Zähler»).
+- **Tests:** `e2e/tracking.spec.ts` (Einstieg, Herkunft, Klicks, Umfrage, Signale, keine Cookies), dazu Unit-Tests für Schema, API, Herkunft und Bericht.
+- **Stand der Prüfkette:** 162 Unit-Tests, 312 E2E-Tests (46 übersprungen), 230 Header-Prüfungen, Lighthouse mobil 100 in allen Kategorien auf psyber.tech, der Checkliste und der Umfrage (surprise SEO 66, weil die Seite `noindex` trägt), JS gzip web 64,1 KB, forms 36,2 KB, surprise 1,7 KB.
+
+## Animationen (fertig)
+
+Wunsch des Inhabers nach der ersten Vorschau: «Erwischt!» länger und kräftiger, sonst mehr kleine Bewegungen, aber dezent (Entscheidungen 173 und 174; Liste in `docs/DESIGN.md`, Abschnitt 6).
+
+- **«Erwischt!»:** Übergang in vier Takten, 2,8 s bis zum Schnitt: Teaser, Störung (der Text zerfällt bis zu «ERWISCHT» in Hex), Spur (drei Zeilen wie aus einem Terminal), Einrasten mit Farbversatz. Überspringbar, ohne Blitzgewitter, bei reduzierter Bewegung sofort die Auflösung.
+- **Kleine Auftritte:** Kicker tippen sich ein, der Sucher stellt das Porträt scharf, 404-Glitch, Sticker reagieren auf den Zeiger, Seitenwechsel blenden über, Cookie-Hinweis wächst aus dem Knopf, Nummern der Checkliste und Danke-Screen gestaffelt, Häkchen federt.
+- **Gefunden dabei:** Der Build schreibt Zeiten im CSS um («2800ms» wird «2.8s»); das Überspringen las den Wert falsch und hätte nichts übersprungen. Ein Test hat es gezeigt, das Skript liest jetzt beide Schreibweisen. Und: Der Test des Terminals tippte den Konami-Code unter Last, bevor die Seite zuhörte (die Easter Eggs starten in einem ruhigen Moment nach dem Laden). Er wartet jetzt auf den Gruss in der Konsole, das Zeichen, dass sie bereit sind.
+- **Angaben:** Rechtsform, vorläufige Adresszeile und E-Mail eingetragen (Entscheidungen 171 und 172).
+- **Stand der Prüfkette:** 162 Unit-Tests, 321 E2E-Tests (47 übersprungen), 230 Header-Prüfungen, Lighthouse mobil 100, JS gzip web 64,1 KB, forms 36,2 KB, surprise 1,8 KB.
+
 ## Abschluss
 
 Alle Phasen aus dem Auftrag sind umgesetzt. Deployt wurde nichts; es liegen keine Secrets im Repo.
 
 Was jetzt bei Ihnen liegt, steht in `docs/TODO.md`: Inhalte (Name, Rolle, Motivation, Foto, Kontaktdaten, Impressum, Preise), rechtliche Prüfung und das Einrichten von Cloudflare nach `docs/DEPLOY.md`.
 
-Zum Testen: Sobald dieser Stand auf `main` liegt und GitHub Pages auf «GitHub Actions» steht, veröffentlicht der Workflow `pages.yml` die Vorschau aller drei Websites.
+Seit dem 12. November 2026 liegt der Stand auf `main` (Pull Request 1). Die CI lief dabei zum ersten Mal auf GitHub und war grün; vorher war alles nur lokal geprüft.
+
+Die Vorschau ist online und im Browser geprüft (Status, Konsole, interne Links, Kontaktformular, Start der Umfrage, keine Anfragen an fremde Hosts):
+
+- `https://valitino.github.io/PsySec/` (psyber.tech)
+- `https://valitino.github.io/PsySec/forms/` (Umfrage)
+- `https://valitino.github.io/PsySec/surprise/gewinn` («Erwischt!»)
+
+Nach dem Merge angepasst (Entscheidungen 160 und 161): Dependabot prüft monatlich und lässt die Hauptversionen von `typescript` und `@types/node` aus; der Vorschau-Hinweis der Umfrage steht in derselben Schrift wie auf den anderen Sites.
 
 ## Arbeitsnotizen für Folge-Sessions
 

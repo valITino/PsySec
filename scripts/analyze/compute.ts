@@ -3,6 +3,7 @@
  * Eingabe ist der Export aus `pnpm export` (scripts/export-d1.mjs).
  */
 import {
+  STEPS,
   q10Options,
   q12Options,
   q13Options,
@@ -44,6 +45,8 @@ export interface ResponseRow {
 
 export interface CounterRow {
   event: string;
+  /** Zweite Dimension: Seite, Herkunft («Seite:Herkunft»), Knopf oder Frage; sonst leer */
+  dim?: string;
   s_bucket: number;
   day: string;
   count: number;
@@ -94,6 +97,8 @@ export function parseExport(input: unknown, fallbackDay = ''): ExportData {
     responses: rowsOf(data.responses) as unknown as ResponseRow[],
     counters: rowsOf(data.counters).map((row) => ({
       event: String(row.event ?? ''),
+      // Exporte von vor November 2026 kennen die Spalte noch nicht.
+      dim: String(row.dim ?? ''),
       s_bucket: Number(row.s_bucket ?? 0),
       day: String(row.day ?? ''),
       count: Number(row.count ?? 0),
@@ -363,6 +368,148 @@ export function counterSummary(counters: CounterRow[]): CounterSummary {
   };
 }
 
+// ---------------------------------------------------------------- Reichweite
+
+export interface ReachItem {
+  key: string;
+  label: string;
+  count: number;
+}
+
+export interface ReachDay {
+  day: string;
+  views: number;
+  visits: number;
+}
+
+export interface ReachStep extends ReachItem {
+  /** Anteil an allen, die Frage 1 gesehen haben; `null`, solange niemand gezählt ist */
+  share: number | null;
+}
+
+/** Anonyme Tagessummen der Websites: Aufrufe, Einstiege, Klicks, Verlauf durch die Umfrage */
+export interface ReachSummary {
+  views: number;
+  visits: number;
+  clicks: number;
+  /** Gespeicherte Kontaktanfragen (zählt die API selbst) */
+  contacts: number;
+  /** Aufrufe je Seite, häufigste zuerst */
+  pages: ReachItem[];
+  /** Einstiege je Herkunft, häufigste zuerst */
+  sources: ReachItem[];
+  /** Einstiege je Seite, auf der jemand angekommen ist, häufigste zuerst */
+  landings: ReachItem[];
+  /** Klicks je Knopf, häufigste zuerst */
+  targets: ReachItem[];
+  /** Erreichte Fragen in der Reihenfolge der Umfrage */
+  steps: ReachStep[];
+  /** Jeder Tag vom ersten bis zum letzten gezählten, auch die ohne Aufruf */
+  days: ReachDay[];
+}
+
+const PAGE_LABELS: Record<string, string> = {
+  home: 'Startseite',
+  checkliste: 'Checkliste',
+  impressum: 'Impressum',
+  datenschutz: 'Datenschutzerklärung',
+  notfound: 'Seite nicht gefunden (404)',
+  umfrage: 'Umfrage',
+  erwischt: '«Erwischt!»',
+};
+
+const CTA_LABELS: Record<string, string> = {
+  header_cta: 'Kopfleiste',
+  menu_cta: 'Menü',
+  hero_cta: 'Einstieg: Hauptknopf',
+  hero_mehr: 'Einstieg: «So funktioniert’s»',
+  pakete_cta: 'Pakete',
+  schritt_cta: '«Der erste Schritt»',
+  footer_umfrage: 'Footer: Umfrage',
+  checkliste_drucken: 'Checkliste drucken',
+  erwischt_kontakt: '«Erwischt!»: Session anfragen',
+  erwischt_code: '«Erwischt!»: Code kopieren',
+};
+
+const nextDay = (day: string): string => {
+  const date = new Date(`${day}T00:00:00Z`);
+  date.setUTCDate(date.getUTCDate() + 1);
+  return date.toISOString().slice(0, 10);
+};
+
+/** Höchstens so viele Tage zeigt der Verlauf (Schutz vor einem Tippfehler im Datum) */
+const MAX_DAYS = 400;
+
+export function reachSummary(counters: CounterRow[]): ReachSummary {
+  const valid = counters.filter((row) => Number.isFinite(row.count) && row.count > 0);
+  const total = (event: string) =>
+    valid.filter((row) => row.event === event).reduce((sum, row) => sum + row.count, 0);
+  /** Summen je Schlüssel, häufigste zuerst; bei Gleichstand nach Namen */
+  const grouped = (
+    event: string,
+    keyOf: (dim: string) => string,
+    labels: Record<string, string>,
+  ): ReachItem[] => {
+    const sums = new Map<string, number>();
+    for (const row of valid) {
+      if (row.event !== event) continue;
+      const key = keyOf(row.dim ?? '');
+      if (key) sums.set(key, (sums.get(key) ?? 0) + row.count);
+    }
+    return [...sums]
+      .map(([key, count]) => ({ key, label: labels[key] ?? key, count }))
+      .sort((a, b) => b.count - a.count || a.label.localeCompare(b.label, 'de'));
+  };
+  const before = (dim: string) => dim.split(':')[0] ?? '';
+  const after = (dim: string) => dim.split(':')[1] ?? '';
+
+  const stepCounts = new Map(
+    grouped('survey_step', (dim) => dim, {}).map((item) => [item.key, item.count]),
+  );
+  const firstStep = stepCounts.get(STEPS[0] ?? '') ?? 0;
+
+  const perDay = new Map<string, ReachDay>();
+  for (const row of valid) {
+    if (row.event !== 'page_view' && row.event !== 'visit') continue;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(row.day)) continue;
+    const entry = perDay.get(row.day) ?? { day: row.day, views: 0, visits: 0 };
+    if (row.event === 'page_view') entry.views += row.count;
+    else entry.visits += row.count;
+    perDay.set(row.day, entry);
+  }
+  const known = [...perDay.keys()].sort();
+  const days: ReachDay[] = [];
+  const last = known.at(-1);
+  for (
+    let day = known[0];
+    day && last && day <= last && days.length < MAX_DAYS;
+    day = nextDay(day)
+  ) {
+    days.push(perDay.get(day) ?? { day, views: 0, visits: 0 });
+  }
+
+  return {
+    views: total('page_view'),
+    visits: total('visit'),
+    clicks: total('cta_click'),
+    contacts: total('contact_sent'),
+    pages: grouped('page_view', (dim) => dim, PAGE_LABELS),
+    sources: grouped('visit', after, REACH_SOURCE_LABELS),
+    landings: grouped('visit', before, PAGE_LABELS),
+    targets: grouped('cta_click', (dim) => dim, CTA_LABELS),
+    steps: STEPS.map((key, index) => {
+      const count = stepCounts.get(key) ?? 0;
+      return {
+        key,
+        label: `Frage ${index + 1}`,
+        count,
+        share: firstStep > 0 ? count / firstStep : null,
+      };
+    }),
+    days,
+  };
+}
+
 // ---------------------------------------------------------------- Go/No-Go
 
 export const TARGETS = {
@@ -437,6 +584,7 @@ export interface Analysis {
   priorities: { n: number; shares: Share[] };
   worries: string[];
   counters: CounterSummary;
+  reach: ReachSummary;
   waitlist: { total: number; founding: number };
   criteria: Criterion[];
   verdict: Verdict;
@@ -460,6 +608,16 @@ const SOURCE_LABELS: Record<string, string> = {
   empfehlung: 'Empfehlung',
   andere: 'andere',
   direkt: 'direkt (ohne Angabe)',
+};
+/** Herkunft eines Einstiegs: die Werte von `?quelle=`, sonst die Art der verweisenden Seite */
+const REACH_SOURCE_LABELS: Record<string, string> = {
+  ...SOURCE_LABELS,
+  website: 'Eigene Website',
+  andere: 'Andere Kennzeichnung',
+  direkt: 'Direkt (ohne Verweis)',
+  suche: 'Suchmaschine',
+  social: 'Soziales Netz',
+  verweis: 'Andere Website',
 };
 
 export function analyze(data: ExportData): Analysis {
@@ -595,6 +753,7 @@ export function analyze(data: ExportData): Analysis {
       .map((row) => (typeof row.q15 === 'string' ? row.q15.trim() : ''))
       .filter((text) => text !== ''),
     counters: counterSummary(data.counters),
+    reach: reachSummary(data.counters),
     waitlist: data.waitlist,
     criteria,
     verdict,

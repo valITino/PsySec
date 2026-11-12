@@ -323,6 +323,33 @@ const { progress = false } = Astro.props;
     gap: 0.75rem;
   }
 
+  /*
+   * Der Hinweis wächst aus seinem Knopf heraus und zieht sich dorthin zurück. Browser ohne
+   * @starting-style zeigen ihn einfach sofort.
+   */
+  .cookie-note {
+    opacity: 0;
+    transform: translateY(0.5rem) scale(0.94);
+    transform-origin: left bottom;
+    transition:
+      opacity var(--dur-2) var(--ease),
+      transform var(--dur-2) cubic-bezier(0.2, 1.3, 0.4, 1),
+      display var(--dur-2) allow-discrete,
+      overlay var(--dur-2) allow-discrete;
+  }
+
+  .cookie-note:popover-open {
+    opacity: 1;
+    transform: none;
+  }
+
+  @starting-style {
+    .cookie-note:popover-open {
+      opacity: 0;
+      transform: translateY(0.5rem) scale(0.94);
+    }
+  }
+
   .cookie-title {
     font-size: var(--fs-h3);
     font-weight: var(--fw-display);

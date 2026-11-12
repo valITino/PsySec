@@ -22,7 +22,7 @@ const CODE = 'LAYER8';
       Wir kommen zu Ihnen nach Hause, erklären die Tricks hinter den Maschen und sichern gleich Ihr
       Heimnetz ab.
     </p>
-    <Button href={web.kontakt} icon>
+    <Button href={web.kontakt} icon data-track="erwischt_kontakt">
       Session anfragen
     </Button>
   </div>
@@ -31,7 +31,7 @@ const CODE = 'LAYER8';
     <p class="offer-code-text">
       Fürs Mitmachen gibt es trotzdem einen Gewinn: 10&nbsp;% Rabatt mit diesem Code.
     </p>
-    <button type="button" class="code" data-copy={CODE}>
+    <button type="button" class="code" data-copy={CODE} data-track="erwischt_code">
       <span class="code-value mono" data-copy-code>
         {CODE}
       </span>

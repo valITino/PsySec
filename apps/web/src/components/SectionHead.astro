@@ -37,7 +37,10 @@ const {
 const parts = title.split('PSYber');
 ---
 
-<header class:list={['section-head', { 'section-head-split': layout === 'split' }, className]}>
+<header
+  class:list={['section-head', { 'section-head-split': layout === 'split' }, className]}
+  data-enter
+>
   <div class="section-head-main">
     {kicker && (
       <Kicker num={num} raw={kickerRaw}>
@@ -65,6 +68,44 @@ const parts = title.split('PSYber');
 
   .section-title {
     max-width: 17em;
+  }
+
+  /*
+   * Der Kicker tippt sich wie eine Zeile im Terminal ein, sobald die Sektion ins Bild kommt
+   * (reveal.ts setzt data-enter). Er ist so breit wie sein Text, damit das Tempo stimmt.
+   */
+  .section-head-main :global(.kicker) {
+    justify-self: start;
+  }
+
+  .section-head[data-enter='wait'] :global(.kicker) {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  .section-head[data-enter='in'] :global(.kicker) {
+    animation: kicker-type 520ms steps(26, end) backwards;
+  }
+
+  @keyframes kicker-type {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+
+    to {
+      clip-path: inset(0);
+    }
+  }
+
+  /* Im Druck und bei angehaltener Bewegung wartet nichts auf seinen Auftritt. */
+  @media print {
+    .section-head[data-enter] :global(.kicker) {
+      clip-path: none;
+    }
+  }
+
+  :global(html[data-motion='off']) .section-head[data-enter] :global(.kicker) {
+    clip-path: none;
+    animation: none;
   }
 
   .section-lead {

@@ -7,6 +7,7 @@
  */
 import { countUp, motionAllowed, onceInView } from '@psyber/ui/motion';
 import type { SmoothScroll } from '@psyber/ui/motion/smooth';
+import { initTracking } from '@psyber/ui/lib/track';
 import { initChat } from './chat.ts';
 import { initMotionToggle, initProgress } from './chrome.ts';
 import { initEggs } from './egg.ts';
@@ -28,6 +29,7 @@ const idle = (callback: () => void) => {
 // ---------------------------------------------------------------- Sofort: der erste Eindruck
 
 initHeader(() => smooth);
+initTracking();
 
 const hero = document.querySelector<HTMLElement>('[data-hero]');
 if (hero) initHero(hero);
@@ -84,18 +86,6 @@ if (contact) {
       });
     },
     { rootMargin: '800px 0px' },
-  );
-}
-
-// --- Die Eule in «Über» schaut dem Zeiger nach: erst laden, wenn sie in Sicht kommt ---
-const owl = document.querySelector<SVGSVGElement>('[data-owl]');
-if (owl && motionAllowed()) {
-  onceInView(
-    owl,
-    () => {
-      void import('@psyber/ui/motion/owl-eyes').then((module) => module.initOwlEyes(owl));
-    },
-    { rootMargin: '400px 0px' },
   );
 }
 

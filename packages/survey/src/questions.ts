@@ -445,3 +445,44 @@ export type ContactRef = (typeof CONTACT_REFS)[number];
 
 export const EVENTS = ['survey_started', 'bait_click', 'checklist_click'] as const;
 export type EventName = (typeof EVENTS)[number];
+
+// ---------------------------------------------------------------- Reichweite (anonyme Tagessummen)
+//
+// Geschlossene Listen: Der Browser schickt nie freien Text, die API nimmt nur diese Werte an.
+
+/** Seiten, deren Aufrufe gezählt werden (der Styleguide zählt nicht) */
+export const PAGES = [
+  'home',
+  'checkliste',
+  'impressum',
+  'datenschutz',
+  'notfound',
+  'umfrage',
+  'erwischt',
+] as const;
+export type PageKey = (typeof PAGES)[number];
+
+/** Art der Seite, von der jemand kommt. Ihre Adresse verlässt den Browser nie. */
+export const REFERRER_KINDS = ['suche', 'social', 'verweis'] as const;
+
+/** Herkunft eines Einstiegs: der Wert von `?quelle=`, sonst die Art der verweisenden Seite */
+export const SOURCES = [...QUELLEN_STORED, ...REFERRER_KINDS] as const;
+export type Source = (typeof SOURCES)[number];
+
+/** Knöpfe und Links, deren Klicks gezählt werden: nach ihrem Platz benannt, nicht nach dem Ziel */
+export const CTAS = [
+  'header_cta',
+  'menu_cta',
+  'hero_cta',
+  'hero_mehr',
+  'pakete_cta',
+  'schritt_cta',
+  'footer_umfrage',
+  'checkliste_drucken',
+  'erwischt_kontakt',
+  'erwischt_code',
+] as const;
+export type CtaKey = (typeof CTAS)[number];
+
+/** Fragen der Umfrage: gezählt wird, bis zu welcher jemand gekommen ist */
+export const STEPS: readonly QuestionId[] = questions.map((question) => question.id);

@@ -73,10 +73,15 @@ const cta = primaryCta(true);
             Manipulation funktioniert, und sichert Ihr Heimnetz gleich mit ab.
           </p>
           <div class="hero-actions">
-            <Button href={cta.href} icon>
+            <Button href={cta.href} icon data-track="hero_cta">
               {cta.label}
             </Button>
-            <Button href="#ablauf" variant="secondary" icon="arrow-down-right">
+            <Button
+              href="#ablauf"
+              variant="secondary"
+              icon="arrow-down-right"
+              data-track="hero_mehr"
+            >
               So funktioniert’s
             </Button>
           </div>

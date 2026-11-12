@@ -4,9 +4,9 @@ Sichtbare Platzhalter auf den Websites haben das Format `[TODO: …]`. Zentrale 
 
 ## Nach dem Redesign: Ihre Rückmeldung
 
-- [ ] Look ansehen (lokal `pnpm dev:web`, oder die Vorschau auf GitHub Pages, sobald der Stand auf `main` liegt)
+- [ ] Look ansehen: Die Vorschau liegt unter `https://valitino.github.io/PsySec/` (Umfrage: `/forms/`, «Erwischt!»: `/surprise/gewinn`); lokal mit `pnpm dev:web`
 - [ ] Region im Kontakt und im Footer lautet jetzt «Schweiz» (Entscheidung 123). Falls Sie vorerst nur einen Teil der Schweiz abdecken, hier genauer werden: `apps/web/src/config/site.ts`
-- [ ] Logo-Kit Runde 6 ist eingebaut. Die Eule im Foto-Platzhalter von «Über» schaut dem Zeiger nach (Entscheidung 121): gefällt das, oder soll sie stillhalten?
+- [x] Die Eule im Foto-Platzhalter von «Über» (Entscheidung 121): entfällt, dort steht jetzt Ihr Porträt (Entscheidung 163)
 - [ ] Sticker-Sprüche und ergänzte Texte gegenlesen (Liste in Entscheidung 112)
 
 ## Nach dem Gesamt-Review: Ihre Rückmeldung
@@ -29,19 +29,26 @@ Die Technik ist vorbereitet (Entscheidungen 150 bis 159). Das Folgende geht nur 
 - [ ] Ratgeber-Texte je Masche (je rund 300 bis 800 Wörter aus Ihrer Erfahrung). Das ist der grösste Hebel für Sichtbarkeit: Heute steht fast alles auf einer Seite, und die Fallakten sind für eigene Seiten zu kurz.
 - [ ] Titel und Beschreibung der Startseite gegenlesen (Entscheidung 155)
 
-## Tracking und Analysen: Entscheidung nötig
+## Zählung der Reichweite: Ihre Rückmeldung
 
-Noch nicht eingebaut. Der Auftrag verbietet Tracking und Cookies; die Website sagt das an mehreren Stellen ausdrücklich («Kein Cookie-Banner. Weil wir keine Cookies setzen.», Datenschutzerklärung, `humans.txt`). Bevor etwas eingebaut wird, braucht es Ihre Wahl einer Variante (ohne Cookies und ohne Einwilligung möglich, oder klassisch mit Banner).
+Eingebaut ist die von Ihnen gewählte Variante: eigene anonyme Tagessummen ohne Cookies (Entscheidungen 164 bis 170). Was gezählt wird und wie Sie Links kennzeichnen, steht in `docs/DEPLOY.md`, Abschnitt «Reichweite».
+
+- [ ] Abschnitt «Anonyme Zähler» der Datenschutzerklärung gegenlesen und bei der rechtlichen Prüfung mitgeben
+- [ ] Wer «Global Privacy Control» oder «Do Not Track» eingeschaltet hat, wird nicht gezählt (Entscheidung 167). Einverstanden? Sonst lässt es sich in `packages/ui/src/lib/track.ts` mit einer Zeile ändern.
+- [ ] Links, die Sie verteilen, mit `?quelle=` kennzeichnen (Flyer, Instagram usw.)
+- [ ] Im eigenen Browser eines der beiden Signale einschalten, damit Ihre eigenen Besuche nicht mitzählen
 
 ## Inhalte
 
-- [ ] Name (Terminal-Karte «Über», Impressum, Datenschutz)
-- [ ] Rolle, z. B. «Cybersecurity-Spezialist» (Terminal-Karte)
-- [ ] Motivation, 2–3 Sätze (Terminal-Karte `warum.txt`)
-- [ ] Foto (Sektion «Über»; kein Stockfoto)
-- [ ] E-Mail-Adresse für Kontakt (Header-Menü, Kontakt, Footer, Fehlermeldung des Formulars, Gruss in der Konsole)
-- [ ] Telefon/WhatsApp-Nummer (Header-Menü, Kontakt, Footer)
-- [ ] Angaben fürs Impressum: Firma bzw. Name, Rechtsform, Adresse, UID (falls vorhanden)
+- [x] Name (Terminal-Karte «Über», Impressum, Datenschutz)
+- [x] Rolle: «Cybersecurity-Spezialist», bewusst neutral gehalten (Ihre Wahl, Entscheidung 162). Schärfen lässt sie sich jederzeit in `apps/web/src/config/site.ts` (`about.rolle`).
+- [ ] Ausbildung: Titel und Schule des CAS bestätigen («CAS Digital Forensics & Cybercrime Investigation Fundamentals, Berner Fachhochschule»). Soll die Note stehen bleiben?
+- [ ] Motivation, 2–3 Sätze (Terminal-Karte `warum.txt`): Warum gibt es PSYber?
+- [ ] Foto: vorübergehend steht das Bild aus dem Lebenslauf da (579 px breit, auf grossen Bildschirmen etwas weich). Bitte ein grösseres liefern, mindestens 1200 px breit; freigestellt wird es hier.
+- [ ] E-Mail-Adresse für Kontakt (Header-Menü, Kontakt, Footer, Impressum, Fehlermeldung des Formulars, Gruss in der Konsole): vorläufig die von Ihnen genannte Adresse. Ersetzen, sobald es eine Adresse unter der eigenen Domain gibt (`apps/web/src/config/site.ts`, `contact.email`), und dann `contact.provisional` auf `false` stellen.
+- [ ] Telefon/WhatsApp-Nummer (Header-Menü, Kontakt, Footer): noch offen
+- [ ] Impressum: Name, Rechtsform (Einzelunternehmen, nicht im Handelsregister) und E-Mail stehen. Die Adresszeile «Wo immer Sie sind, sind wir auch da.» ist ein Platzhalter mit Augenzwinkern: **Vor dem Start braucht es eine echte Postadresse** (wer online Leistungen anbietet, muss sie nennen). Eine UID nachtragen, falls eine vergeben wird.
+- [ ] Profile auf anderen Plattformen (zum Beispiel LinkedIn): Sollen sie verlinkt werden?
 - [ ] Finale Preise der vier Pakete (aktuell die Spannen aus dem Auftrag, nur bei `PUBLIC_SITE_PHASE=launch` sichtbar)
 
 ## Rechtliches
@@ -52,8 +59,8 @@ Noch nicht eingebaut. Der Auftrag verbietet Tracking und Cookies; die Website sa
 
 ## Vor dem Launch prüfen
 
-- [ ] Fiktive Beispiel-Domains gehören keiner echten Firma (sonst ersetzen): `paket-zustellung-ch.info`, `karten-sicherheit-ch.com`, `gutschein-sofort.ch`
-- [ ] Quellenlinks aus Abschnitt 5.17 des Auftrags sind noch erreichbar und stützen die Zahlen
+- [ ] Fiktive Beispiel-Domains gehören keiner echten Firma (sonst ersetzen): `paket-zustellung-ch.info`, `karten-sicherheit-ch.com`, `gutschein-sofort.ch`. Stand 12. November 2026: Alle drei sind nicht registriert. Kurz vor dem Start nochmals prüfen; wer sicher sein will, registriert sie selbst, bevor es jemand anders tut.
+- [ ] Quellenlinks aus Abschnitt 5.17 des Auftrags sind noch erreichbar und stützen die Zahlen. Stand 12. November 2026: Die vier verwendeten Links sind erreichbar und nennen die Zahlen der Website (15,9 % und 8,4 %; 729 und 3’485 Meldungen, also 4,8-mal so viele; 26 %). Kurz vor dem Start nochmals prüfen.
 - [ ] E-Mail-Adressen existieren: `security@psyber.tech` (steht in `security.txt`), `hallo@psyber.tech` (Absender der Benachrichtigung) und die Kontaktadresse
 - [ ] Texte der Easter Eggs gegenlesen (Konsole und Terminal, `apps/web/src/scripts/egg.ts` und `terminal.ts`)
 - [ ] Alle drei Websites einmal in Safari (iPhone und Mac) und Firefox ansehen: Die automatischen Tests laufen nur in Chromium
@@ -67,7 +74,9 @@ Noch nicht eingebaut. Der Auftrag verbietet Tracking und Cookies; die Website sa
 - [ ] Vier Workers mit dem Repository verbinden, Variablen setzen, Weiterleitung von www
 - [ ] Domain-Härtung: CAA, DMARC; HSTS-Preload erst nach stabilem Betrieb
 - [ ] Checks nach dem Go-Live: Observatory, Lighthouse, Formulare, Zähler
-- [ ] GitHub Pages aktivieren, falls die Vorschau gewünscht ist: Repository → Settings → Pages → Source «GitHub Actions» (wirkt, sobald der Stand auf `main` liegt)
+- [x] GitHub Pages aktivieren (erledigt, die Vorschau ist online)
+- [ ] Vorschau wieder abschalten, sobald sie nicht mehr gebraucht wird (`docs/DEPLOY.md`, Abschnitt «Vorschau auf GitHub Pages»)
+- [ ] Dependabot: grüne Update-PRs mergen, rote schliessen; in den Sicherheits-Einstellungen des Repositorys «Dependabot security updates» einschalten (`docs/DEPLOY.md`, Abschnitt «Updates»)
 - [ ] Erinnerung eintragen: mindestens einmal pro Jahr neu bauen und deployen (`security.txt` läuft sonst ab)
 
 ## Annahmen, die Sie bestätigen oder ändern können

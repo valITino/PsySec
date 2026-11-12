@@ -1,9 +1,18 @@
 ---
 /**
- * Teaser (höchstens 1.2 s) und Glitch-Übergang (rund 400 ms) als reine CSS-Zeitleiste.
+ * Teaser und Übergang zur Auflösung als reine CSS-Zeitleiste, in vier Takten:
+ *
+ *   1. Teaser steht ruhig, der Balken füllt sich             (--sp-hold)
+ *   2. Störung: Der Teaser reisst, sein Text zerfällt        (--sp-break)
+ *   3. Spur: drei Zeilen wie aus einem Terminal              (--sp-trace)
+ *   4. Schnitt (--sp-cut), die Auflösung rastet ein          (--sp-snap, in gewinn.astro)
+ *
  * Die Zeiten stehen als --sp-* in src/styles/global.css. Das Skript braucht es nur zum
  * Überspringen. Ohne JS (no-js.css) und bei reduzierter Bewegung erscheint sofort die Auflösung.
- * Der Teaser ist reine Inszenierung und für Screenreader versteckt: Sie hören gleich die Auflösung.
+ * Alles hier ist Inszenierung und für Screenreader versteckt: Sie hören gleich die Auflösung.
+ *
+ * Kein Blitzgewitter: Helle Flächen bleiben schmal (höchstens 5 % der Höhe), grosse Flächen
+ * ändern nur Farbton und Versatz, nie schlagartig die Helligkeit.
  */
 import Icon from '@psyber/ui/components/Icon.astro';
 ---
@@ -13,16 +22,45 @@ import Icon from '@psyber/ui/components/Icon.astro';
     <span class="teaser-icon">
       <Icon name="gift" size={44} strokeWidth={1.5} />
     </span>
-    <p class="teaser-text">Ihr Gutschein wird vorbereitet&nbsp;…</p>
+    {/* Vier Fassungen übereinander: Der Text zerfällt Schritt für Schritt bis zu «ERWISCHT» in Hex. */}
+    <p class="teaser-text">
+      <span class="teaser-take">Ihr Gutschein wird vorbereitet&nbsp;…</span>
+      <span class="teaser-take">Ihr Gu7sch31n w1rd v0rb3r31t3t&nbsp;…</span>
+      <span class="teaser-take">1hr 6u75ch31n w1rd v0rb_r_1t_t&nbsp;…</span>
+      <span class="teaser-take mono">45 52 57 49 53 43 48 54</span>
+    </p>
     <span class="teaser-bar">
       <span class="teaser-fill"></span>
     </span>
   </div>
+
+  <div class="trace mono">
+    <p class="trace-line">
+      <span class="trace-cmd">&gt; gutschein suchen&nbsp;…</span>
+      <span class="trace-out trace-warn">404</span>
+    </p>
+    <p class="trace-line">
+      <span class="trace-cmd">&gt; absender prüfen&nbsp;…</span>
+      <span class="trace-out trace-warn">verkleidet</span>
+    </p>
+    <p class="trace-line">
+      <span class="trace-cmd">&gt; schaden berechnen&nbsp;…</span>
+      <span class="trace-out trace-ok">0</span>
+    </p>
+    <span class="trace-cursor"></span>
+  </div>
 </div>
-<div class="glitch" data-glitch aria-hidden="true"></div>
+
+<div class="glitch" data-glitch aria-hidden="true">
+  <span class="glitch-shift glitch-shift-a"></span>
+  <span class="glitch-shift glitch-shift-b"></span>
+  <span class="glitch-sweep"></span>
+</div>
 
 <style>
   .teaser {
+    /* Beginn des dritten Takts: Hier verschwindet der Teaser, die Spur läuft ein. */
+    --sp-trace-at: calc(var(--sp-hold) + var(--sp-break));
     position: fixed;
     inset: 0;
     z-index: 90;
@@ -30,7 +68,12 @@ import Icon from '@psyber/ui/components/Icon.astro';
     place-items: center;
     padding: var(--gutter);
     background-color: var(--void);
-    animation: sp-teaser-off 1ms linear var(--sp-cut) forwards;
+    animation: sp-off 1ms linear var(--sp-cut) forwards;
+  }
+
+  /* Teaser und Spur liegen an derselben Stelle. */
+  .teaser > * {
+    grid-area: 1 / 1;
   }
 
   .teaser-inner {
@@ -39,7 +82,9 @@ import Icon from '@psyber/ui/components/Icon.astro';
     gap: 1.5rem;
     width: min(100%, 22rem);
     text-align: center;
-    animation: sp-tear var(--sp-half) steps(1, end) var(--sp-hold) both;
+    animation:
+      sp-tear var(--sp-break) steps(1, end) var(--sp-hold) both,
+      sp-off 1ms linear var(--sp-trace-at) forwards;
   }
 
   .teaser-icon {
@@ -52,6 +97,7 @@ import Icon from '@psyber/ui/components/Icon.astro';
     background-color: var(--carbon);
     color: var(--acid);
     box-shadow: var(--glow-acid);
+    animation: sp-alarm var(--sp-break) steps(1, end) var(--sp-hold) forwards;
   }
 
   .teaser-icon :global(.icon) {
@@ -60,11 +106,40 @@ import Icon from '@psyber/ui/components/Icon.astro';
   }
 
   .teaser-text {
+    display: grid;
     color: var(--fg-strong);
     font-size: 1.375rem;
     font-weight: 600;
     letter-spacing: -0.03em;
     line-height: 1.2;
+  }
+
+  /* Jede Fassung ist nur in ihrem Zeitfenster zu sehen (die Animation hält nichts fest). */
+  .teaser-take {
+    grid-area: 1 / 1;
+    visibility: hidden;
+  }
+
+  .teaser-take:nth-child(1) {
+    animation: sp-on calc(var(--sp-hold) + var(--sp-break) * 0.14) linear;
+  }
+
+  .teaser-take:nth-child(2) {
+    animation: sp-on calc(var(--sp-break) * 0.28) linear
+      calc(var(--sp-hold) + var(--sp-break) * 0.14);
+  }
+
+  .teaser-take:nth-child(3) {
+    animation: sp-on calc(var(--sp-break) * 0.26) linear
+      calc(var(--sp-hold) + var(--sp-break) * 0.42);
+  }
+
+  .teaser-take:nth-child(4) {
+    color: var(--amber);
+    font-size: 0.8em;
+    letter-spacing: 0;
+    animation: sp-on calc(var(--sp-break) * 0.32) linear
+      calc(var(--sp-hold) + var(--sp-break) * 0.68);
   }
 
   .teaser-bar {
@@ -83,11 +158,80 @@ import Icon from '@psyber/ui/components/Icon.astro';
     border-radius: inherit;
     background-color: var(--acid);
     transform-origin: left center;
-    animation: sp-fill calc(var(--sp-hold) - 60ms) cubic-bezier(0.3, 0.1, 0.3, 1) both;
+    /* Der zweite Teil hält nichts rückwärts fest: Sonst stünde der Balken von Anfang an voll. */
+    animation:
+      sp-fill calc(var(--sp-hold) - 60ms) cubic-bezier(0.3, 0.1, 0.3, 1) both,
+      sp-stutter var(--sp-break) steps(1, end) var(--sp-hold) forwards;
   }
 
-  /* Scanlines und Störstreifen über dem Schnitt */
+  /* ---------- Spur: drei Zeilen, die sich wie in einem Terminal schreiben ---------- */
+
+  .trace {
+    display: grid;
+    justify-items: start;
+    gap: 0.625rem;
+    width: min(100%, 22rem);
+    color: var(--ash);
+    font-size: clamp(0.8125rem, 3.7vw, 1.0625rem);
+    line-height: 1.4;
+  }
+
+  /*
+   * Bis zu ihrem Einsatz ist eine Zeile versteckt (sp-wait). Danach erbt sie die Sichtbarkeit
+   * wieder vom Teaser und verschwindet am Schnitt mit ihm; ein festes «visible» bliebe stehen.
+   */
+  .trace-line {
+    display: flex;
+    gap: 0.75ch;
+    white-space: nowrap;
+    animation: sp-wait var(--at) linear;
+  }
+
+  .trace-line:nth-child(1) {
+    --at: var(--sp-trace-at);
+  }
+
+  .trace-line:nth-child(2) {
+    --at: calc(var(--sp-trace-at) + var(--sp-trace) * 0.27);
+  }
+
+  .trace-line:nth-child(3) {
+    --at: calc(var(--sp-trace-at) + var(--sp-trace) * 0.54);
+  }
+
+  /* Die Frage tippt sich, die Antwort springt danach hinein. */
+  .trace-cmd {
+    animation: sp-type calc(var(--sp-trace) * 0.17) steps(18, end) var(--at) both;
+  }
+
+  .trace-out {
+    font-weight: 600;
+    animation: sp-wait calc(var(--at) + var(--sp-trace) * 0.2) linear;
+  }
+
+  .trace-warn {
+    color: var(--amber);
+  }
+
+  .trace-ok {
+    color: var(--acid);
+  }
+
+  /* Blinkt viermal: so lange, wie die Spur steht. */
+  .trace-cursor {
+    width: 0.6em;
+    height: 1.15em;
+    background-color: var(--acid);
+    animation:
+      sp-wait var(--sp-trace-at) linear,
+      sp-blink 320ms steps(1, end) var(--sp-trace-at) 4;
+  }
+
+  /* ---------- Störschicht über allem: Scanlines, Farbversatz, schmale Streifen ---------- */
+
   .glitch {
+    /* Vom Beginn der Störung bis die Auflösung eingerastet ist */
+    --sp-noise: calc(var(--sp-cut) - var(--sp-hold) + var(--sp-snap));
     position: fixed;
     inset: 0;
     z-index: 95;
@@ -99,36 +243,88 @@ import Icon from '@psyber/ui/components/Icon.astro';
     );
     opacity: 0;
     pointer-events: none;
-    animation: sp-scan var(--sp-glitch) steps(1, end) var(--sp-hold) both;
+    animation: sp-scan var(--sp-noise) steps(1, end) var(--sp-hold) both;
+  }
+
+  .glitch::before,
+  .glitch::after,
+  .glitch-shift,
+  .glitch-sweep {
+    position: absolute;
+    right: 0;
+    left: 0;
+    top: 0;
   }
 
   .glitch::before,
   .glitch::after {
-    position: absolute;
-    right: 0;
-    left: 0;
     content: '';
   }
 
+  /* Schmale Farbstreifen: nie höher als 5 % des Fensters */
   .glitch::before {
-    top: 0;
-    height: 14vh;
-    background-color: color-mix(in srgb, var(--acid) 38%, transparent);
-    animation: sp-band-a var(--sp-glitch) steps(1, end) var(--sp-hold) both;
+    height: 5vh;
+    background-color: color-mix(in srgb, var(--acid) 30%, transparent);
+    animation: sp-band-a var(--sp-noise) steps(1, end) var(--sp-hold) both;
   }
 
   .glitch::after {
-    top: 0;
-    height: 5vh;
+    height: 3vh;
     background-color: color-mix(in srgb, var(--crit) 34%, transparent);
-    animation: sp-band-b var(--sp-glitch) steps(1, end) var(--sp-hold) both;
+    animation: sp-band-b var(--sp-noise) steps(1, end) var(--sp-hold) both;
   }
 
-  /* Beide Keyframes gleich: ab dem Schnitt ist der Teaser weg (ohne Rundungsfehler am Ende). */
-  @keyframes sp-teaser-off {
+  /* Breite Streifen verschieben nur den Farbton dessen, was darunter liegt: Dunkles bleibt dunkel. */
+  .glitch-shift {
+    -webkit-backdrop-filter: hue-rotate(150deg) saturate(2.4);
+    backdrop-filter: hue-rotate(150deg) saturate(2.4);
+    opacity: 0;
+  }
+
+  .glitch-shift-a {
+    height: 13vh;
+    animation: sp-shift-a var(--sp-noise) steps(1, end) var(--sp-hold) both;
+  }
+
+  .glitch-shift-b {
+    height: 8vh;
+    -webkit-backdrop-filter: hue-rotate(-110deg) saturate(3);
+    backdrop-filter: hue-rotate(-110deg) saturate(3);
+    animation: sp-shift-b var(--sp-noise) steps(1, end) var(--sp-hold) both;
+  }
+
+  /* Nach dem Schnitt läuft einmal eine feine Linie von oben nach unten, wie ein Bildaufbau. */
+  .glitch-sweep {
+    height: 2px;
+    background-color: var(--acid);
+    box-shadow: 0 0 18px 2px rgb(var(--acid-rgb) / 0.55);
+    opacity: 0;
+    /* Nur vorwärts halten: Rückwärts gefüllt stünde die Linie schon vor dem Schnitt am oberen Rand. */
+    animation: sp-sweep var(--sp-snap) cubic-bezier(0.3, 0, 0.3, 1) var(--sp-cut) forwards;
+  }
+
+  /* ---------- Keyframes ---------- */
+
+  /* Beide Keyframes gleich: ab hier ist das Element weg (ohne Rundungsfehler am Ende). */
+  @keyframes sp-off {
     from,
     to {
       visibility: hidden;
+    }
+  }
+
+  /* Versteckt, solange die Animation läuft: Ihre Dauer ist die Wartezeit. */
+  @keyframes sp-wait {
+    from,
+    to {
+      visibility: hidden;
+    }
+  }
+
+  @keyframes sp-on {
+    from,
+    to {
+      visibility: visible;
     }
   }
 
@@ -138,113 +334,326 @@ import Icon from '@psyber/ui/components/Icon.astro';
     }
   }
 
-  /* Der Teaser reisst: Streifen versetzt, Farbkanäle laufen auseinander */
+  /* Der volle Balken stottert und kippt von Acid auf Amber: Hier stimmt etwas nicht. */
+  @keyframes sp-stutter {
+    0% {
+      transform: none;
+      background-color: var(--acid);
+    }
+    14% {
+      transform: scaleX(0.62);
+      background-color: var(--acid);
+    }
+    30% {
+      transform: none;
+      background-color: var(--amber);
+    }
+    56% {
+      transform: scaleX(0.34);
+      background-color: var(--amber);
+    }
+    68% {
+      transform: scaleX(0.88);
+      background-color: var(--crit);
+    }
+    80%,
+    100% {
+      transform: scaleX(0.08);
+      background-color: var(--crit);
+    }
+  }
+
+  @keyframes sp-alarm {
+    0%,
+    29% {
+      border-color: var(--steel);
+      color: var(--acid);
+      box-shadow: var(--glow-acid);
+    }
+    30%,
+    67% {
+      border-color: var(--amber);
+      color: var(--amber);
+      box-shadow: 0 0 22px rgb(249 173 38 / 0.25);
+    }
+    68%,
+    100% {
+      border-color: var(--crit);
+      color: var(--crit);
+      box-shadow: none;
+    }
+  }
+
+  /*
+   * Der Teaser reisst in drei Anläufen: erst ein Zucken, dann kurz wieder heil, dann heftig.
+   * Zum Schluss beruhigt sich der Farbversatz, und übrig bleibt eine einzige Zeile: «ERWISCHT»
+   * in Hex, für alle, die genau hinsehen. Die Ausschnitte der letzten drei Schritte liegen
+   * darum auf der Textzeile (rund 68 bis 83 % der Höhe).
+   */
   @keyframes sp-tear {
     0% {
       clip-path: inset(0);
       filter: none;
       transform: none;
     }
-    2% {
-      clip-path: inset(0 0 46% 0);
-      filter: drop-shadow(-5px 0 0 var(--crit)) drop-shadow(5px 0 0 var(--acid));
-      transform: translateX(-14px) skewX(-7deg);
+    6% {
+      clip-path: inset(0 0 52% 0);
+      filter: drop-shadow(-3px 0 0 var(--crit)) drop-shadow(3px 0 0 var(--acid));
+      transform: translateX(-6px);
     }
-    24% {
-      clip-path: inset(34% 0 12% 0);
-      filter: drop-shadow(7px 0 0 var(--crit)) drop-shadow(-7px 0 0 var(--acid));
-      transform: translateX(18px);
+    14% {
+      clip-path: inset(0);
+      filter: none;
+      transform: none;
     }
-    46% {
-      clip-path: inset(8% 0 30% 0);
-      filter: drop-shadow(-9px 0 0 var(--crit)) drop-shadow(9px 0 0 var(--acid));
-      transform: translateX(-8px) skewX(9deg);
+    30% {
+      clip-path: inset(38% 0 8% 0);
+      filter: drop-shadow(6px 0 0 var(--crit)) drop-shadow(-6px 0 0 var(--acid));
+      transform: translateX(14px) skewX(-7deg);
+    }
+    42% {
+      clip-path: inset(0);
+      filter: drop-shadow(-2px 0 0 var(--crit)) drop-shadow(2px 0 0 var(--acid));
+      transform: translateX(-3px);
+    }
+    56% {
+      clip-path: inset(4% 0 12% 0);
+      filter: drop-shadow(-14px 0 0 var(--crit)) drop-shadow(14px 0 0 var(--acid));
+      transform: translateX(-22px) skewX(11deg) scaleY(1.06);
     }
     68% {
-      clip-path: inset(58% 0 4% 0);
-      filter: drop-shadow(12px 0 0 var(--crit)) drop-shadow(-12px 0 0 var(--acid));
-      transform: translateX(26px) scaleY(1.04);
+      clip-path: inset(54% 0 2% 0);
+      filter: drop-shadow(5px 0 0 var(--crit)) drop-shadow(-5px 0 0 var(--acid));
+      transform: translateX(14px);
     }
-    86%,
+    80% {
+      clip-path: inset(60% 0 8% 0);
+      filter: drop-shadow(-3px 0 0 var(--crit)) drop-shadow(3px 0 0 var(--acid));
+      transform: translateX(-8px) skewX(-6deg);
+    }
+    90%,
     100% {
-      clip-path: inset(20% 0 62% 0);
-      filter: drop-shadow(-16px 0 0 var(--crit)) drop-shadow(16px 0 0 var(--acid));
-      transform: translateX(-30px) skewX(-12deg);
+      clip-path: inset(64% 0 13% 0);
+      filter: drop-shadow(2px 0 0 var(--crit)) drop-shadow(-2px 0 0 var(--acid));
+      transform: scaleX(1.04);
     }
   }
 
+  @keyframes sp-type {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0);
+    }
+  }
+
+  @keyframes sp-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  /*
+   * Scanlines: schwach während der Störung, deutlich in der Spur (wie ein alter Bildschirm),
+   * am Schnitt am stärksten, danach klingen sie in Stufen aus.
+   */
   @keyframes sp-scan {
     0% {
       opacity: 0;
     }
     2% {
-      opacity: 0.55;
+      opacity: 0.45;
     }
-    24% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.9;
+    26% {
+      opacity: 0.8;
     }
     70% {
-      opacity: 0.55;
+      opacity: 1;
+    }
+    80% {
+      opacity: 0.7;
     }
     88% {
-      opacity: 0.25;
+      opacity: 0.4;
+    }
+    94% {
+      opacity: 0.2;
     }
     100% {
       opacity: 0;
     }
   }
 
+  /* Die Streifen springen dicht in der Störung und rund um den Schnitt, dazwischen ruhen sie. */
   @keyframes sp-band-a {
-    0% {
-      transform: translateY(-20vh);
+    0%,
+    100% {
+      transform: translateY(-10vh);
     }
     2% {
-      transform: translateY(62vh);
+      transform: translateY(64vh);
     }
-    24% {
-      transform: translateY(18vh);
+    7% {
+      transform: translateY(21vh);
     }
-    50% {
-      transform: translateY(74vh);
+    13% {
+      transform: translateY(78vh);
     }
-    70% {
-      transform: translateY(38vh);
+    19% {
+      transform: translateY(40vh);
     }
-    88%,
-    100% {
-      transform: translateY(-20vh);
+    25% {
+      transform: translateY(8vh);
+    }
+    30% {
+      transform: translateY(-10vh);
+    }
+    64% {
+      transform: translateY(52vh);
+    }
+    69% {
+      transform: translateY(14vh);
+    }
+    74% {
+      transform: translateY(83vh);
+    }
+    79% {
+      transform: translateY(33vh);
+    }
+    85% {
+      transform: translateY(-10vh);
     }
   }
 
   @keyframes sp-band-b {
-    0% {
+    0%,
+    100% {
       transform: translateY(-10vh);
     }
-    2% {
-      transform: translateY(24vh);
+    4% {
+      transform: translateY(30vh);
     }
-    24% {
-      transform: translateY(81vh);
+    10% {
+      transform: translateY(88vh);
     }
-    50% {
-      transform: translateY(46vh);
+    16% {
+      transform: translateY(55vh);
     }
-    70% {
-      transform: translateY(9vh);
+    22% {
+      transform: translateY(12vh);
     }
-    88%,
-    100% {
+    28% {
+      transform: translateY(-10vh);
+    }
+    66% {
+      transform: translateY(72vh);
+    }
+    72% {
+      transform: translateY(44vh);
+    }
+    78% {
+      transform: translateY(5vh);
+    }
+    84% {
       transform: translateY(-10vh);
     }
   }
 
+  @keyframes sp-shift-a {
+    0%,
+    100% {
+      opacity: 0;
+      transform: translateY(0);
+    }
+    5% {
+      opacity: 1;
+      transform: translateY(36vh);
+    }
+    12% {
+      opacity: 1;
+      transform: translateY(58vh);
+    }
+    20% {
+      opacity: 1;
+      transform: translateY(12vh);
+    }
+    28% {
+      opacity: 0;
+      transform: translateY(12vh);
+    }
+    68% {
+      opacity: 1;
+      transform: translateY(24vh);
+    }
+    75% {
+      opacity: 1;
+      transform: translateY(61vh);
+    }
+    82% {
+      opacity: 1;
+      transform: translateY(4vh);
+    }
+    88% {
+      opacity: 0;
+      transform: translateY(4vh);
+    }
+  }
+
+  @keyframes sp-shift-b {
+    0%,
+    100% {
+      opacity: 0;
+      transform: translateY(0);
+    }
+    9% {
+      opacity: 1;
+      transform: translateY(70vh);
+    }
+    17% {
+      opacity: 1;
+      transform: translateY(26vh);
+    }
+    24% {
+      opacity: 0;
+      transform: translateY(26vh);
+    }
+    70% {
+      opacity: 1;
+      transform: translateY(46vh);
+    }
+    78% {
+      opacity: 1;
+      transform: translateY(82vh);
+    }
+    86% {
+      opacity: 0;
+      transform: translateY(82vh);
+    }
+  }
+
+  @keyframes sp-sweep {
+    0% {
+      opacity: 0.9;
+      transform: translateY(0);
+    }
+    85% {
+      opacity: 0.6;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(100vh);
+    }
+  }
+
   @media (min-width: 48rem) {
+    .teaser-inner,
+    .trace {
+      width: min(100%, 26rem);
+    }
+
     .teaser-inner {
       gap: 1.75rem;
-      width: min(100%, 26rem);
     }
 
     .teaser-icon {

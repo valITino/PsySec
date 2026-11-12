@@ -257,7 +257,8 @@ try {
       await page.evaluate(() => window.__seek(600));
       await page.waitForTimeout(80);
       await shot(page, 'surprise-teaser-desktop');
-      await page.evaluate(() => window.__seek(1250));
+      // kurz nach dem Schnitt (2800 ms): «ERWISCHT!» rastet mit Farbversatz ein
+      await page.evaluate(() => window.__seek(2830));
       await page.waitForTimeout(80);
       await shot(page, 'surprise-glitch-desktop');
     }
@@ -298,6 +299,18 @@ try {
         quality: 82,
       });
     console.log('✓ report-kurven.jpg');
+    // Reichweite: Überschrift, Kacheln, Verlauf und die erste Reihe der Listen
+    const reachTop = await page
+      .locator('h2', { hasText: 'Reichweite der Websites' })
+      .evaluate((element) => element.getBoundingClientRect().top + window.scrollY);
+    await page.screenshot({
+      path: `${OUT}/report-reichweite.jpg`,
+      type: 'jpeg',
+      quality: 82,
+      fullPage: true,
+      clip: { x: 0, y: reachTop - 24, width: 1180, height: 1230 },
+    });
+    console.log('✓ report-reichweite.jpg');
     await context.close();
   } else {
     console.log('– Bericht übersprungen: zuerst «node scripts/analyze.ts --demo» ausführen');

@@ -17,7 +17,8 @@ import { resolve } from 'node:path';
 /** Reihenfolge = Reihenfolge der Ergebnisse im Export */
 const QUERIES = {
   responses: 'SELECT * FROM survey_responses ORDER BY created_day, id',
-  counters: 'SELECT event, s_bucket, day, count FROM counters ORDER BY day, event, s_bucket',
+  counters:
+    'SELECT event, dim, s_bucket, day, count FROM counters ORDER BY day, event, dim, s_bucket',
   waitlist: 'SELECT COUNT(*) AS total, COALESCE(SUM(founding_family), 0) AS founding FROM waitlist',
 };
 

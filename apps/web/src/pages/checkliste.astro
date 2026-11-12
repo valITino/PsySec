@@ -48,7 +48,12 @@ const signals = [
       </p>
       <Kicker>Checkliste zum Ausdrucken</Kicker>
       <h1 class="display h1 checklist-title">5 Warnsignale für Online-Betrug</h1>
-      <button type="button" class="btn btn-secondary no-print print-button" data-print>
+      <button
+        type="button"
+        class="btn btn-secondary no-print print-button"
+        data-print
+        data-track="checkliste_drucken"
+      >
         <Icon name="printer" size={18} />
         <span>Als PDF speichern</span>
       </button>
@@ -172,6 +177,43 @@ const signals = [
     gap: clamp(1rem, 3vw, 2.5rem);
     padding-block: clamp(1.25rem, 3vw, 2.25rem);
     border-bottom: 1px solid var(--steel);
+  }
+
+  /*
+   * Kleiner Auftritt beim Laden: Die fünf Nummern federn der Reihe nach herein. Der Text steht
+   * sofort da (er soll gleich lesbar sein und nicht später gemalt werden).
+   */
+  .signal .signal-num {
+    animation: signal-num 460ms cubic-bezier(0.2, 1.6, 0.4, 1) backwards;
+  }
+
+  .signal:nth-child(2) .signal-num {
+    animation-delay: 90ms;
+  }
+
+  .signal:nth-child(3) .signal-num {
+    animation-delay: 180ms;
+  }
+
+  .signal:nth-child(4) .signal-num {
+    animation-delay: 270ms;
+  }
+
+  .signal:nth-child(5) .signal-num {
+    animation-delay: 360ms;
+  }
+
+  @keyframes signal-num {
+    from {
+      opacity: 0;
+      scale: 0.4;
+    }
+  }
+
+  @media print {
+    .signal .signal-num {
+      animation: none;
+    }
   }
 
   .signal-num {

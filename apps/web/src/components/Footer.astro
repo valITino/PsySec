@@ -28,7 +28,7 @@ const columns = [
     links: [
       { label: 'Maschen', href: anchor('#maschen') },
       { label: 'Über', href: anchor('#ueber') },
-      { label: 'Umfrage', href: surveyUrl() },
+      { label: 'Umfrage', href: surveyUrl(), track: 'footer_umfrage' },
       { label: 'Checkliste', href: href('/checkliste') },
       { label: 'Kontakt', href: anchor('#kontakt') },
     ],
@@ -60,7 +60,9 @@ const columns = [
               <ul>
                 {column.links.map((item) => (
                   <li>
-                    <a href={item.href}>{item.label}</a>
+                    <a href={item.href} data-track={'track' in item ? item.track : undefined}>
+                      {item.label}
+                    </a>
                   </li>
                 ))}
               </ul>

@@ -11,7 +11,7 @@ Dieses Monorepo enthält die komplette Web-Plattform:
 | `apps/surprise` | surprise.psyber.tech | Auflösung des Phishing-Tests («Erwischt!»)          |
 | `apps/api`      | api.psyber.tech      | Cloudflare Worker: Umfrage, Kontakt, anonyme Zähler |
 
-Kein Tracking, keine Cookies, keine externen Fonts.
+Keine Cookies, keine Analysedienste Dritter, keine externen Fonts. Gezählt werden nur anonyme Tagessummen über die eigene API.
 
 ## Loslegen
 

@@ -1,22 +1,33 @@
 /**
- * «Erwischt!»: Teaser überspringen, anonymen Zähler senden, «Adressen lesen» umschalten,
+ * «Erwischt!»: Übergang überspringen, anonyme Zähler senden, «Adressen lesen» umschalten,
  * Rabattcode kopieren. Die Seite fragt nichts ab und setzt keine Cookies.
- * Teaser und Glitch laufen als reine CSS-Zeitleiste (Teaser.astro); dieses Skript ist dafür
+ * Teaser und Übergang laufen als reine CSS-Zeitleiste (Teaser.astro); dieses Skript ist dafür
  * nicht nötig, es spult sie beim Überspringen nur vor.
  */
 import { sendEvent } from '@psyber/ui/lib/api';
+import { initTracking } from '@psyber/ui/lib/track';
 
-// ---------------------------------------------------------------- Teaser überspringen
-/** Ab hier beginnt der Glitch (entspricht --sp-hold in global.css). */
-const GLITCH_START = 1000;
+// ---------------------------------------------------------------- Übergang überspringen
+/** So viel bleibt vor dem Schnitt stehen: der Schluss der Spur, dann rastet die Auflösung ein. */
+const SKIP_LEAD = 300;
 
-// Klick oder Taste: alle Animationen der Zeitleiste springen an den Beginn des Glitchs.
+/** Zeitangabe aus dem CSS in ms. Beim Bauen wird aus «2800ms» ein «2.8s»: beides lesen. */
+function cssTime(value: string): number {
+  const text = value.trim();
+  const amount = Number.parseFloat(text);
+  return text.endsWith('ms') ? amount : amount * 1000;
+}
+
+// Klick oder Taste: alle Animationen der Zeitleiste springen kurz vor den Schnitt (--sp-cut).
 const skip = () => {
   window.removeEventListener('pointerdown', skip);
   window.removeEventListener('keydown', skip);
   if (typeof document.getAnimations !== 'function') return;
+  const cut = cssTime(getComputedStyle(document.documentElement).getPropertyValue('--sp-cut'));
+  if (!Number.isFinite(cut)) return;
+  const target = cut - SKIP_LEAD;
   for (const animation of document.getAnimations()) {
-    if (Number(animation.currentTime ?? 0) < GLITCH_START) animation.currentTime = GLITCH_START;
+    if (Number(animation.currentTime ?? 0) < target) animation.currentTime = target;
   }
 };
 window.addEventListener('pointerdown', skip);
@@ -29,11 +40,16 @@ const page = document.querySelector<HTMLElement>('[data-surprise]');
 const params = new URLSearchParams(window.location.search);
 if (page && params.get('ref') === 'umfrage') {
   const s = Number(params.get('s'));
-  sendEvent(
-    page.dataset.api ?? '',
-    'bait_click',
-    Number.isInteger(s) && s >= 1 && s <= 5 ? s : undefined,
-  );
+  sendEvent(page.dataset.api ?? '', 'bait_click', {
+    s: Number.isInteger(s) && s >= 1 && s <= 5 ? s : undefined,
+  });
+}
+
+// Seitenaufruf und Klicks auf die beiden Knöpfe: ebenfalls nur anonyme Tagessummen. Muss vor dem
+// Aufräumen der Adresse laufen, damit `?ref=` noch als Hinweis «kommt von uns» gelesen wird.
+initTracking();
+
+if (page && params.get('ref') === 'umfrage') {
   window.history.replaceState(null, '', window.location.pathname);
 }
 

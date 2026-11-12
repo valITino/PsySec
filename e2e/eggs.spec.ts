@@ -18,6 +18,17 @@ const KONAMI = [
 
 const ready = (page: Page) => page.locator('[data-sim][data-ready]').waitFor();
 
+/**
+ * Wartet, bis die Easter Eggs bereit sind: Sie starten in einem ruhigen Moment nach dem Laden
+ * (home.ts) und melden sich mit dem Gruss in der Konsole. Erst danach hört die Seite auf den
+ * Konami-Code; wer vorher tippt, tippt ins Leere. Vor dem Öffnen der Seite aufrufen.
+ */
+const greeted = (page: Page) =>
+  page.waitForEvent('console', {
+    predicate: (message) => message.text().includes('Du liest Quellcode?'),
+    timeout: 15_000,
+  });
+
 async function konami(page: Page): Promise<void> {
   for (const key of KONAMI) await page.keyboard.press(key);
 }
@@ -38,8 +49,8 @@ test.describe('Easter Eggs auf psyber.tech', () => {
       .poll(() => messages.join('\n'))
       .toContain('Du liest Quellcode? Layer 8 ist bei dir offensichtlich gepatcht.');
     const text = messages.join('\n');
-    // Die Kontaktadresse ist noch offen: der Platzhalter steht sichtbar da, nichts Erfundenes.
-    expect(text).toContain('Sag hallo: [TODO: E-Mail]');
+    // Die vorläufige Kontaktadresse aus der Konfiguration
+    expect(text).toContain('Sag hallo: youkn0wm3@proton.me');
     expect(text).toContain('↑ ↑ ↓ ↓ ← → ← → B A');
   });
 
@@ -49,8 +60,10 @@ test.describe('Easter Eggs auf psyber.tech', () => {
     const context = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await context.newPage();
     const errors = collectErrors(page);
+    const eggs = greeted(page);
     await page.goto(`${WEB}/`);
     await ready(page);
+    await eggs;
 
     const terminal = page.getByRole('dialog', { name: 'PSYber-Terminal' });
     await expect(terminal).toHaveCount(0);
@@ -124,8 +137,11 @@ test.describe('Easter Eggs auf psyber.tech', () => {
 
   test('Der Code zählt nicht, während jemand in ein Feld tippt', async ({ page, isMobile }) => {
     test.skip(isMobile, 'Der Konami-Code braucht eine Tastatur.');
+    const eggs = greeted(page);
     await page.goto(`${WEB}/#kontakt`);
     await ready(page);
+    // Ohne diese Wartezeit bestünde der Test auch dann, wenn noch gar niemand zuhört.
+    await eggs;
     const name = page.getByLabel('Name');
     await name.scrollIntoViewIfNeeded();
     await name.focus();
@@ -139,9 +155,11 @@ test.describe('Easter Eggs auf psyber.tech', () => {
     test.skip(isMobile, 'Der Konami-Code braucht eine Tastatur.');
     const context = await browser.newContext({ reducedMotion: 'reduce' });
     const page = await context.newPage();
+    const eggs = greeted(page);
     await page.goto(`${WEB}/impressum`);
     // Der Header selbst hat keine Höhe (die Leiste schwebt): auf das Logo warten.
     await page.locator('[data-header] .logo').waitFor();
+    await eggs;
     await konami(page);
     const terminal = page.getByRole('dialog', { name: 'PSYber-Terminal' });
     await expect(terminal).toBeVisible();

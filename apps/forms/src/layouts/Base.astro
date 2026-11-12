@@ -2,6 +2,8 @@
 import '../styles/global.css';
 import BaseHead from '@psyber/ui/components/BaseHead.astro';
 import { graph, webPage, website } from '@psyber/ui/lib/structured-data';
+import { trackAttrs } from '@psyber/ui/lib/track';
+import type { PageKey } from '@psyber/survey';
 import { absoluteUrl, basePath, sites, web } from '../lib/site.ts';
 
 interface Props {
@@ -12,6 +14,9 @@ interface Props {
 }
 
 const { title, description, path = '/', noindex = false } = Astro.props;
+
+/** Seiten, deren Aufrufe als anonyme Tagessumme gezählt werden */
+const COUNTED: Record<string, PageKey> = { '/': 'umfrage', '/404': 'notfound' };
 
 const url = absoluteUrl(path);
 const home = absoluteUrl('/');
@@ -44,7 +49,7 @@ const jsonLd = hidden
 ---
 
 <!doctype html>
-<html lang="de-CH">
+<html lang="de-CH" {...trackAttrs(sites, COUNTED[path])}>
   <head>
     <BaseHead
       title={title}
@@ -63,3 +68,9 @@ const jsonLd = hidden
     <slot />
   </body>
 </html>
+
+<script>
+  import { initTracking } from '@psyber/ui/lib/track';
+
+  initTracking();
+</script>

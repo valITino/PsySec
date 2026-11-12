@@ -273,7 +273,7 @@ Cloudflare kann von sich aus Skripte in HTML-Seiten einfügen. Schalten Sie für
 - Lokal: `pnpm build && pnpm lighthouse` (mobil; Ziel mindestens 95 in allen Kategorien, LCP unter 2 s, CLS unter 0.05).
 - Live: <https://pagespeed.web.dev> mit `https://psyber.tech`, `https://forms.psyber.tech` und `https://surprise.psyber.tech/gewinn`.
 
-Letzte lokale Messung (November 2026): web 100/100/100/100, Checkliste 100/100/100/100, forms 100/100/100/100, surprise 100/100/100/66; LCP 0,9 bis 1,2 s. Die 66 bei SEO sind gewollt: Die Seite ist `noindex`, und Lighthouse wertet das als Fehler.
+Letzte lokale Messung (November 2026): web 100/100/100/100, Checkliste 100/100/100/100, forms 100/100/100/100, surprise 100/100/100/66; LCP 0,9 bis 1,5 s. Die 66 bei SEO sind gewollt: Die Seite ist `noindex`, und Lighthouse wertet das als Fehler.
 
 ### Funktion
 
@@ -291,7 +291,7 @@ Machen Sie diese Probe, **bevor** Sie den Link zur Umfrage verteilen. Dann lasse
    pnpm exec wrangler d1 execute psyber --remote --command "SELECT created_day, founding_family FROM waitlist ORDER BY created_day DESC LIMIT 5"
    ```
 
-   Erwartet: die Antwort nur mit Datum, der Wartelisten-Eintrag nur mit dem Monat (immer der Monatserste); die Zähler `survey_started`, `survey_completed`, `bait_click` und `checklist_click` je um 1 erhöht.
+   Erwartet: die Antwort nur mit Datum, der Wartelisten-Eintrag nur mit dem Monat (immer der Monatserste); die Zähler `survey_started`, `survey_completed`, `bait_click` und `checklist_click` je um 1 erhöht. Dazu kommen die Zähler der Reichweite (`page_view`, `visit`, `cta_click`, `survey_step`) mit einem Wert in der Spalte `dim`. Sie fehlen, wenn Ihr Browser «Do Not Track» oder «Global Privacy Control» sendet: Das ist gewollt (siehe «Reichweite» unter «Betrieb»).
 
 5. Unter **Workers & Pages → psyber-api → Observability** nachsehen: Es darf keine der Meldungen aus dem Abschnitt «Logs» stehen.
 6. Testdaten wieder löschen (siehe «Daten löschen»).
@@ -387,7 +387,7 @@ pnpm analyze    # erzeugt reports/umfrage-YYYY-MM-DD.html
 Zum Ausprobieren mit der lokalen Datenbank von `wrangler dev`: `pnpm export --local`. Dieser Export heisst `export-local-YYYY-MM-DD.json`, überschreibt also nie den Export der Umfrage. `pnpm analyze` nimmt ihn nicht von selbst; der Befehl dafür steht in der Ausgabe, und der Bericht ist als Testdaten markiert.
 
 - `pnpm export` holt die anonymen Antworten, die Zähler und zwei Summen der Warteliste (Einträge gesamt, davon Founding Families). **E-Mail-Adressen und Kontaktanfragen werden nicht exportiert.**
-- `pnpm analyze` nimmt den neuesten Export aus `reports/` (oder eine Datei als Argument: `pnpm analyze reports/export-2026-12-01.json`) und erzeugt einen Bericht als einzelne HTML-Datei mit der Go/No-Go-Ampel.
+- `pnpm analyze` nimmt den neuesten Export aus `reports/` (oder eine Datei als Argument: `pnpm analyze reports/export-2026-12-01.json`) und erzeugt einen Bericht als einzelne HTML-Datei mit der Go/No-Go-Ampel. Am Schluss steht die Reichweite der Websites: Seitenaufrufe je Tag und Seite, Einstiege nach Herkunft, Klicks auf die Haupt-Knöpfe und bis zu welcher Frage die Umfrage ausgefüllt wurde.
 - Der Ordner `reports/` wird nicht versioniert.
 - Zum Ausprobieren ohne echte Daten: `pnpm analyze --demo` rechnet mit erfundenen Beispielantworten. Der Bericht ist dann deutlich als Demo markiert.
 
@@ -421,7 +421,11 @@ In der Phase `survey` stehen die Preise nicht einmal im HTML-Quelltext. Ein Test
 
 ### Updates
 
-Dependabot öffnet monatlich Pull Requests für Abhängigkeiten und GitHub Actions. Die CI prüft jeden PR: Lint, Typecheck, Unit-Tests, Build, JS-Budgets, Header-Prüfung und die Playwright-Tests. Erst mergen, wenn alles grün ist.
+Dependabot öffnet am ersten Tag jedes Monats Pull Requests für Abhängigkeiten und GitHub Actions. Die CI prüft jeden PR: Lint, Typecheck, Unit-Tests, Build, JS-Budgets, Header-Prüfung und die Playwright-Tests. Erst mergen, wenn alles grün ist. Ein roter PR kann liegen bleiben oder geschlossen werden: Dependabot meldet sich mit der nächsten Version wieder.
+
+Zwei Sprünge schlägt Dependabot bewusst nicht vor (Entscheidung 160): neue Hauptversionen von `typescript` (typescript-eslint unterstützt TypeScript 7.0 nicht) und von `@types/node` (die Typen gehören zur Node-Version aus `.nvmrc`).
+
+Empfohlen: in den Sicherheits-Einstellungen des Repositorys «Dependabot alerts» und «Dependabot security updates» einschalten, falls sie noch aus sind. Dann kommen Sicherheitsupdates sofort und nicht erst zum Monatsanfang.
 
 ### Rollback
 
@@ -471,9 +475,21 @@ Die API schreibt nur eigene, knappe Meldungen ohne Angaben zu Personen. Automati
 
   Die Zähler sind Tagessummen ohne Bezug zu einer Antwort. Ein einzelner Testlauf verfälscht sie um je 1; das fällt in der Auswertung nicht ins Gewicht und bleibt darum stehen.
 
+### Reichweite: was gezählt wird und wie Sie Links kennzeichnen
+
+Die Websites zählen selbst, über `api.psyber.tech`, und nur Tagessummen: Seitenaufrufe je Seite, Einstiege je Herkunft, Klicks auf die Haupt-Knöpfe, die erreichte Frage der Umfrage und die Zahl der Kontaktanfragen. Es gibt keine Cookies, keine Kennung und keine IP-Adressen in der Datenbank (Entscheidungen 164 bis 168). Ansehen: `pnpm export`, dann `pnpm analyze`.
+
+![Abschnitt «Reichweite» im Bericht, hier mit erfundenen Beispieldaten](screenshots/report-reichweite.jpg)
+
+**Links kennzeichnen.** Hängen Sie an Links, die Sie verteilen, `?quelle=` mit einem dieser Werte: `instagram`, `tiktok`, `facebook`, `linkedin`, `whatsapp`, `flyer`, `vortrag`, `empfehlung`. Beispiel für einen QR-Code auf einem Flyer: `https://forms.psyber.tech/?quelle=flyer`. Derselbe Wert steht dann auch bei den Antworten der Umfrage. Andere Werte zählen als «andere»; `website` setzen die Links von psyber.tech zur Umfrage selbst.
+
+**Ohne Kennzeichnung** steht im Bericht die Art der Seite, von der jemand kam: Suchmaschine, soziales Netz, andere Website oder direkt (Adresse eingetippt, Lesezeichen, viele Apps).
+
+**Nicht gezählt** werden automatische Abrufe und alle, deren Browser «Global Privacy Control» oder «Do Not Track» sendet. Die Zahlen sind darum eine Untergrenze. Praktisch für Sie: Schalten Sie eines der beiden Signale in Ihrem eigenen Browser ein, dann zählen Ihre eigenen Besuche nicht mit. Auch die Vorschau auf GitHub Pages zählt nichts.
+
 ### Grenzen des Free-Plans
 
-Für den Start reicht der Free-Plan: Workers (100’000 Requests pro Tag für die API; statische Dateien zählen nicht), D1, Turnstile, Email Routing und die Rate Limits sind enthalten. Die aktuellen Grenzen stehen auf den Preis-Seiten von Cloudflare.
+Für den Start reicht der Free-Plan: Workers (100’000 Requests pro Tag für die API; statische Dateien zählen nicht), D1, Turnstile, Email Routing und die Rate Limits sind enthalten. Jeder gezählte Seitenaufruf und jeder gezählte Klick ist ein Request an die API und ein Schreibvorgang in D1; bei einigen tausend Aufrufen pro Tag ist das weit unter der Grenze. Die aktuellen Grenzen stehen auf den Preis-Seiten von Cloudflare.
 
 ### Lokal entwickeln
 
@@ -515,6 +531,8 @@ Alle drei Websites lassen sich als Vorschau unter einer GitHub-Pages-Adresse ans
 | `https://<user>.github.io/<repo>/surprise/gewinn` | surprise.psyber.tech/gewinn |
 
 Einmalig einrichten: Repository → **Settings → Pages → Source: «GitHub Actions»**. Danach veröffentlicht der Workflow `.github/workflows/pages.yml` bei jedem Push auf `main` automatisch (oder von Hand über «Run workflow»).
+
+Wieder abschalten, sobald die Vorschau nicht mehr gebraucht wird: **Settings → Pages**, im Menü neben der Adresse **Unpublish site**. Damit der Workflow nicht bei jedem Push weiterläuft: **Actions → «Vorschau auf GitHub Pages» → Disable workflow**.
 
 Lokal ansehen:
 

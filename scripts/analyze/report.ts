@@ -1,6 +1,7 @@
 /**
  * Auswertung der Umfrage als einzelne HTML-Datei (ohne externe Ressourcen).
- * Diagramme: Balken und Meter in HTML/CSS, die Van-Westendorp-Kurven als SVG.
+ * Diagramme: Balken und Meter in HTML/CSS, die Van-Westendorp-Kurven und der Verlauf der
+ * Seitenaufrufe als SVG.
  * Jedes Diagramm hat eine Tabellenansicht; Tooltips ergänzen nur, was ohnehin lesbar ist.
  * Farben: Marken-Violett für Einzelreihen, vier geprüfte Farben für die Kurven
  * (auch bei Farbfehlsichtigkeit unterscheidbar), Statusfarben nur mit Icon und Text.
@@ -10,6 +11,9 @@ import type {
   Analysis,
   Criterion,
   PriceBands,
+  ReachDay,
+  ReachItem,
+  ReachSummary,
   ScaleResult,
   Share,
   VanWestendorpResult,
@@ -604,6 +608,216 @@ function worryList(texts: string[]): string {
 
 // ---------------------------------------------------------------- Seite
 
+// ---------------------------------------------------------------- Reichweite
+
+/** 2026-12-21 → 21.12. */
+const fmtDayShort = (day: string): string => {
+  const match = /^\d{4}-(\d{2})-(\d{2})$/.exec(day);
+  return match ? `${match[2]}.${match[1]}.` : day;
+};
+
+/** Runde Obergrenze für die Achse: 1, 2 oder 5 mal eine Zehnerpotenz */
+export function niceCeil(value: number): number {
+  if (!(value > 0)) return 1;
+  const power = 10 ** Math.floor(Math.log10(value));
+  const lead = value / power;
+  return (lead <= 1 ? 1 : lead <= 2 ? 2 : lead <= 5 ? 5 : 10) * power;
+}
+
+/**
+ * Verlauf der Seitenaufrufe je Tag: eine Linie, zurückhaltende Achsen, je Tag eine Trefferfläche
+ * mit Tooltip. Eine Reihe braucht keine Legende; der Titel der Karte nennt sie.
+ */
+function dayChart(days: ReachDay[]): string {
+  const width = 720;
+  const height = 240;
+  const left = 44;
+  const right = 18;
+  const top = 14;
+  const bottom = 30;
+  const plotWidth = width - left - right;
+  const plotHeight = height - top - bottom;
+  const max = niceCeil(Math.max(...days.map((day) => day.views)));
+  const step = plotWidth / Math.max(1, days.length - 1);
+  const x = (index: number) => left + index * step;
+  const y = (value: number) => top + (1 - value / max) * plotHeight;
+
+  // Nur ganze Zahlen an der Achse: Halbe Seitenaufrufe gibt es nicht.
+  const ticks = max % 2 === 0 ? [0, max / 2, max] : [0, max];
+  const grid = ticks
+    .map(
+      (tick) =>
+        `<line class="${tick === 0 ? 'axis' : 'gridline'}" x1="${left}" x2="${width - right}" y1="${y(tick).toFixed(1)}" y2="${y(tick).toFixed(1)}"/><text class="tick" x="${left - 8}" y="${(y(tick) + 4).toFixed(1)}" text-anchor="end">${esc(fmtInt(tick))}</text>`,
+    )
+    .join('');
+
+  // Höchstens sechs Daten an der Achse, immer das erste und das letzte.
+  const labelCount = Math.min(6, days.length);
+  const labelled = new Set(
+    Array.from({ length: labelCount }, (_, index) =>
+      Math.round((index * (days.length - 1)) / Math.max(1, labelCount - 1)),
+    ),
+  );
+  const labels = days
+    .map((day, index) =>
+      labelled.has(index)
+        ? `<text class="tick" x="${x(index).toFixed(1)}" y="${height - 8}" text-anchor="${
+            index === 0 ? 'start' : index === days.length - 1 ? 'end' : 'middle'
+          }">${esc(fmtDayShort(day.day))}</text>`
+        : '',
+    )
+    .join('');
+
+  const path = days
+    .map(
+      (day, index) => `${index === 0 ? 'M' : 'L'}${x(index).toFixed(1)} ${y(day.views).toFixed(1)}`,
+    )
+    .join(' ');
+  // Punkte nur, solange sie sich nicht drängen.
+  const markers =
+    days.length <= 31
+      ? days
+          .map(
+            (day, index) =>
+              `<circle class="marker" cx="${x(index).toFixed(1)}" cy="${y(day.views).toFixed(1)}" r="4"/>`,
+          )
+          .join('')
+      : '';
+  const hits = days
+    .map((day, index) => {
+      const from = Math.max(left, x(index) - step / 2);
+      const to = Math.min(width - right, x(index) + step / 2);
+      return `<rect class="hit" x="${from.toFixed(1)}" y="${top}" width="${Math.max(1, to - from).toFixed(1)}" height="${plotHeight}" data-tip="${esc(
+        `${fmtDay(day.day)}: ${fmtInt(day.views)} Seitenaufrufe, ${fmtInt(day.visits)} Einstiege`,
+      )}"/>`;
+    })
+    .join('');
+
+  const first = days[0];
+  const last = days.at(-1);
+  const peak = days.reduce((best, day) => (day.views > best.views ? day : best), days[0]!);
+  const summary = `Seitenaufrufe je Tag vom ${fmtDay(first?.day ?? '')} bis ${fmtDay(last?.day ?? '')}. Höchster Wert: ${fmtInt(peak.views)} am ${fmtDay(peak.day)}.`;
+  return `<div class="days"><svg viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(summary)}">${grid}${labels}<path class="line line-series" d="${path}"/>${markers}${hits}</svg></div>`;
+}
+
+/** Balkenliste für Zählwerte: Länge relativ zum grössten Wert, daneben der Anteil an der Summe */
+function countBars(items: ReachItem[], unit: string): string {
+  const total = items.reduce((sum, item) => sum + item.count, 0);
+  const max = Math.max(...items.map((item) => item.count), 1);
+  return bars(
+    items.map((item) => ({
+      label: item.label,
+      size: item.count / max,
+      value: fmtInt(item.count),
+      detail: total > 0 ? fmtPct(item.count / total) : '',
+      tip: `${item.label}: ${fmtInt(item.count)} ${unit}${
+        total > 0 ? ` (${fmtPct(item.count / total, 1)} von ${fmtInt(total)})` : ''
+      }`,
+    })),
+  );
+}
+
+const countTable = (first: string, second: string, items: ReachItem[]): TableData => {
+  const total = items.reduce((sum, item) => sum + item.count, 0);
+  return {
+    head: [first, second, 'Anteil'],
+    rows: items.map((item) => [
+      item.label,
+      fmtInt(item.count),
+      total > 0 ? fmtPct(item.count / total, 1) : '–',
+    ]),
+  };
+};
+
+function reachSection(reach: ReachSummary, started: number, completed: number): string {
+  const heading = `<h2>Reichweite der Websites</h2><p class="lead">Anonyme Tagessummen aus der eigenen Zählung: ohne Cookies, ohne Kennung, ohne Dritte. Nicht mitgezählt sind automatische Abrufe und alle, deren Browser «Global Privacy Control» oder «Do Not Track» sendet. Die Zahlen sind darum eine Untergrenze.</p>`;
+  const reached = reach.steps.some((entry) => entry.count > 0);
+  if (reach.views === 0 && reach.visits === 0 && reach.clicks === 0 && !reached) {
+    return `${heading}${empty('Noch nichts gezählt. Die Zählung beginnt, sobald die Websites unter ihrer eigenen Adresse laufen.')}`;
+  }
+
+  const stepMax = Math.max(...reach.steps.map((entry) => entry.count), 1);
+  return `${heading}<div class="tiles">${[
+    tile('Seitenaufrufe', fmtInt(reach.views), 'alle drei Websites zusammen'),
+    tile(
+      'Einstiege',
+      fmtInt(reach.visits),
+      'Aufrufe, die nicht von einer unserer eigenen Seiten kamen',
+    ),
+    tile('Klicks auf Haupt-Knöpfe', fmtInt(reach.clicks)),
+    tile('Kontaktanfragen', fmtInt(reach.contacts), 'gespeicherte Anfragen, ohne Inhalt'),
+  ].join('')}</div><div class="grid">${[
+    card(
+      'Seitenaufrufe je Tag',
+      'Alle drei Websites zusammen; Tage ohne Aufruf zählen als null',
+      reach.days.length >= 2
+        ? dayChart(reach.days)
+        : empty('Ein Verlauf erscheint, sobald an zwei Tagen gezählt wurde.'),
+      {
+        head: ['Tag', 'Seitenaufrufe', 'Einstiege'],
+        rows: reach.days.map((day) => [fmtDay(day.day), fmtInt(day.views), fmtInt(day.visits)]),
+      },
+      true,
+    ),
+    card(
+      'Seitenaufrufe je Seite',
+      'Welche Seiten wie oft geöffnet wurden',
+      reach.pages.length > 0
+        ? countBars(reach.pages, 'Seitenaufrufe')
+        : empty('Noch keine Aufrufe.'),
+      countTable('Seite', 'Seitenaufrufe', reach.pages),
+    ),
+    card(
+      'Einstiege nach Herkunft',
+      'Kennzeichnung im Link (?quelle=), sonst die Art der verweisenden Seite',
+      reach.sources.length > 0
+        ? countBars(reach.sources, 'Einstiege')
+        : empty('Noch keine Einstiege.'),
+      countTable('Herkunft', 'Einstiege', reach.sources),
+    ),
+    card(
+      'Einstiege je Seite',
+      'Auf welcher Seite jemand angekommen ist',
+      reach.landings.length > 0
+        ? countBars(reach.landings, 'Einstiege')
+        : empty('Noch keine Einstiege.'),
+      countTable('Seite', 'Einstiege', reach.landings),
+    ),
+    card(
+      'Klicks auf die Haupt-Knöpfe',
+      'Benannt nach dem Platz auf der Seite',
+      reach.targets.length > 0 ? countBars(reach.targets, 'Klicks') : empty('Noch keine Klicks.'),
+      countTable('Knopf', 'Klicks', reach.targets),
+    ),
+    card(
+      'Umfrage: bis zu welcher Frage',
+      `Wie viele jede Frage gesehen haben, in der Reihenfolge der Umfrage. Zum Vergleich: ${fmtInt(started)} gestartet, ${fmtInt(completed)} abgeschlossen. Fragen, die je nach Antwort übersprungen werden, liegen von Natur aus tiefer.`,
+      reached
+        ? bars(
+            reach.steps.map((entry) => ({
+              label: entry.label,
+              size: entry.count / stepMax,
+              value: fmtInt(entry.count),
+              detail: entry.share === null ? '' : fmtPct(entry.share),
+              tip: `${entry.label}: von ${fmtInt(entry.count)} gesehen${
+                entry.share === null ? '' : ` (${fmtPct(entry.share, 1)} von Frage 1)`
+              }`,
+            })),
+          )
+        : empty('Noch keine Frage gezählt.'),
+      {
+        head: ['Frage', 'gesehen', 'Anteil an Frage 1'],
+        rows: reach.steps.map((entry) => [
+          entry.label,
+          fmtInt(entry.count),
+          entry.share === null ? '–' : fmtPct(entry.share, 1),
+        ]),
+      },
+      true,
+    ),
+  ].join('')}</div>`;
+}
+
 const STYLE = `
 :root{color-scheme:light;--page:#f5f4fd;--surface:#fff;--ink:#22172f;--ink-2:#675e76;--grid:#e7e4f0;--axis:#cfc9de;--series:#6b40c9;--series-track:#e4dcf7;--muted-mark:#a8a2b8;--good:#0ca30c;--warning:#fab219;--critical:#d03b3b;--wash:rgba(107,64,201,.1);--night:#140a29}
 *{box-sizing:border-box}
@@ -643,6 +857,7 @@ h3{margin:0;font-size:1.0625rem;line-height:1.3}
 .meter-missed{background:#f6dada}.meter-missed .meter-fill{background:var(--critical)}
 .tiles{display:grid;gap:1rem;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr))}
 .tiles-inline{gap:.75rem 2rem}
+.tiles+.grid{margin-top:1rem}
 .tile{min-width:0}
 .tiles:not(.tiles-inline) .tile{padding:1rem 1.25rem;border:1px solid rgba(34,23,47,.1);border-radius:16px;background:var(--surface)}
 .tile-label{margin:0;color:var(--ink-2);font-size:.875rem}
@@ -683,6 +898,11 @@ svg .optimal{fill:var(--ink);stroke:var(--surface);stroke-width:2}
 svg .crosshair{stroke:var(--ink);stroke-width:1}
 svg [hidden]{display:none}
 svg .hit{fill:transparent;cursor:crosshair}
+.days{overflow-x:auto}
+.days svg{display:block;width:100%;min-width:30rem;height:auto}
+.days .hit:hover{fill:var(--wash)}
+svg .line-series{stroke:var(--series)}
+svg .marker{fill:var(--series);stroke:var(--surface);stroke-width:2}
 .table-view{font-size:.875rem}
 .table-view summary{display:inline-block;padding:.25rem 0;color:var(--series);font-weight:600;cursor:pointer}
 .table-view table{margin-top:.5rem;border-collapse:collapse;width:100%;display:block;overflow-x:auto}
@@ -1059,6 +1279,8 @@ export function renderReport(analysis: Analysis, generatedAt: Date = new Date())
       },
       true,
     )}</div>`,
+
+    reachSection(analysis.reach, counters.started, counters.completed),
   ];
 
   return `<!doctype html>

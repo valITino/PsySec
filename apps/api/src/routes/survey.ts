@@ -75,7 +75,7 @@ export async function postSurvey(c: Context<AppEnv>) {
         answers.q15 ?? null,
       ),
     // Muss direkt auf die Antwort folgen: zählt nur, wenn sie eben geschrieben wurde.
-    bumpCounterIfChanged(db, 'survey_completed', day, answers.q4),
+    bumpCounterIfChanged(db, 'survey_completed', day, { s: answers.q4 }),
   ];
 
   if (waitlist) {

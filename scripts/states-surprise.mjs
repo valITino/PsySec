@@ -20,8 +20,14 @@ const VIEWPORTS = {
   desktop: { viewport: { width: 1440, height: 900 } },
 };
 
-/** Zeitpunkte in ms nach dem Laden: Teaser, Glitch (1000–1400), Marker (1900–2420). */
-const FRAMES = [0, 500, 1010, 1060, 1110, 1160, 1210, 1260, 1320, 1370, 1500, 2150, 2600];
+/**
+ * Zeitpunkte in ms nach dem Laden: Teaser (bis 1000), Störung (bis 1700), Spur (bis 2800),
+ * Einrasten (bis 3500), Marker (3900–4420).
+ */
+const FRAMES = [
+  0, 500, 1050, 1120, 1250, 1320, 1420, 1500, 1580, 1660, 1750, 2000, 2150, 2450, 2700, 2780, 2820,
+  2900, 3000, 3100, 3250, 3400, 3600, 4200, 4600,
+];
 
 try {
   for (const [label, options] of Object.entries(VIEWPORTS)) {
@@ -70,8 +76,9 @@ try {
       const context = await browser.newContext({ ...options, permissions: ['clipboard-write'] });
       const page = await context.newPage();
       await page.goto(url, { waitUntil: 'networkidle' });
-      await page.keyboard.press('Shift'); // Teaser überspringen
-      await page.waitForTimeout(700);
+      await page.keyboard.press('Shift'); // Übergang überspringen
+      // Einrasten, gestaffeltes Erscheinen und der Marker brauchen danach gut zwei Sekunden.
+      await page.waitForTimeout(2400);
       await page.screenshot({ path: `shots/surprise-${label}-skipped.png` });
       const reader = page.locator('[data-reader]');
       await reader.scrollIntoViewIfNeeded();

@@ -72,12 +72,12 @@ const base = surveyUrl();
 
       <div class="first-actions">
         {isLaunch ? (
-          <a class="btn btn-primary" href="#kontakt" data-first-cta>
+          <a class="btn btn-primary" href="#kontakt" data-first-cta data-track="schritt_cta">
             <span>Session anfragen</span>
             <Icon name="arrow-right" size={18} class="icon-shift" />
           </a>
         ) : (
-          <a class="btn btn-primary" href={base} data-first-cta>
+          <a class="btn btn-primary" href={base} data-first-cta data-track="schritt_cta">
             <span>Umfrage starten</span>
             <Icon name="arrow-right" size={18} class="icon-shift" />
           </a>

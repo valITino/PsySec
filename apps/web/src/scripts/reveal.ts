@@ -44,4 +44,36 @@ export function initReveals(): void {
   );
 
   titles.forEach((title) => observer.observe(title));
+  initEntrances();
+}
+
+/**
+ * Kleine Auftritte, die das CSS selbst spielt (Kicker tippt sich ein, der Sucher stellt das
+ * Porträt scharf): Elemente mit `data-enter` warten ausserhalb des Bildes (`wait`) und bekommen
+ * `in`, sobald sie hereinkommen. Was beim Start schon zu sehen ist, bleibt einfach stehen.
+ * Ohne dieses Skript (reduzierte Bewegung, kein JavaScript) ist alles von Anfang an sichtbar.
+ */
+function initEntrances(): void {
+  const elements = document.querySelectorAll<HTMLElement>('main [data-enter]');
+  let first = true;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        const element = entry.target as HTMLElement;
+        if (entry.isIntersecting) {
+          observer.unobserve(element);
+          // Beim ersten Bericht schon im Bild: kein Auftritt, es steht ja schon da.
+          element.dataset.enter = first ? '' : 'in';
+        } else if (first) {
+          if (entry.boundingClientRect.bottom < 0) observer.unobserve(element);
+          else element.dataset.enter = 'wait';
+        }
+      }
+      first = false;
+    },
+    { rootMargin: '0px 0px -8% 0px' },
+  );
+
+  elements.forEach((element) => observer.observe(element));
 }

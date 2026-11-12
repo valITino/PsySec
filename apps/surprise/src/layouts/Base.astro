@@ -1,7 +1,8 @@
 ---
 import '../styles/global.css';
 import BaseHead from '@psyber/ui/components/BaseHead.astro';
-import { absoluteUrl, basePath } from '../lib/site.ts';
+import { trackAttrs } from '@psyber/ui/lib/track';
+import { absoluteUrl, basePath, sites } from '../lib/site.ts';
 
 interface Props {
   title: string;
@@ -13,7 +14,7 @@ const { title, description, path = '/gewinn' } = Astro.props;
 ---
 
 <!doctype html>
-<html lang="de-CH">
+<html lang="de-CH" {...trackAttrs(sites, path === '/gewinn' ? 'erwischt' : undefined)}>
   <head>
     <BaseHead
       title={title}
