@@ -1,0 +1,17 @@
+@import 'tailwindcss';
+@import '@psyber/ui/styles.css';
+
+@source '../../../../packages/ui/src';
+
+/*
+ * Zeitleiste der Auflösung (Auftrag 7.1): Teaser höchstens 1.2 s, Glitch rund 400 ms.
+ * Alle Animationen starten beim Laden und hängen an diesen Werten; das Skript kann sie beim
+ * Überspringen gemeinsam vorspulen (gewinn.ts, gleicher Wert wie --sp-hold).
+ */
+:root {
+  --sp-hold: 1000ms; /* Teaser steht ruhig */
+  --sp-half: 200ms; /* halber Glitch */
+  --sp-glitch: 400ms; /* ganzer Glitch: Teaser reisst, Auflösung rastet ein */
+  --sp-cut: 1200ms; /* Schnitt vom Teaser zur Auflösung */
+  --sp-mark: 1900ms; /* der Marker wischt ein */
+}

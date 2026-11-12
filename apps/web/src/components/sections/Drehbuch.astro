@@ -1,0 +1,608 @@
+---
+/**
+ * 0x02 Drehbuch: acht Schritte eines Betrugs in drei Akten, dazu die drei Eingriffe von PSYber.
+ *
+ * Schwarzer Bogen mit Fluchtlinien (die Strasse, auf der jeder Betrug fährt).
+ * Desktop: horizontale Kette, die Sektion bleibt stehen (Pinning), eine Linie zeichnet sich mit
+ * dem Scrollen durch die Kette. Der Kurztext des aktuellen Schritts steht gross darunter;
+ * Hover und Tastaturfokus (Tab) zeigen den Text jedes Schritts.
+ * Mobile: vertikale Kette, alle Kurztexte sichtbar, die Linie folgt dem Scrollen.
+ * Ohne JS oder bei reduzierter Bewegung: statisches Diagramm im Endzustand.
+ * Verhalten: src/scripts/drehbuch.ts
+ */
+import Icon from '@psyber/ui/components/Icon.astro';
+import SectionHead from '../SectionHead.astro';
+
+const acts = [
+  {
+    id: 'vor',
+    label: 'Psychologie · vor dem Klick',
+    fix: {
+      title: 'Erkennen',
+      icon: 'eye',
+      items: ['Sessions', 'Vorträge', '«Ist das echt?»-Check'],
+    },
+    steps: [
+      { title: 'Kontakt', text: 'Eine Nachricht, ein Anruf, eine Anzeige. Unerwartet.' },
+      { title: 'Vertrauen', text: 'Bekanntes Logo, bekannte Stimme, perfekte Sprache.' },
+      { title: 'Gefühl', text: 'Angst, Liebe, Gier oder Mitleid übernehmen.' },
+      { title: 'Zeitdruck', text: '«Nur heute», «sofort», «sonst wird gesperrt».' },
+    ],
+  },
+  {
+    id: 'nach',
+    label: 'Technik · nach dem Klick',
+    fix: {
+      title: 'Abfangen',
+      icon: 'shield-check',
+      items: ['DNS-Filter', 'Passwort-Manager', 'Zwei-Faktor-Login'],
+    },
+    steps: [
+      { title: 'Klick', text: 'Ein Link, eine App, ein Fernzugriff.' },
+      {
+        title: 'Zahlung oder Daten',
+        text: 'Geld, Codes oder Passwörter wechseln den Besitzer.',
+      },
+    ],
+  },
+  {
+    id: 'hilfe',
+    label: 'Hilfe · nach dem Schaden',
+    fix: {
+      title: 'Auffangen',
+      icon: 'life-buoy',
+      items: ['Notfallkarte', 'Hilfe beim Melden', 'keine Vorwürfe'],
+    },
+    steps: [
+      { title: 'Schaden', text: 'Konto leer, Profil gekapert, Fotos weg.' },
+      { title: 'Scham', text: 'Viele schweigen. Genau davon leben Betrüger.' },
+    ],
+  },
+] as const;
+
+let counter = 0;
+const numbered = acts.map((act) => ({
+  ...act,
+  start: counter + 1,
+  steps: act.steps.map((step) => {
+    counter += 1;
+    return { ...step, index: counter, num: String(counter).padStart(2, '0') };
+  }),
+}));
+---
+
+<section class="sheet drehbuch" aria-labelledby="drehbuch-title" data-drehbuch>
+  <svg class="road" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M50 22 L-12 100 M50 22 L112 100 M50 22 L-60 78 M50 22 L160 78" />
+    <path class="road-mid" d="M50 30 V100" />
+  </svg>
+
+  <div class="drehbuch-stage" data-drehbuch-stage>
+    <div class="wrap">
+      <SectionHead
+        num="0x02"
+        kicker="Anatomie eines Betrugs"
+        title="Jeder Betrug folgt demselben Drehbuch."
+        id="drehbuch-title"
+        layout="split"
+        lead="Acht Schritte, von der ersten Nachricht bis zum Schweigen danach. PSYber setzt an drei Stellen an."
+      />
+
+      <div class="acts" data-acts>
+        <div class="acts-track" aria-hidden="true">
+          <span class="acts-line"></span>
+        </div>
+
+        {numbered.map((act, actIndex) => (
+          <section class="act" data-act={act.id} aria-labelledby={`act-${act.id}`}>
+            <h3 class="label-up act-label" id={`act-${act.id}`}>
+              <span class="act-label-text">{act.label}</span>
+            </h3>
+
+            <ol class="act-steps" start={act.start}>
+              {act.steps.map((step) => (
+                <li class="step" data-step={step.index}>
+                  <div class="step-head" data-step-head>
+                    <span class="step-node" aria-hidden="true" />
+                    <span class="step-num mono" aria-hidden="true">
+                      {step.num}
+                    </span>
+                    <span class="step-title">{step.title}</span>
+                  </div>
+                  <p class="step-text" data-step-text>
+                    {step.text}
+                  </p>
+                </li>
+              ))}
+            </ol>
+
+            <div class="fix" data-fix={actIndex + 1}>
+              <span class="fix-link" aria-hidden="true" />
+              <p class="label-up fix-kicker">
+                <Icon name={act.fix.icon} size={16} />
+                <span>
+                  <span class="brand">PSYber</span> setzt an
+                </span>
+              </p>
+              <h4 class="display fix-title">{act.fix.title}</h4>
+              <ul class="fix-items">
+                {act.fix.items.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        ))}
+
+        <p class="acts-caption" data-acts-caption aria-hidden="true"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .drehbuch {
+    padding-block: 0 var(--r-sheet);
+    overflow: clip;
+  }
+
+  /* Fluchtlinien: eine Strasse, die auf den Betrachter zuläuft */
+  .road {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    fill: none;
+    pointer-events: none;
+    stroke: rgb(var(--bone-rgb) / 0.13);
+    stroke-width: 1px;
+  }
+
+  .road path {
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* Mittelstreifen: nur dort, wo die Kette quer läuft (Desktop) */
+  .road-mid {
+    display: none;
+    stroke: rgb(var(--bone-rgb) / 0.3);
+    stroke-dasharray: 28 58;
+    stroke-width: 2px;
+  }
+
+  .drehbuch-stage {
+    position: relative;
+    padding-block: var(--section-y);
+  }
+
+  /* ---------- Kette: vertikal (Mobile, Standard) ---------- */
+
+  .acts {
+    --node: 0.75rem;
+    --rail: 0.375rem; /* Mitte der Knoten, von links */
+    position: relative;
+    display: grid;
+    gap: 2.25rem;
+    margin-top: clamp(2.5rem, 7vw, 4.5rem);
+  }
+
+  .acts-track {
+    position: absolute;
+    top: 0.25rem;
+    bottom: 0.25rem;
+    left: calc(var(--rail) - 0.5px);
+    width: 1px;
+    background-color: var(--steel);
+  }
+
+  .acts-line {
+    position: absolute;
+    inset: 0 -0.5px;
+    background-color: var(--acid);
+    transform: scaleY(var(--p, 1));
+    transform-origin: top;
+  }
+
+  .act {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .act-label {
+    padding-left: 2rem;
+    color: var(--bone);
+  }
+
+  .act-steps {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .step {
+    display: grid;
+    gap: 0.25rem;
+  }
+
+  .step-head {
+    position: relative;
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding-left: 2rem;
+  }
+
+  .step-node {
+    position: absolute;
+    top: 0.4em;
+    left: 0;
+    width: var(--node);
+    height: var(--node);
+    border: 1px solid var(--acid);
+    border-radius: 50%;
+    background-color: var(--acid);
+    box-shadow: 0 0 12px rgb(var(--acid-rgb) / 0.55);
+    transition:
+      background-color var(--dur-2) var(--ease),
+      border-color var(--dur-2) var(--ease),
+      box-shadow var(--dur-2) var(--ease),
+      transform var(--dur-2) var(--ease);
+  }
+
+  .step-num {
+    color: var(--ash);
+    font-size: var(--fs-micro);
+    letter-spacing: 0.04em;
+  }
+
+  .step-title {
+    color: var(--bone);
+    font-size: clamp(1.1875rem, 1.05rem + 0.5vw, 1.4375rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+
+  .step-text {
+    padding-left: 2rem;
+    color: var(--ash);
+    font-size: var(--fs-small);
+    line-height: 1.5;
+  }
+
+  .fix {
+    position: relative;
+    display: grid;
+    gap: 0.625rem;
+    margin-left: 2rem;
+    padding: 1.25rem 1.375rem;
+    border: 1px solid var(--acid);
+    border-radius: var(--r-card);
+    background-color: var(--carbon);
+    box-shadow: 0 0 26px rgb(var(--acid-rgb) / 0.1);
+    transition:
+      border-color var(--dur-3) var(--ease),
+      box-shadow var(--dur-3) var(--ease),
+      transform var(--dur-3) var(--ease);
+  }
+
+  /* Verbindung vom Eingriff zur Kette */
+  .fix-link {
+    position: absolute;
+    top: 1.75rem;
+    left: calc(-2rem + var(--rail));
+    width: calc(2rem - var(--rail));
+    height: 1px;
+    background-color: var(--acid);
+    transform-origin: left;
+    transition: transform var(--dur-3) var(--ease);
+  }
+
+  .fix-kicker {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .fix-kicker :global(.icon) {
+    color: var(--acid);
+  }
+
+  .fix-title {
+    font-size: clamp(1.625rem, 1.2rem + 1.5vw, 2.375rem);
+  }
+
+  .fix-items {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    color: var(--bone);
+    font-size: var(--fs-small);
+  }
+
+  .fix-items li {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .fix-items li::before {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: var(--acid);
+    content: '';
+  }
+
+  .acts-caption {
+    display: none;
+  }
+
+  /*
+   * Animierter Zustand: drehbuch.ts setzt `data-animated` und schaltet .is-on an Schritten
+   * und Eingriffen. Ohne dieses Attribut gilt der Endzustand (statisches Diagramm).
+   */
+  .drehbuch[data-animated] .step:not(.is-on) .step-node {
+    border-color: var(--steel);
+    background-color: var(--void);
+    box-shadow: none;
+  }
+
+  .drehbuch[data-animated] .step.is-current .step-node {
+    transform: scale(1.5);
+  }
+
+  /* Noch nicht eingerastet: zurückgesetzt und ohne Licht, der Text bleibt voll lesbar (kein opacity). */
+  .drehbuch[data-animated] .fix:not(.is-on) {
+    border-color: var(--hairline);
+    box-shadow: none;
+    transform: translateX(0.75rem);
+  }
+
+  .drehbuch[data-animated] .fix:not(.is-on) .fix-link {
+    transform: scaleX(0);
+  }
+
+  /* ---------- Kette: horizontal (Desktop) ---------- */
+
+  @media (min-width: 64rem) {
+    .road-mid {
+      display: block;
+    }
+
+    .acts {
+      --rail: 0;
+      grid-template-columns: 4fr 2fr 2fr;
+      grid-template-rows: auto auto auto auto;
+      gap: 0;
+      margin-top: clamp(2rem, 5vh, 4.5rem);
+    }
+
+    /* Linie durch die Knotenreihe: von der Mitte der ersten bis zur Mitte der letzten Spalte */
+    .acts-track {
+      top: auto;
+      bottom: auto;
+      left: 6.25%;
+      right: 6.25%;
+      grid-row: 2;
+      grid-column: 1 / -1;
+      width: auto;
+      height: 1px;
+      margin-top: calc(var(--node) / 2 - 0.5px);
+    }
+
+    .acts-line {
+      inset: -0.5px 0;
+      transform: scaleX(var(--p, 1));
+      transform-origin: left;
+    }
+
+    .act {
+      display: grid;
+      grid-row: 1 / span 4;
+      grid-template-rows: subgrid;
+      gap: 0;
+    }
+
+    /* Spalten ausdrücklich zuweisen: die Caption belegt Zeile 3 über alle Spalten */
+    .act[data-act='vor'] {
+      grid-column: 1;
+    }
+
+    .act[data-act='nach'] {
+      grid-column: 2;
+    }
+
+    .act[data-act='hilfe'] {
+      grid-column: 3;
+    }
+
+    /* Bezeichnung über jedem Akt */
+    .act-label {
+      margin-bottom: 2.25rem;
+      padding: 0 0.5rem;
+      text-align: center;
+      text-wrap: balance;
+      transition: color var(--dur-3) var(--ease);
+    }
+
+    .act-steps {
+      display: grid;
+      grid-auto-columns: 1fr;
+      grid-auto-flow: column;
+      gap: 0;
+    }
+
+    .step {
+      align-content: start;
+      justify-items: center;
+      gap: 0;
+    }
+
+    .step-head {
+      display: grid;
+      align-content: start;
+      justify-items: center;
+      gap: 0.35rem;
+      width: 100%;
+      padding: 0 0.25rem 0.5rem;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    /* Im animierten Zustand sind die Schritte per Tab erreichbar und zeigen ihren Kurztext */
+    .step-head[tabindex] {
+      cursor: help;
+    }
+
+    .step-node {
+      position: relative;
+      top: auto;
+      z-index: 1;
+      margin-bottom: 1rem;
+    }
+
+    .step-title {
+      text-wrap: balance;
+    }
+
+    .step-text {
+      max-width: 13em;
+      padding: 0.25rem 0.5rem 0;
+      font-size: var(--fs-meta);
+      text-align: center;
+      text-wrap: balance;
+    }
+
+    .fix {
+      grid-row: 4;
+      margin: 0 0.5rem;
+      padding: 1.375rem 1.5rem;
+      align-content: start;
+    }
+
+    .fix-link {
+      top: -1.5rem;
+      left: 50%;
+      width: 1px;
+      height: 1.5rem;
+      transform-origin: bottom;
+    }
+
+    .fix-items {
+      display: grid;
+      gap: 0.25rem;
+    }
+
+    /* Grosser Kurztext des aktuellen Schritts (nur im animierten Zustand) */
+    .acts-caption {
+      grid-row: 3;
+      grid-column: 1 / -1;
+      align-self: center;
+      min-height: 2.8em;
+      margin-block: clamp(0.75rem, 2vh, 1.5rem) clamp(2.25rem, 4vh, 3rem);
+      color: var(--bone);
+      font-size: var(--fs-lead);
+      font-weight: 500;
+      letter-spacing: -0.015em;
+      line-height: 1.3;
+      text-align: center;
+      text-wrap: balance;
+    }
+
+    .acts-caption :global(.acts-caption-num) {
+      margin-right: 0.5em;
+      color: var(--acid);
+      font-size: 0.6em;
+      font-weight: 500;
+    }
+
+    .drehbuch:not([data-animated]) .fix {
+      margin-top: 3rem;
+    }
+
+    .drehbuch[data-animated] .acts-caption {
+      display: block;
+    }
+
+    /* Im animierten Zustand stehen die Kurztexte gross in der Caption; die kleinen bleiben für Screenreader */
+    .drehbuch[data-animated] .step-text {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .drehbuch[data-animated] .act:not(.is-on) .act-label {
+      color: var(--ash);
+    }
+
+    .drehbuch[data-animated] .step:not(.is-on) .step-title {
+      color: var(--ash);
+    }
+
+    .drehbuch[data-animated] .step-title {
+      transition: color var(--dur-2) var(--ease);
+    }
+
+    .drehbuch[data-animated] .fix:not(.is-on) {
+      transform: translateY(0.75rem);
+    }
+
+    .drehbuch[data-animated] .fix:not(.is-on) .fix-link {
+      transform: scaleY(0);
+    }
+
+    /* Angepinnt füllt die Bühne genau den Viewport */
+    .drehbuch[data-pinned] .drehbuch-stage {
+      display: grid;
+      align-items: center;
+      min-height: 100svh;
+      padding-block: calc(var(--header-h) + 0.25rem) 1.5rem;
+    }
+  }
+
+  /*
+   * Niedrige Fenster (viele Laptops haben 740 bis 830 px Höhe): Die angepinnte Bühne rückt
+   * zusammen, damit auch die Karten unten ganz im Bild stehen. Die Grössen hängen an der
+   * Fensterhöhe. Unter 46rem Höhe wird gar nicht angepinnt (drehbuch.ts).
+   */
+  @media (min-width: 64rem) and (max-height: 53rem) {
+    .drehbuch[data-pinned] :global(.section-title) {
+      font-size: clamp(2.25rem, 6.4svh, 4.5rem);
+    }
+
+    .drehbuch[data-pinned] .acts {
+      margin-top: clamp(1rem, 2.5svh, 2rem);
+    }
+
+    .drehbuch[data-pinned] .act-label {
+      margin-bottom: 1.5rem;
+    }
+
+    .drehbuch[data-pinned] .acts-caption {
+      min-height: 2.6em;
+      margin-block: 0.5rem 2rem;
+    }
+
+    .drehbuch[data-pinned] .fix {
+      gap: 0.375rem;
+      padding: 1rem 1.25rem;
+    }
+
+    .drehbuch[data-pinned] .fix-title {
+      font-size: clamp(1.5rem, 4svh, 2.375rem);
+    }
+  }
+
+  @media (hover: hover) and (pointer: fine) and (min-width: 64rem) {
+    .step-head[tabindex]:hover .step-node {
+      transform: scale(1.5);
+    }
+
+    .drehbuch[data-animated] .step-head[tabindex]:hover .step-title {
+      color: var(--bone);
+    }
+  }
+</style>

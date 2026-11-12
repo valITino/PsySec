@@ -1,0 +1,102 @@
+---
+import '../styles/global.css';
+import BaseHead from '@psyber/ui/components/BaseHead.astro';
+import PreviewNote from '@psyber/ui/components/PreviewNote.astro';
+import { breadcrumbs, graph, organization, webPage, website } from '@psyber/ui/lib/structured-data';
+import Chrome from '../components/Chrome.astro';
+import { absoluteUrl, basePath, brand, contact, meta, sites } from '../config/site.ts';
+
+interface Props {
+  title: string;
+  description?: string;
+  /** Pfad der Seite ohne Basis, z. B. '/' oder '/checkliste' */
+  path: string;
+  noindex?: boolean;
+  ogImage?: string;
+  bodyClass?: string;
+  /** Fortschritts-Anzeige am Rand (Startseite) */
+  progress?: boolean;
+  /** Name der Seite im Pfad «Startseite › …» (strukturierte Daten); auf Unterseiten setzen */
+  crumb?: string;
+}
+
+const {
+  title,
+  description = meta.defaultDescription,
+  path,
+  noindex = false,
+  ogImage = meta.ogImage,
+  bodyClass,
+  progress = false,
+  crumb,
+} = Astro.props;
+
+const url = absoluteUrl(path);
+const home = absoluteUrl('/');
+const isHome = path === '/';
+const hidden = noindex || sites.preview;
+const language = 'de-CH';
+
+// Strukturierte Daten: Organisation und Website einmal auf der Startseite, jede Seite beschreibt
+// sich selbst und verweist darauf. Seiten ausserhalb des Index tragen keine.
+const jsonLd = hidden
+  ? undefined
+  : graph(
+      isHome && organization(brand),
+      isHome &&
+        website({
+          url: home,
+          name: brand.name,
+          alternateName: brand.alternateName,
+          description: brand.description,
+          language,
+          publisherHome: home,
+        }),
+      webPage({
+        url,
+        name: title,
+        description,
+        language,
+        siteUrl: home,
+        publisherHome: home,
+        image: absoluteUrl(ogImage),
+        aboutOrganization: isHome,
+        breadcrumb: Boolean(crumb),
+      }),
+      crumb
+        ? breadcrumbs(url, [
+            { name: 'Startseite', url: home },
+            { name: crumb, url },
+          ])
+        : null,
+    );
+---
+
+<!doctype html>
+<html lang="de-CH">
+  <head>
+    <BaseHead
+      title={title}
+      description={description}
+      canonical={url}
+      ogImage={absoluteUrl(ogImage)}
+      noindex={hidden}
+      base={basePath}
+      jsonLd={jsonLd}
+      verification={sites.verification}
+    />
+    <slot name="head" />
+  </head>
+  <body class={bodyClass} data-hello={contact.email}>
+    <a class="skip-link" href="#inhalt">
+      Zum Inhalt springen
+    </a>
+    {sites.preview && <PreviewNote />}
+    <slot name="header" />
+    <main id="inhalt" tabindex="-1">
+      <slot />
+    </main>
+    <slot name="footer" />
+    <Chrome progress={progress} />
+  </body>
+</html>

@@ -1,0 +1,164 @@
+---
+import Legal from '../components/Legal.astro';
+import { contact } from '../config/site.ts';
+import Page from '../layouts/Page.astro';
+---
+
+<Page
+  title="Datenschutzerklärung – PSYber"
+  description="Welche Daten PSYber bearbeitet, wozu, wo sie liegen und wann sie gelöscht werden. Kurz gesagt: so wenig wie möglich, keine Cookies, kein Tracking."
+  path="/datenschutz"
+  crumb="Datenschutzerklärung"
+>
+  {/* Weiches Trennzeichen als Zeichen: Eine Entität in einem Attribut käme wörtlich an. */}
+  <Legal kicker="Rechtliches" title={'Datenschutz\u00ADerklärung'} stand="November 2026">
+    <p>
+      Diese Erklärung gilt für psyber.tech, forms.psyber.tech und surprise.psyber.tech. Sie richtet
+      sich nach dem Schweizer Datenschutzgesetz (DSG). Unser Grundsatz: so wenig Daten wie möglich.
+    </p>
+
+    <h2>Das Wichtigste in Kürze</h2>
+    <ul>
+      <li>Wir setzen keine Cookies und nutzen kein Tracking.</li>
+      <li>
+        Schriften und Skripte laden wir von unseren eigenen Adressen. Einzige Ausnahme ist der
+        Spam-Schutz der Formulare (siehe unten).
+      </li>
+      <li>Die Umfrage ist anonym. Wir speichern dazu keine IP-Adressen.</li>
+      <li>
+        Eine E-Mail-Adresse für die Warteliste ist freiwillig und liegt getrennt von den Antworten.
+      </li>
+    </ul>
+
+    <h2>Verantwortlicher</h2>
+    <dl>
+      <div>
+        <dt>Name und Adresse</dt>
+        <dd>
+          <span class="todo">[TODO: Name bzw. Firma, Strasse, PLZ, Ort]</span>
+        </dd>
+      </div>
+      <div>
+        <dt>Kontakt für Datenschutzfragen</dt>
+        <dd>
+          <span class="todo">{contact.email}</span>
+        </dd>
+      </div>
+    </dl>
+
+    <h2>Welche Daten wir bearbeiten</h2>
+
+    <h3>Besuch der Websites</h3>
+    <p>
+      Beim Aufruf einer Seite verarbeitet unser Hosting-Anbieter Cloudflare technische
+      Verbindungsdaten wie IP-Adresse, Zeitpunkt und aufgerufene Adresse. Das ist nötig, um die
+      Seite auszuliefern und Angriffe abzuwehren. Wir selbst werten diese Daten nicht aus und
+      speichern keine IP-Adressen.
+    </p>
+
+    <h3>Kontaktformular</h3>
+    <p>
+      Wenn Sie uns über das Formular schreiben, speichern wir Ihren Namen, Ihre E-Mail-Adresse, PLZ
+      und Ort, Ihr Interesse sowie, falls angegeben, Telefonnummer und Nachricht. Wir verwenden
+      diese Angaben nur, um Ihre Anfrage zu beantworten.
+    </p>
+
+    <h3>Anonyme Umfrage</h3>
+    <p>
+      Die Antworten der Umfrage speichern wir ohne Namen, ohne IP-Adresse und nur mit dem Datum
+      (ohne Uhrzeit). Dazu kommt, über welchen Kanal Sie zur Umfrage gekommen sind (zum Beispiel
+      «Website»). Wir werten die Antworten nur zusammengefasst aus. Bitte schreiben Sie keine Namen
+      oder andere persönliche Angaben ins Freitextfeld.
+    </p>
+
+    <h3>Warteliste</h3>
+    <p>
+      Am Ende der Umfrage können Sie freiwillig eine E-Mail-Adresse hinterlassen. Sie wird getrennt
+      von Ihren Antworten gespeichert, ohne Verbindung zueinander und nur mit dem Monat der
+      Eintragung. Wir verwenden sie einzig, um Sie über den Start von PSYber zu informieren.
+    </p>
+
+    <h3>Anonyme Zähler</h3>
+    <p>
+      Wir zählen, wie oft die Umfrage gestartet und abgeschlossen wurde und wie oft die beiden Links
+      am Ende der Umfrage geöffnet wurden. Gespeichert werden nur Tagessummen, beim Test-Link
+      zusätzlich nach der Selbsteinschätzung (1 bis 5) aufgeteilt. Es gibt keine Zuordnung zu
+      Personen und keine IP-Adressen.
+    </p>
+
+    <h3>Zwischenspeicher im Browser</h3>
+    <p>
+      Damit Ihre Antworten bei einem versehentlichen Neuladen nicht verloren gehen, legt die Umfrage
+      den Zwischenstand im Sitzungsspeicher Ihres Browsers ab. Er verlässt Ihr Gerät nicht und wird
+      nach dem Absenden oder beim Schliessen des Tabs gelöscht. Das ist kein Cookie.
+    </p>
+    <p>
+      Nach dem Absenden bleibt dort bis zum Schliessen des Tabs nur ein kleiner Merker: Ihre
+      Selbsteinschätzung und Ihre Schwerpunkte. So steht die Danke-Seite mit Ihren Tipps auch nach
+      einem Neuladen noch da. Die Checkliste merkt sich im selben Speicher, dass ihr Aufruf schon
+      gezählt ist.
+    </p>
+    <p>
+      Die Startseite merkt sich im Verlauf des Tabs, bei welchem Abschnitt Sie gerade sind. So
+      landen Sie nach dem Neuladen wieder an derselben Stelle. Auch diese Angabe verlässt Ihr Gerät
+      nicht und verschwindet mit dem Tab. Das ist ebenfalls kein Cookie.
+    </p>
+
+    <h2>Der Test am Ende der Umfrage</h2>
+    <p>
+      Nach der Umfrage zeigen wir zwei Links. Einer davon ist eine Sensibilisierungsübung, wie sie
+      in Sicherheitsschulungen üblich ist: Er führt auf unsere eigene Seite surprise.psyber.tech,
+      die den Test sofort auflöst. Dort wird nichts abgefragt und nichts gespeichert ausser dem
+      anonymen Zähler oben.
+    </p>
+
+    <h2>Spam-Schutz mit Turnstile</h2>
+    <p>
+      Formulare schützen wir mit Turnstile von Cloudflare. Der Dienst prüft beim Absenden, ob ein
+      Mensch das Formular benutzt, und verarbeitet dafür technische Angaben wie IP-Adresse und
+      Browser-Merkmale. Turnstile dient nicht der Werbung. Geladen wird es erst, wenn Sie ein
+      Formular benutzen.
+    </p>
+
+    <h2>Speicherort und Auftragsbearbeiter</h2>
+    <p>
+      Websites und Datenbank laufen bei Cloudflare. Die Datenbank liegt in einem Rechenzentrum in
+      der EU (EU-Jurisdiktion). Cloudflare, Inc. hat den Sitz in den USA; eine Bekanntgabe ins
+      Ausland ist dabei nicht ausgeschlossen.{' '}
+      <span class="todo">
+        [TODO: Grundlage für die Bekanntgabe ins Ausland rechtlich prüfen und ergänzen]
+      </span>
+    </p>
+
+    <h2>Löschfristen</h2>
+    <ul>
+      <li>Kontaktanfragen löschen wir automatisch nach 180 Tagen.</li>
+      <li>
+        Einträge der Warteliste löschen wir, sobald wir Sie über den Start informiert haben oder Sie
+        die Löschung verlangen.
+      </li>
+      <li>
+        Umfrageantworten und Zähler sind anonym.{' '}
+        <span class="todo">[TODO: Aufbewahrungsdauer festlegen]</span>
+      </li>
+    </ul>
+
+    <h2>Ihre Rechte</h2>
+    <p>
+      Sie können Auskunft über Ihre Daten verlangen, sie berichtigen oder löschen lassen, eine
+      Bearbeitung einschränken oder ihr widersprechen und die Herausgabe Ihrer Daten verlangen.
+      Schreiben Sie uns dazu an <span class="todo">{contact.email}</span>. Weil die Umfrage anonym
+      ist, können wir einzelne Antworten keiner Person zuordnen. Sie haben zudem das Recht, sich an
+      den Eidgenössischen Datenschutz- und Öffentlichkeitsbeauftragten (EDÖB) zu wenden.
+    </p>
+
+    <h2>Keine Cookies, kein Tracking</h2>
+    <p>
+      Wir setzen keine Cookies, verwenden keine Analyse-Werkzeuge und binden keine Inhalte von
+      sozialen Netzwerken ein. Darum sehen Sie bei uns auch keinen Cookie-Banner.
+    </p>
+
+    <h2>Änderungen</h2>
+    <p>Wir passen diese Erklärung an, wenn sich unser Angebot oder die Rechtslage ändert.</p>
+  </Legal>
+</Page>

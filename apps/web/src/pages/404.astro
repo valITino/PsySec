@@ -1,0 +1,14 @@
+---
+import NotFound from '@psyber/ui/components/NotFound.astro';
+import { href } from '../config/site.ts';
+import Page from '../layouts/Page.astro';
+---
+
+<Page
+  title="404 – Layer 8 nicht gefunden – PSYber"
+  description="Diese Seite gibt es nicht."
+  path="/404"
+  noindex
+>
+  <NotFound href={href('/')} label="Zur Startseite" />
+</Page>

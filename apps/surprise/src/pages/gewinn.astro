@@ -1,0 +1,663 @@
+---
+/**
+ * surprise.psyber.tech/gewinn: Auflösung des Phishing-Tests aus der Umfrage.
+ * Regeln (Auftrag 6.6): nur die eigene Marke, keine Eingabefelder, keine Cookies,
+ * Klicks nur als anonyme Summe, freundlich und ohne Beschämung.
+ * Ablauf (7.1): Teaser → Glitch → Auflösung. Texte wörtlich aus Abschnitt 7.2.
+ */
+import Icon from '@psyber/ui/components/Icon.astro';
+import Logo from '@psyber/ui/components/Logo.astro';
+import Owl from '@psyber/ui/components/Owl.astro';
+import stickerUrl from '@psyber/ui/brand/sticker-geklickt.svg?url';
+import PreviewNote from '@psyber/ui/components/PreviewNote.astro';
+import AddressReader from '../components/AddressReader.astro';
+import Offer from '../components/Offer.astro';
+import Teaser from '../components/Teaser.astro';
+import Base from '../layouts/Base.astro';
+import { sites, web } from '../lib/site.ts';
+import noScriptCss from '../styles/no-js.css?url';
+
+const TITLE = 'Erwischt!';
+
+/**
+ * Der angeklickte Link; «psyber.tech» wird einmal mit dem Marker hervorgehoben.
+ * Reicht der Platz nicht für eine Zeile, bricht die Adresse nur vor dem Pfad um.
+ */
+const clicked = { before: 'https://surprise.', site: 'psyber.tech', path: '/gewinn' };
+
+const signals = [
+  {
+    icon: 'gift',
+    title: 'Ein Gewinn aus dem Nichts',
+    text: 'Sie haben an keinem Wettbewerb teilgenommen.',
+  },
+  {
+    icon: 'clock',
+    title: 'Zeitdruck: «nur heute»',
+    text: 'Wer drängt, will verhindern, dass Sie nachdenken.',
+  },
+  {
+    icon: 'link',
+    title: 'Die Adresse nicht geprüft',
+    text: 'Diesmal war sie echt. Betrüger tarnen ihre Adressen aber geschickt.',
+  },
+] as const;
+---
+
+<Base title="Erwischt! – PSYber" description="Dieser Link war ein Test. Zum Glück nur von uns.">
+  <noscript slot="head">
+    <link rel="stylesheet" href={noScriptCss} />
+  </noscript>
+
+  <Teaser />
+
+  <div class="sp" data-surprise data-api={sites.api}>
+    {sites.preview && (
+      <PreviewNote>Vorschau: Im Betrieb liegt diese Seite unter surprise.psyber.tech.</PreviewNote>
+    )}
+
+    <header class="sp-header wrap">
+      <Logo href={web.home} label="PSYber, zu psyber.tech" />
+    </header>
+
+    <main id="inhalt">
+      <section class="sp-hero dot-grid">
+        <div class="wrap">
+          <h1 class="sp-title display" data-text={TITLE}>
+            <span class="sp-title-text">{TITLE}</span>
+          </h1>
+
+          <div class="sp-hero-grid">
+            <div class="sp-intro">
+              <p class="sp-sub">Zum Glück nur von uns.</p>
+              <p class="lead sp-lead">
+                Keine Sorge, es ist nichts passiert. Dieser Link war ein Test. Ein echter Betrüger
+                hätte Sie jetzt auf eine gefälschte Login- oder Zahlungsseite geführt.
+              </p>
+            </div>
+
+            <div class="sp-clicked">
+              <div class="sp-witness" aria-hidden="true">
+                <Owl mood="erwischt" class="sp-owl" lazy={false} />
+                <img
+                  class="sticker sp-sticker"
+                  src={stickerUrl}
+                  width="432"
+                  height="432"
+                  alt=""
+                  decoding="async"
+                />
+              </div>
+              <p class="label-up sp-clicked-label">Diesen Link haben Sie angeklickt:</p>
+              {/* Flex: Leerraum im Quelltext zählt nicht, die Teile stehen lückenlos. */}
+              <p class="sp-url mono">
+                <span class="sp-url-host">
+                  <span>{clicked.before}</span>
+                  <span class="marker" data-text={clicked.site}>
+                    {clicked.site}
+                  </span>
+                </span>
+                <span>{clicked.path}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sheet sheet-space on-space" aria-labelledby="signale">
+        <div class="wrap">
+          <p class="hexnum" aria-hidden="true">
+            0x01
+          </p>
+          <h2 class="display h2 sp-h2" id="signale">
+            Diese drei Signale hätten Sie warnen können
+          </h2>
+
+          <ol class="signals">
+            {signals.map((signal, index) => (
+              <li class="card signal">
+                <span class="signal-top">
+                  <span class="signal-icon">
+                    <Icon name={signal.icon} size={26} />
+                  </span>
+                  <span class="signal-num mono" aria-hidden="true">
+                    0{index + 1}
+                  </span>
+                </span>
+                <h3 class="display signal-title">{signal.title}</h3>
+                <p class="signal-text">{signal.text}</p>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section class="sheet" aria-labelledby="adressen">
+        <div class="wrap">
+          <div class="lesen">
+            <div class="lesen-head">
+              <p class="hexnum" aria-hidden="true">
+                0x02
+              </p>
+              <h2 class="display h2 sp-h2" id="adressen">
+                Adressen lesen
+              </h2>
+            </div>
+
+            <div class="lesen-reader">
+              <AddressReader labelledby="adressen" />
+            </div>
+
+            <div class="lesen-rule">
+              <p class="lead sp-lead">
+                Lesen Sie die Adresse bis zum ersten einzelnen «/». Entscheidend ist, was direkt
+                davor steht, zum Beispiel «psyber.tech».
+              </p>
+              <p class="lesen-tip mono">
+                <Icon name="smartphone" size={20} />
+                <span>
+                  Auf dem Handy einen Link lange gedrückt halten. Dann sehen Sie die Adresse, bevor
+                  Sie klicken.
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <p class="sp-statement">
+            <span class="sp-statement-strong">Das passiert den meisten Menschen.</span>
+            Genau diese Hebel funktionieren bei uns allen, deshalb setzen Betrüger sie ein.
+          </p>
+
+          <div class="sp-offer">
+            <Offer />
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="sp-footer">
+      <div class="wrap sp-footer-inner">
+        <p class="mono">Diese Seite setzt keine Cookies und fragt nichts ab.</p>
+        <ul class="sp-footer-links">
+          <li>
+            <a class="link" href={web.impressum}>
+              Impressum
+            </a>
+          </li>
+          <li>
+            <a class="link" href={web.datenschutz}>
+              Datenschutz
+            </a>
+          </li>
+        </ul>
+      </div>
+    </footer>
+  </div>
+</Base>
+
+<script>
+  import '../scripts/gewinn.ts';
+</script>
+
+<style>
+  .sp {
+    display: flex;
+    min-height: 100vh;
+    min-height: 100dvh;
+    flex-direction: column;
+  }
+
+  .sp main {
+    flex: 1;
+  }
+
+  .sp-header {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    height: var(--header-h);
+  }
+
+  /* ---------- Auflösung ---------- */
+
+  /* Der Hero reicht unter den Kopf, damit sein Schein bis ganz nach oben geht */
+  .sp-hero {
+    margin-top: calc(-1 * var(--header-h));
+    padding-block: calc(var(--header-h) + clamp(1rem, 4vw, 3rem))
+      calc(clamp(3.5rem, 8vw, 7rem) + var(--r-sheet));
+    background-image: radial-gradient(
+      60rem 36rem at 86% 10%,
+      rgb(var(--space-rgb) / 0.6) 0%,
+      rgb(var(--space-rgb) / 0) 70%
+    );
+  }
+
+  /* «ERWISCHT!» füllt die Breite: 5.2 Geviert breit, also höchstens ein Sechstel der Breite hoch */
+  .sp-title {
+    position: relative;
+    isolation: isolate;
+    width: fit-content;
+    margin-left: -0.03em;
+    font-size: clamp(3.25rem, 17vw, 15rem);
+    line-height: 0.9;
+  }
+
+  .sp-title-text {
+    display: block;
+    animation: sp-jolt var(--sp-half) steps(1, end) var(--sp-cut) both;
+  }
+
+  /*
+   * Farbkanäle hinter dem Wort: nur während des Glitchs sichtbar. Der leere Alternativtext
+   * («/ ''») hält die Kopien aus dem Accessibility-Tree; Browser, die das nicht kennen,
+   * verwerfen die Zeile und zeigen den Glitch ohne Farbversatz.
+   */
+  .sp-title::before,
+  .sp-title::after {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    content: attr(data-text) / '';
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .sp-title::before {
+    color: var(--crit);
+    animation: sp-ghost-a var(--sp-half) steps(1, end) var(--sp-cut) both;
+  }
+
+  .sp-title::after {
+    color: var(--acid);
+    animation: sp-ghost-b var(--sp-half) steps(1, end) var(--sp-cut) both;
+  }
+
+  @keyframes sp-jolt {
+    0% {
+      clip-path: none;
+      transform: none;
+    }
+    2% {
+      clip-path: inset(0 0 38% 0);
+      transform: translateX(0.05em) skewX(-8deg);
+    }
+    30% {
+      clip-path: inset(22% 0 0 0);
+      transform: translateX(-0.03em) skewX(5deg);
+    }
+    58% {
+      clip-path: inset(0 0 12% 0);
+      transform: translateX(0.012em);
+    }
+    80%,
+    100% {
+      clip-path: none;
+      transform: none;
+    }
+  }
+
+  @keyframes sp-ghost-a {
+    0% {
+      opacity: 0;
+      transform: none;
+    }
+    2% {
+      opacity: 1;
+      transform: translateX(-0.075em) skewX(-8deg);
+    }
+    30% {
+      opacity: 1;
+      transform: translateX(0.05em);
+    }
+    58% {
+      opacity: 0.9;
+      transform: translateX(-0.028em);
+    }
+    80% {
+      opacity: 0.7;
+      transform: translateX(0.012em);
+    }
+    100% {
+      opacity: 0;
+      transform: none;
+    }
+  }
+
+  @keyframes sp-ghost-b {
+    0% {
+      opacity: 0;
+      transform: none;
+    }
+    2% {
+      opacity: 1;
+      transform: translateX(0.085em) skewX(-8deg);
+    }
+    30% {
+      opacity: 1;
+      transform: translateX(-0.055em);
+    }
+    58% {
+      opacity: 0.9;
+      transform: translateX(0.03em);
+    }
+    80% {
+      opacity: 0.7;
+      transform: translateX(-0.012em);
+    }
+    100% {
+      opacity: 0;
+      transform: none;
+    }
+  }
+
+  .sp-hero-grid {
+    display: grid;
+    gap: clamp(2rem, 5vw, 3rem);
+    margin-top: clamp(1.5rem, 3vw, 2.5rem);
+  }
+
+  .sp-intro {
+    display: grid;
+    gap: 1.25rem;
+    align-content: start;
+  }
+
+  .sp-sub {
+    color: var(--bone);
+    font-size: clamp(1.75rem, 1.1rem + 2.8vw, 3.5rem);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1.04;
+  }
+
+  .sp-lead {
+    color: var(--fg-muted);
+  }
+
+  /* Container: Die Adresse darunter richtet ihre Schriftgrösse an dieser Spalte aus. */
+  .sp-clicked {
+    display: grid;
+    gap: 0.875rem;
+    align-content: start;
+    container-type: inline-size;
+  }
+
+  /* Die Eule hat es gesehen */
+  .sp-witness {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.5rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .sp-witness :global(.sp-owl) {
+    width: clamp(6rem, 4rem + 8vw, 11rem);
+  }
+
+  .sp-sticker {
+    --sticker-size: clamp(5.5rem, 4rem + 6vw, 9rem);
+    --sticker-tilt: 9deg;
+    margin-bottom: 0.5rem;
+  }
+
+  /*
+   * Die Adresse hat 35 Zeichen. In der Mono-Schrift ist jedes 0.6em breit: Die Schrift wird so
+   * gewählt, dass alles auf eine Zeile passt (21.6 statt 21 als Reserve). Wird sie dafür zu
+   * klein, bleibt sie bei 13 px und die Adresse bricht vor dem Pfad um.
+   */
+  .sp-url {
+    --url-pad: clamp(0.875rem, 4cqi, 1.5rem);
+    display: flex;
+    flex-wrap: wrap;
+    padding: 1.25rem var(--url-pad);
+    border: 1px solid var(--steel);
+    border-radius: var(--r-card);
+    background-color: var(--pit);
+    color: var(--ash);
+    font-size: clamp(0.8125rem, (100cqi - 2 * var(--url-pad) - 2px) / 21.6, 1.1875rem);
+    font-weight: 500;
+    line-height: 1.6;
+  }
+
+  .sp-url-host {
+    display: flex;
+  }
+
+  .sp-url span {
+    white-space: nowrap;
+  }
+
+  /*
+   * Marker: wischt einmal von links ein. Grundzustand ist der fertige Marker.
+   * Die Kopie in dunkler Schrift liegt als Pseudoelement über dem Wort (für Screenreader
+   * stumm, siehe oben; ältere Browser nehmen die erste content-Zeile).
+   */
+  .marker {
+    position: relative;
+    display: inline-block;
+    color: var(--bone);
+    font-weight: 700;
+  }
+
+  .marker::after {
+    position: absolute;
+    inset: -0.12em -0.22em;
+    display: grid;
+    place-items: center;
+    border-radius: 0.2em;
+    background-color: var(--amber);
+    color: var(--ink);
+    content: attr(data-text);
+    content: attr(data-text) / '';
+    animation: sp-wipe 520ms var(--ease) var(--sp-mark) backwards;
+  }
+
+  @keyframes sp-wipe {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+
+    to {
+      clip-path: inset(0);
+    }
+  }
+
+  /* ---------- Sektionen ---------- */
+
+  .sp-h2 {
+    max-width: 13em;
+    margin-top: 1rem;
+  }
+
+  /* ---------- Drei Signale ---------- */
+
+  .signals {
+    display: grid;
+    gap: 1rem;
+    margin-top: clamp(2rem, 5vw, 4rem);
+  }
+
+  .signal {
+    display: grid;
+    align-content: start;
+    gap: 0.75rem;
+    padding: clamp(1.5rem, 1rem + 1.8vw, 2.5rem);
+    border-radius: var(--r-panel);
+  }
+
+  .signal-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: clamp(1rem, 3vw, 2.5rem);
+  }
+
+  .signal-icon {
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border: 1px solid color-mix(in srgb, var(--amber) 62%, transparent);
+    border-radius: 50%;
+    color: var(--amber);
+  }
+
+  .signal-icon :global(.icon) {
+    width: 1.625rem;
+    height: 1.625rem;
+  }
+
+  .signal-num {
+    color: var(--ash);
+    font-size: var(--fs-micro);
+    letter-spacing: 0.04em;
+  }
+
+  .signal-title {
+    font-size: clamp(1.5rem, 1.15rem + 1.2vw, 2.25rem);
+    letter-spacing: var(--ls-heading);
+    line-height: 1;
+  }
+
+  .signal-text {
+    color: var(--ash);
+    line-height: 1.5;
+  }
+
+  /* ---------- Adressen lesen ---------- */
+
+  .lesen {
+    display: grid;
+    gap: clamp(1.75rem, 4vw, 2.5rem);
+  }
+
+  .lesen-rule {
+    display: grid;
+    gap: 1.5rem;
+    align-content: start;
+  }
+
+  .lesen-tip {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 0.75rem;
+    max-width: 36em;
+    padding-top: 1.25rem;
+    border-top: 1px dashed var(--steel);
+    color: var(--ash);
+    font-size: var(--fs-meta);
+    line-height: 1.6;
+  }
+
+  .lesen-tip :global(.icon) {
+    margin-top: 0.125rem;
+    color: var(--acid);
+  }
+
+  /* ---------- Entlastung: zentriert, mit violettem Schein ---------- */
+
+  .sp-statement {
+    position: relative;
+    isolation: isolate;
+    max-width: 17em;
+    margin: clamp(5rem, 12vw, 11rem) auto;
+    color: var(--ash);
+    font-size: var(--fs-statement);
+    font-weight: 600;
+    letter-spacing: -0.04em;
+    line-height: 1.04;
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  .sp-statement::before {
+    position: absolute;
+    inset: -60% -20%;
+    z-index: -1;
+    background: radial-gradient(
+      closest-side,
+      rgb(var(--space-rgb) / 0.5),
+      rgb(var(--space-rgb) / 0)
+    );
+    content: '';
+    pointer-events: none;
+  }
+
+  .sp-statement-strong {
+    display: block;
+    color: var(--bone);
+  }
+
+  /* ---------- Footer ---------- */
+
+  .sp-footer {
+    padding-block: 1.75rem 2rem;
+    border-top: 1px solid var(--hairline);
+    color: var(--ash);
+    font-size: var(--fs-micro);
+  }
+
+  .sp-footer-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 2rem;
+  }
+
+  .sp-footer-links {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .sp-footer-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    color: var(--bone);
+    font-size: var(--fs-small);
+  }
+
+  @media (min-width: 48rem) {
+    .signals {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+
+  @media (min-width: 60rem) {
+    .sp-hero-grid {
+      grid-template-columns: minmax(0, 6fr) minmax(0, 5fr);
+      align-items: end;
+      column-gap: clamp(2rem, 6vw, 5rem);
+    }
+
+    .lesen {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      grid-template-rows: auto 1fr;
+      column-gap: clamp(2rem, 6vw, 5rem);
+    }
+
+    .lesen-head {
+      grid-column: 1;
+      grid-row: 1;
+    }
+
+    .lesen-rule {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .lesen-reader {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sp-title::before,
+    .sp-title::after {
+      content: none;
+    }
+  }
+</style>

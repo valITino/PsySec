@@ -1,0 +1,32 @@
+{
+  "name": "@psyber/forms",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "forms.psyber.tech: Umfrage-Funnel",
+  "scripts": {
+    "dev": "astro dev --port 4322",
+    "build": "astro build",
+    "preview": "astro preview --port 4322",
+    "typecheck": "astro check",
+    "cf:dev": "wrangler dev --port 8802",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@astrojs/preact": "^6.1.4",
+    "@preact/signals": "^2.11.4",
+    "@psyber/survey": "workspace:*",
+    "@psyber/ui": "workspace:*",
+    "astro": "^7.4.10",
+    "preact": "^11.2.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@psyber/config": "workspace:*",
+    "@tailwindcss/vite": "^4.3.5",
+    "tailwindcss": "^4.3.5",
+    "typescript": "^6.0.3",
+    "wrangler": "^4.160.0"
+  }
+}

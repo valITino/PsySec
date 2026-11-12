@@ -1,0 +1,349 @@
+---
+/**
+ * 0x07 Ablauf: vier nummerierte Schritte als riesige Wörter und der «PSYber-Handshake» als
+ * kleines Sequenzdiagramm. Violetter Bogen; die Überschrift bleibt auf Desktop links stehen.
+ */
+import Icon from '@psyber/ui/components/Icon.astro';
+import SectionHead from '../SectionHead.astro';
+
+const steps = [
+  {
+    title: 'Kennenlernen',
+    text: 'Ein kurzes Gespräch: Wer gehört zur Familie, welche Geräte gibt es, was beschäftigt Sie?',
+  },
+  {
+    title: 'Session zu Hause',
+    text: 'Wir erklären die Maschen am Beispiel Ihres Alltags. Ohne Fachchinesisch, mit Humor.',
+  },
+  {
+    title: 'Absichern',
+    text: 'Router, Kindergeräte, Passwörter und Backup: Wir richten alles gemeinsam ein und dokumentieren es.',
+  },
+  {
+    title: 'Dranbleiben',
+    text: 'Mit dem Abo bleiben wir erreichbar, prüfen verdächtige Nachrichten und melden uns bei neuen Maschen.',
+  },
+];
+
+/** `to`: Richtung des Pfeils im Diagramm */
+const handshake = [
+  { flag: 'SYN', to: 'psyber', text: 'Sie melden sich. PSYber ruft nie unaufgefordert an.' },
+  {
+    flag: 'SYN-ACK',
+    to: 'familie',
+    text: 'Wir rufen auf Ihre hinterlegte Nummer zurück, mit Codewort.',
+  },
+  {
+    flag: 'ACK',
+    to: 'psyber',
+    text: 'Sie starten die Fernwartung im Programm, das wir beim Hausbesuch eingerichtet haben.',
+  },
+  { flag: 'FIN', to: 'familie', text: 'Sitzung beendet, kurzes Protokoll per Mail.' },
+] as const;
+---
+
+<section data-lazy class="sheet sheet-space on-space" id="ablauf" aria-labelledby="ablauf-title">
+  <div class="wrap">
+    <div class="ablauf">
+      <div class="ablauf-head">
+        <SectionHead
+          num="0x07"
+          kicker="So arbeiten wir"
+          title="Erst verstehen. Dann absichern."
+          id="ablauf-title"
+        />
+      </div>
+
+      <ol class="process">
+        {steps.map((step, index) => (
+          <li class="process-step">
+            <span class="process-num mono" aria-hidden="true">
+              0{index + 1}
+            </span>
+            <div class="process-body">
+              <h3 class="display process-title" data-reveal>
+                {step.title}
+              </h3>
+              <p class="process-text">{step.text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+
+    <div class="handshake card">
+      <div class="handshake-intro">
+        <p class="kicker">
+          <span aria-hidden="true">// </span>Angelehnt an TCP
+        </p>
+        <h3 class="display h2 handshake-title">
+          Der <span class="brand">PSYber</span>-Handshake
+        </h3>
+        <p class="handshake-foot">
+          <Icon name="shield-alert" size={20} />
+          <span>Wer anruft und sofort Fernzugriff verlangt, ist nie PSYber.</span>
+        </p>
+      </div>
+
+      <div class="sequence">
+        <p class="sequence-heads label-up" aria-hidden="true">
+          <span>Familie</span>
+          <span class="brand">PSYber</span>
+        </p>
+        <ol class="sequence-steps">
+          {handshake.map((step) => (
+            <li class:list={['seq', `seq-to-${step.to}`]}>
+              <span class="sr-only">
+                {step.to === 'psyber' ? 'Familie an PSYber' : 'PSYber an Familie'}:{' '}
+              </span>
+              <span class="seq-arrow" aria-hidden="true">
+                <span class="seq-flag mono">{step.flag}</span>
+              </span>
+              <span class="sr-only">{step.flag}. </span>
+              <span class="seq-text">{step.text}</span>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  /* ---------- Vier Schritte ---------- */
+
+  .ablauf {
+    display: grid;
+    gap: clamp(2.5rem, 6vw, 4rem);
+  }
+
+  .process {
+    position: relative;
+    display: grid;
+    gap: clamp(2rem, 4vw, 3.5rem);
+    padding-left: 1.75rem;
+    border-left: 1px solid var(--border-strong);
+  }
+
+  .process-step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 2.25rem minmax(0, 1fr);
+    align-items: start;
+    gap: 0.25rem;
+  }
+
+  /* Leuchtpunkt auf der Linie */
+  .process-step::before {
+    position: absolute;
+    top: clamp(0.75rem, 2.2vw, 2rem);
+    left: calc(-1.75rem - 5px);
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background-color: var(--acid);
+    box-shadow: 0 0 12px rgb(var(--acid-rgb) / 0.7);
+    content: '';
+  }
+
+  .process-num {
+    padding-top: clamp(0.5rem, 2vw, 1.75rem);
+    color: var(--fg-muted);
+    font-size: var(--fs-micro);
+    letter-spacing: 0.04em;
+  }
+
+  /* minmax(0, 1fr): Ein langes Wort darf die Spalte nicht breiter machen als den Bildschirm. */
+  .process-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0.875rem;
+  }
+
+  /* Untergrenze so, dass «Kennenlernen» auch bei 320 px auf eine Zeile passt */
+  .process-title {
+    font-size: clamp(1.875rem, 0.9rem + 4.6vw, 5.5rem);
+  }
+
+  .process-text {
+    max-width: 26em;
+    color: var(--fg-muted);
+    font-size: var(--fs-lead);
+    letter-spacing: -0.015em;
+    line-height: 1.36;
+  }
+
+  /* ---------- Handshake ---------- */
+
+  .handshake {
+    display: grid;
+    gap: 2.5rem;
+    margin-top: clamp(4rem, 9vw, 8rem);
+    padding: clamp(1.5rem, 0.6rem + 3.6vw, 4.5rem);
+    border-radius: var(--r-stage);
+    background-image: radial-gradient(
+      36rem 24rem at 100% 0%,
+      rgb(var(--nebula-rgb) / 0.18),
+      transparent 70%
+    );
+  }
+
+  .handshake-intro {
+    display: grid;
+    align-content: start;
+    gap: 1.25rem;
+  }
+
+  .handshake-title {
+    max-width: 8em;
+  }
+
+  .handshake-foot {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+    padding: 1rem 1.25rem;
+    border: 1px solid color-mix(in srgb, var(--amber) 55%, transparent);
+    border-radius: var(--r-input);
+    color: var(--bone);
+    font-size: var(--fs-small);
+    font-weight: 600;
+    line-height: 1.45;
+  }
+
+  .handshake-foot :global(.icon) {
+    flex: none;
+    margin-top: 0.1em;
+    color: var(--amber);
+  }
+
+  .sequence {
+    --lane: 0.75rem;
+    position: relative;
+    display: grid;
+    gap: 1rem;
+  }
+
+  .sequence-heads {
+    display: flex;
+    justify-content: space-between;
+    color: var(--bone);
+  }
+
+  .sequence-steps {
+    position: relative;
+    display: grid;
+    gap: 1.5rem;
+    padding-block: 0.75rem 1rem;
+  }
+
+  /* Lebenslinien von Familie (links) und PSYber (rechts) */
+  .sequence-steps::before,
+  .sequence-steps::after {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    border-left: 1px dashed var(--steel);
+    content: '';
+  }
+
+  .sequence-steps::before {
+    left: var(--lane);
+  }
+
+  .sequence-steps::after {
+    right: var(--lane);
+  }
+
+  .seq {
+    display: grid;
+    gap: 0.5rem;
+    padding-inline: var(--lane);
+  }
+
+  .seq-arrow {
+    position: relative;
+    display: block;
+    height: 1.75rem;
+    border-bottom: 1px solid var(--acid);
+  }
+
+  /* Pfeilspitze */
+  .seq-arrow::after {
+    position: absolute;
+    bottom: -5px;
+    width: 9px;
+    height: 9px;
+    border-top: 1px solid var(--acid);
+    border-right: 1px solid var(--acid);
+    content: '';
+  }
+
+  .seq-to-psyber .seq-arrow::after {
+    right: 1px;
+    transform: rotate(45deg);
+  }
+
+  .seq-to-familie .seq-arrow::after {
+    left: 1px;
+    transform: rotate(-135deg);
+  }
+
+  .seq-flag {
+    position: absolute;
+    bottom: 0.4375rem;
+    left: 50%;
+    padding: 0.125rem 0.625rem;
+    border: 1px solid var(--steel);
+    border-radius: var(--r-pill);
+    background-color: var(--carbon);
+    color: var(--bone);
+    font-size: var(--fs-micro);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    transform: translateX(-50%);
+  }
+
+  .seq-text {
+    padding-inline: 0.875rem;
+    color: var(--ash);
+    font-size: var(--fs-small);
+    line-height: 1.5;
+    text-align: center;
+    text-wrap: balance;
+  }
+
+  @media (min-width: 64rem) {
+    .ablauf {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      align-items: start;
+      gap: clamp(2rem, 5vw, 5rem);
+    }
+
+    /* Die Überschrift bleibt stehen, während die Schritte vorbeiziehen */
+    .ablauf-head {
+      position: sticky;
+      top: calc(var(--header-h) + 1.5rem);
+    }
+
+    .process {
+      padding-left: clamp(2rem, 4vw, 3.75rem);
+    }
+
+    .process-step::before {
+      left: calc(-1 * clamp(2rem, 4vw, 3.75rem) - 5px);
+    }
+
+    .process-step {
+      grid-template-columns: 3.25rem minmax(0, 1fr);
+    }
+
+    .handshake {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      gap: clamp(2rem, 5vw, 5rem);
+      align-items: center;
+    }
+  }
+</style>

@@ -1,0 +1,162 @@
+---
+/**
+ * 0x03 Lösungen: zwei nummerierte, dunkle Karten auf violettem Bogen, je mit Button.
+ */
+import Button from '@psyber/ui/components/Button.astro';
+import SectionHead from '../SectionHead.astro';
+
+const cards = [
+  {
+    num: '01',
+    label: 'Vor dem Klick',
+    title: 'Layer 8: Menschen stärken',
+    text: 'Wir erklären die Tricks hinter Phishing, Anlagebetrug, Romance Scam und Cybermobbing, zeigen, welche Spuren Ihre Familie online hinterlässt, und üben das Erkennen an echten Beispielen.',
+    points: [
+      'Familien-Session zu Hause',
+      'Vorträge für Schulen, Gemeinden und Firmen',
+      '«Ist das echt?»-Check per WhatsApp',
+    ],
+    button: { label: 'So läuft eine Session ab', href: '#ablauf' },
+  },
+  {
+    num: '02',
+    label: 'Nach dem Klick',
+    title: 'Heimnetz: Technik absichern',
+    text: 'Wir richten Router, Gästenetz und DNS-Filter ein, schützen die Geräte der Kinder, sorgen für Passwort-Manager und Backup und zeigen Ihnen, welche Geräte im Netz sind und was blockiert wird.',
+    points: [
+      'Router und Gästenetz',
+      'DNS-Filter und Überblick über den Netzwerkverkehr',
+      'Kinderprofile direkt auf den Geräten',
+      'Passwort-Manager und Backup',
+    ],
+    button: { label: 'Pakete ansehen', href: '#pakete' },
+  },
+];
+---
+
+<section data-lazy class="sheet sheet-space on-space" id="angebot" aria-labelledby="angebot-title">
+  <div class="wrap">
+    <SectionHead
+      num="0x03"
+      kicker="Was wir tun"
+      title="Wir setzen dort an, wo Familien verwundbar sind."
+      id="angebot-title"
+    />
+
+    <div class="solutions">
+      {cards.map((card) => (
+        <article class="card solution">
+          <span class="solution-ghost" aria-hidden="true">
+            {card.num}
+          </span>
+          <p class="label-up solution-label">
+            <span class="hexnum" aria-hidden="true">
+              {card.num}
+            </span>
+            {card.label}
+          </p>
+          <h3 class="display solution-title">{card.title}</h3>
+          <p class="solution-text">{card.text}</p>
+          <ul class="solution-points">
+            {card.points.map((point) => (
+              <li>
+                <span>{point}</span>
+                <i class="dot" aria-hidden="true" />
+              </li>
+            ))}
+          </ul>
+          <div class="solution-action">
+            <Button href={card.button.href} variant="secondary" icon>
+              {card.button.label}
+            </Button>
+          </div>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .solutions {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: clamp(2.5rem, 6vw, 5rem);
+  }
+
+  .solution {
+    position: relative;
+    display: grid;
+    grid-template-rows: auto auto auto 1fr auto;
+    gap: 1.25rem;
+    overflow: hidden;
+    padding: clamp(1.5rem, 1rem + 2.4vw, 3rem);
+    border-radius: var(--r-panel);
+    background-image:
+      radial-gradient(26rem 18rem at 100% 0%, rgb(var(--nebula-rgb) / 0.2), transparent 70%),
+      linear-gradient(165deg, rgb(var(--bone-rgb) / 0.045) 0%, transparent 45%);
+  }
+
+  /* Grosse Nummer als Kontur in der Ecke */
+  .solution-ghost {
+    position: absolute;
+    top: -0.16em;
+    right: 0.04em;
+    color: transparent;
+    font-size: clamp(6rem, 3.5rem + 10vw, 13rem);
+    font-weight: 800;
+    letter-spacing: -0.06em;
+    line-height: 1;
+    pointer-events: none;
+    -webkit-text-stroke: 1px rgb(var(--bone-rgb) / 0.14);
+  }
+
+  .solution-label {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .solution-title {
+    position: relative;
+    max-width: 9em;
+    font-size: clamp(2rem, 1.1rem + 3.4vw, 4rem);
+  }
+
+  .solution-text {
+    position: relative;
+    max-width: 34em;
+    color: var(--fg-muted);
+  }
+
+  .solution-points {
+    display: grid;
+    align-content: start;
+    margin-top: 0.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .solution-points li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 0.9375rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--fg-strong);
+    font-size: var(--fs-h4);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  .solution-action {
+    margin-top: 1rem;
+  }
+
+  @media (min-width: 56rem) {
+    .solutions {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+</style>

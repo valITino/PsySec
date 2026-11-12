@@ -1,0 +1,244 @@
+---
+/**
+ * Phishing-Ticker: zwei gegenläufige Reihen aus Pillen (Satz plus Hebel).
+ * CSS-Animation über transform; die Kopie für den Loop ist aria-hidden.
+ * Pausiert bei Hover und über den Pause-Button. Reduced motion: statisch, umbrechend.
+ */
+import Icon from '@psyber/ui/components/Icon.astro';
+
+const phrases = [
+  ['Ihr Paket wartet', 'Zeitdruck'],
+  ['Hallo Mama, das ist meine neue Nummer', 'Zuneigung'],
+  ['Ihr Konto wird gesperrt', 'Angst'],
+  ['Sie haben gewonnen!', 'Gewinn'],
+  ['Hier spricht die Polizei', 'Autorität'],
+  ['Nur heute gültig', 'Zeitdruck'],
+  ['Alle aus der Klasse sind schon dabei', 'Gruppendruck'],
+  ['Bitte sag es niemandem', 'Scham'],
+  ['Garantiert 20 % Rendite', 'Gewinn'],
+  ['Ich brauche kurz deinen Code', 'Vertrauen'],
+  ['Ihr Computer ist infiziert, rufen Sie uns an', 'Angst'],
+  ['Ich vermisse dich, kannst du mir helfen?', 'Zuneigung'],
+] as const;
+
+const rows = [phrases.slice(0, 6), phrases.slice(6)];
+---
+
+<section
+  data-lazy
+  class="sheet sheet-space on-space ticker"
+  aria-labelledby="ticker-title"
+  data-ticker
+>
+  <div class="wrap ticker-head">
+    <div class="ticker-heading">
+      <p class="kicker">
+        <span aria-hidden="true">// </span>Phishing-Ticker
+      </p>
+      <h2 id="ticker-title" class="display h2 ticker-title">
+        Sätze, bei denen Sie stutzig werden sollten.
+      </h2>
+    </div>
+    {/* Der Name sagt, was der Button tut; er wechselt mit dem Zustand (darum kein aria-pressed). */}
+    <button type="button" class="ticker-toggle" data-ticker-toggle>
+      <span class="ticker-icon ticker-icon-pause">
+        <Icon name="pause" size={16} />
+      </span>
+      <span class="ticker-icon ticker-icon-play">
+        <Icon name="play" size={16} />
+      </span>
+      <span data-ticker-label>Band anhalten</span>
+    </button>
+  </div>
+
+  <div class="ticker-rows">
+    {rows.map((row, rowIndex) => (
+      <div class:list={['ticker-row', { 'ticker-row-reverse': rowIndex === 1 }]}>
+        <ul class="ticker-list">
+          {row.map(([phrase, lever]) => (
+            <li class="pill">
+              <span class="pill-text">«{phrase}»</span>
+              <span class="pill-lever">{lever}</span>
+            </li>
+          ))}
+        </ul>
+        <ul class="ticker-list ticker-copy" aria-hidden="true">
+          {row.map(([phrase, lever]) => (
+            <li class="pill">
+              <span class="pill-text">«{phrase}»</span>
+              <span class="pill-lever">{lever}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+</section>
+
+<style>
+  .ticker {
+    overflow: clip;
+  }
+
+  .ticker-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .ticker-heading {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .ticker-title {
+    max-width: 14em;
+  }
+
+  .ticker-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 2.75rem;
+    padding-inline: 1.125rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-pill);
+    color: var(--fg-strong);
+    font-size: var(--fs-micro);
+    font-weight: 600;
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+    transition: border-color var(--dur-2) var(--ease);
+  }
+
+  .ticker-toggle:hover {
+    border-color: var(--acid);
+  }
+
+  .ticker-icon {
+    display: grid;
+  }
+
+  .ticker-icon-play,
+  .ticker:global(.is-paused) .ticker-icon-pause {
+    display: none;
+  }
+
+  .ticker:global(.is-paused) .ticker-icon-play {
+    display: grid;
+  }
+
+  .ticker-rows {
+    display: grid;
+    gap: 0.875rem;
+    margin-top: clamp(2rem, 5vw, 4rem);
+  }
+
+  .ticker-row {
+    display: flex;
+    width: max-content;
+    animation: ticker 52s linear infinite;
+  }
+
+  .ticker-row-reverse {
+    animation-direction: reverse;
+    animation-duration: 60s;
+  }
+
+  .ticker-list {
+    display: flex;
+    flex: none;
+    gap: 0.875rem;
+    padding-right: 0.875rem;
+  }
+
+  /* Dunkle Kachel auf Violett */
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 1rem;
+    min-height: 4.5rem;
+    padding: 0.875rem 1.125rem 0.875rem 1.625rem;
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-card);
+    background-color: var(--carbon);
+    white-space: nowrap;
+  }
+
+  .pill-text {
+    color: var(--bone);
+    font-size: var(--fs-h4);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+  }
+
+  .pill-lever {
+    padding: 0.3125rem 0.75rem;
+    border: 1px solid color-mix(in srgb, var(--amber) 62%, transparent);
+    border-radius: var(--r-pill);
+    color: var(--amber);
+    font-size: var(--fs-micro);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  /*
+   * Pausiert bei Hover, bei Fokus im Band und wenn der Button es anhält. Der Fokus auf dem Button
+   * selbst zählt nicht: Sonst stünde das Band nach «Band fortsetzen» weiter still.
+   */
+  .ticker:global(.is-paused) .ticker-row,
+  .ticker-rows:focus-within .ticker-row {
+    animation-play-state: paused;
+  }
+
+  @media (hover: hover) {
+    .ticker-rows:hover .ticker-row {
+      animation-play-state: paused;
+    }
+  }
+
+  @keyframes ticker {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Reduzierte Bewegung oder kein Skript für den Button: statisch und umbrechend */
+  @media (prefers-reduced-motion: reduce) {
+    /* Block statt Flex: Sonst behält die Liste ihre volle Breite und bricht nicht um. */
+    .ticker-row {
+      display: block;
+      width: auto;
+      animation: none;
+    }
+
+    .ticker-rows {
+      width: min(100% - 2 * var(--gutter), var(--container));
+      margin-inline: auto;
+    }
+
+    .ticker-list {
+      flex-wrap: wrap;
+      padding-right: 0;
+    }
+
+    .pill {
+      min-height: 3.5rem;
+      white-space: normal;
+    }
+
+    .ticker-copy,
+    .ticker-toggle {
+      display: none;
+    }
+  }
+
+  @media (scripting: none) {
+    .ticker-toggle {
+      display: none;
+    }
+  }
+</style>

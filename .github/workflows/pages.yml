@@ -1,0 +1,62 @@
+name: Vorschau auf GitHub Pages
+
+# Veröffentlicht alle drei Websites als Vorschau unter https://<user>.github.io/<repo>/,
+# sobald sich main ändert. Formulare antworten dort simuliert, gespeichert wird nichts.
+# Einmalig nötig: Repository → Settings → Pages → Source: «GitHub Actions».
+# Der produktive Betrieb läuft über Cloudflare (docs/DEPLOY.md).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+env:
+  ASTRO_TELEMETRY_DISABLED: 1
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: pnpm über corepack aktivieren
+        run: corepack enable
+
+      - name: Abhängigkeiten installieren (gefrorenes Lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Vorschau bauen
+        run: pnpm build:pages
+        env:
+          PAGES_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}
+          # Optional in den Repository-Variablen auf «launch» stellen, um die Launch-Variante zu testen.
+          PUBLIC_SITE_PHASE: ${{ vars.PUBLIC_SITE_PHASE || 'survey' }}
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: dist-pages
+          include-hidden-files: true
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

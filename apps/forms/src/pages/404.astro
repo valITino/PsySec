@@ -1,0 +1,33 @@
+---
+/** 404 von forms.psyber.tech: gleicher Block wie auf psyber.tech, zurück geht es zur Umfrage. */
+import Logo from '@psyber/ui/components/Logo.astro';
+import NotFound from '@psyber/ui/components/NotFound.astro';
+import Base from '../layouts/Base.astro';
+import { href, web } from '../lib/site.ts';
+---
+
+<Base
+  title="404 – Layer 8 nicht gefunden – PSYber"
+  description="Diese Seite gibt es nicht."
+  path="/404"
+  noindex
+>
+  <header class="wrap nf-header">
+    <Logo href={web.home} label="PSYber, zu psyber.tech" />
+  </header>
+  <main>
+    <NotFound href={href('/')} label="Zur Umfrage" />
+  </main>
+</Base>
+
+<style>
+  .nf-header {
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    height: var(--header-h);
+  }
+</style>

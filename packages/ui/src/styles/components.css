@@ -1,0 +1,699 @@
+/*
+ * Bausteine des Designsystems: Layout, Flächen, Typo-Klassen, Buttons, Karten, Tags, Formularfelder.
+ * Bewusst als Klassen (nicht nur als Astro-Komponenten), damit auch Preact-Islands sie nutzen.
+ */
+
+@layer components {
+  /* ---------- Layout ---------- */
+
+  .wrap {
+    width: min(100% - 2 * var(--gutter), var(--container));
+    margin-inline: auto;
+  }
+
+  .section {
+    padding-block: var(--section-y);
+  }
+
+  .measure {
+    max-width: 36em; /* rund 68 Zeichen in Manrope */
+  }
+
+  .skip-link {
+    position: fixed;
+    top: 0.75rem;
+    left: 0.75rem;
+    z-index: 100;
+    transform: translateY(-200%);
+    padding: 0.875rem 1.25rem;
+    border-radius: var(--r-pill);
+    background: var(--acid);
+    color: var(--ink);
+    font-size: var(--fs-meta);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    text-transform: uppercase;
+  }
+
+  .skip-link:focus {
+    transform: none;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* ---------- Flächen ---------- */
+
+  /*
+   * Sheet: Sektion als Bogen mit runden oberen Ecken, der sich über die vorherige Sektion
+   * schiebt. Jeder Bogen bringt unten den Platz mit, den der nächste überdeckt.
+   */
+  .sheet {
+    position: relative;
+    margin-top: calc(-1 * var(--r-sheet));
+    padding-block: var(--section-y) calc(var(--section-y) + var(--r-sheet));
+    border-radius: var(--r-sheet) var(--r-sheet) 0 0;
+    background-color: var(--bg);
+  }
+
+  /* Violetter Bogen: Space mit Lichtschein oben rechts */
+  .sheet-space {
+    background-image: radial-gradient(
+      70rem 46rem at 88% 0%,
+      rgb(var(--nebula-rgb) / 0.42) 0%,
+      rgb(var(--nebula-rgb) / 0) 68%
+    );
+  }
+
+  /* Bühne: grosses, dunkles Panel mit violettem Schein in der Ecke */
+  .stage {
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-stage);
+    background-color: var(--carbon);
+    background-image: radial-gradient(
+      46rem 30rem at 100% 0%,
+      rgb(var(--nebula-rgb) / 0.26) 0%,
+      rgb(var(--nebula-rgb) / 0) 70%
+    );
+  }
+
+  /* Punktraster als ruhige Textur (reines CSS, kein Bild) */
+  .dot-grid {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .dot-grid::before {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image: radial-gradient(rgb(var(--bone-rgb) / 0.16) 1px, transparent 1.5px);
+    background-size: 22px 22px;
+    content: '';
+    pointer-events: none;
+    mask-image: radial-gradient(60% 60% at 50% 40%, #000 0%, transparent 100%);
+  }
+
+  /* ---------- Typografie ---------- */
+
+  /* Display: riesig, Versalien, eng gesetzt */
+  .display {
+    color: var(--fg-strong);
+    font-weight: var(--fw-display);
+    letter-spacing: var(--ls-display);
+    line-height: 0.92;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  .h1 {
+    font-size: var(--fs-h1);
+  }
+
+  .h2 {
+    font-size: var(--fs-h2);
+    letter-spacing: var(--ls-heading);
+    line-height: 0.98;
+    text-transform: uppercase;
+  }
+
+  .h3 {
+    font-size: var(--fs-h3);
+    letter-spacing: var(--ls-heading);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  /* Titel in normaler Schreibweise: Zeilen in Listen, Fragen, Aussagen */
+  .h4,
+  .title {
+    font-size: var(--fs-h4);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    text-transform: none;
+  }
+
+  /* Markenname in Versal-Umgebung: «PSYber» bleibt exakt so geschrieben */
+  .brand {
+    text-transform: none;
+  }
+
+  .lead {
+    font-size: var(--fs-lead);
+    letter-spacing: -0.015em;
+    line-height: 1.36;
+    max-width: 30em;
+  }
+
+  .mono {
+    font-family: var(--ff-mono);
+    letter-spacing: 0;
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Label: klein, Versalien, gesperrt. Als Kicker mit «//» davor (die Schrägstriche in Mono). */
+  .kicker,
+  .label-up {
+    color: var(--fg-muted);
+    font-size: var(--fs-meta);
+    font-weight: 600;
+    letter-spacing: var(--ls-label);
+    line-height: 1.5;
+    text-transform: uppercase;
+  }
+
+  .kicker > [aria-hidden='true'] {
+    font-family: var(--ff-mono);
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  /* Wörter, die auch im Label klein bleiben (Befehle wie «whoami») */
+  .kicker-raw {
+    text-transform: none;
+  }
+
+  /* Abschnittsnummer in Hex: «0x01» (das x bleibt klein) */
+  .hexnum {
+    color: var(--accent);
+    font-family: var(--ff-mono);
+    font-size: var(--fs-micro);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+    line-height: 1.5;
+    text-transform: none;
+  }
+
+  .meta {
+    color: var(--fg-muted);
+    font-size: var(--fs-meta);
+    line-height: 1.5;
+  }
+
+  .small {
+    font-size: var(--fs-small);
+    line-height: 1.5;
+  }
+
+  /* Grosse Einzelzahl */
+  .num {
+    color: var(--fg-strong);
+    font-size: var(--fs-number);
+    font-weight: var(--fw-display);
+    font-variant-numeric: proportional-nums;
+    letter-spacing: var(--ls-display);
+    line-height: 0.9;
+  }
+
+  .link {
+    color: var(--fg-strong);
+    text-decoration-line: underline;
+    text-decoration-color: var(--accent);
+    transition: text-decoration-color var(--dur-1) var(--ease);
+  }
+
+  .link:hover {
+    text-decoration-color: currentColor;
+  }
+
+  /* Fiktive Adresse: sieht aus wie ein Link, ist aber keiner */
+  .fake-link {
+    color: var(--fg-muted);
+    text-decoration: underline;
+    text-decoration-style: dotted;
+    overflow-wrap: anywhere;
+  }
+
+  /* ---------- Marke ---------- */
+
+  /* Logo aus dem Kit: Eule mit Lupe und Wortmarke als ein Bild */
+  .logo {
+    --logo-h: 2.75rem;
+    display: inline-flex;
+    flex: none;
+    align-items: center;
+    min-height: 2.75rem;
+    text-decoration: none;
+  }
+
+  .logo-img {
+    display: block;
+    flex: none;
+    width: auto;
+    max-width: none;
+    height: var(--logo-h);
+  }
+
+  /* Die Eule allein */
+  .owl {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* «Der Blick»: Eule aus Ebenen, die Pupillen folgen dem Zeiger (owl-eyes.ts) */
+  .owl-pupils {
+    transition: transform var(--dur-1) var(--ease);
+  }
+
+  .owl-led {
+    animation: owl-led 3.6s var(--ease) infinite;
+  }
+
+  @keyframes owl-led {
+    0%,
+    62%,
+    100% {
+      opacity: 1;
+    }
+
+    74% {
+      opacity: 0.2;
+    }
+  }
+
+  /* Sticker aus dem Kit: wie auf einen Laptop geklebt, leicht gedreht */
+  .sticker {
+    display: block;
+    width: var(--sticker-size, 8rem);
+    height: auto;
+    border-radius: 50%;
+    filter: drop-shadow(0 0.5rem 1.25rem rgb(0 0 0 / 0.45));
+    transform: rotate(var(--sticker-tilt, -8deg));
+  }
+
+  /* ---------- Buttons ---------- */
+
+  /* Pille, Versalien, 52 px hoch. Primär in Acid, sekundär als Glas-Outline. */
+  .btn {
+    --btn-bg: transparent;
+    --btn-fg: var(--bone);
+    --btn-border: transparent;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 3.25rem; /* 52 px */
+    padding: 0.5rem 1.625rem;
+    border: 1px solid var(--btn-border);
+    border-radius: var(--r-btn);
+    background-color: var(--btn-bg);
+    color: var(--btn-fg);
+    font-size: var(--fs-meta);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-align: center;
+    text-decoration: none;
+    text-transform: uppercase;
+    transition:
+      background-color var(--dur-2) var(--ease),
+      border-color var(--dur-2) var(--ease),
+      box-shadow var(--dur-2) var(--ease),
+      color var(--dur-2) var(--ease),
+      transform var(--dur-1) var(--ease);
+  }
+
+  .btn:active {
+    transform: translateY(1px);
+  }
+
+  .btn:disabled,
+  .btn[aria-disabled='true'] {
+    opacity: 0.55;
+  }
+
+  .btn-primary {
+    --btn-bg: var(--acid);
+    --btn-fg: var(--ink);
+    --btn-border: var(--acid);
+    box-shadow: var(--glow-acid);
+  }
+
+  .btn-secondary {
+    --btn-bg: rgb(var(--bone-rgb) / 0.06);
+    --btn-fg: var(--bone);
+    --btn-border: rgb(var(--bone-rgb) / 0.42);
+  }
+
+  /* Lichtkante: kurzer Acid-Strich auf der oberen Kante des sekundären Buttons */
+  .btn-secondary::before {
+    position: absolute;
+    top: -1px;
+    left: 20%;
+    width: 36%;
+    height: 1.5px;
+    border-radius: 1px;
+    background: linear-gradient(90deg, transparent, var(--acid), transparent);
+    content: '';
+    pointer-events: none;
+    transition:
+      left var(--dur-3) var(--ease),
+      width var(--dur-3) var(--ease);
+  }
+
+  .btn-sm {
+    min-height: 2.75rem; /* 44 px */
+    padding-inline: 1.25rem;
+    font-size: var(--fs-micro);
+  }
+
+  .btn-block {
+    width: 100%;
+  }
+
+  .btn .icon {
+    flex: none;
+    transition: transform var(--dur-2) var(--ease);
+  }
+
+  @media (hover: hover) {
+    .btn-primary:hover:not(:disabled, [aria-disabled='true']) {
+      --btn-bg: var(--acid-hi);
+      --btn-border: var(--acid-hi);
+      box-shadow: var(--glow-acid-hi);
+    }
+
+    .btn-secondary:hover:not(:disabled, [aria-disabled='true']) {
+      --btn-bg: rgb(var(--bone-rgb) / 0.1);
+      --btn-border: var(--acid);
+      box-shadow: 0 0 20px rgb(var(--acid-rgb) / 0.2);
+    }
+
+    .btn-secondary:hover:not(:disabled, [aria-disabled='true'])::before {
+      left: 12%;
+      width: 76%;
+    }
+
+    .btn:hover .icon-shift {
+      transform: translateX(4px);
+    }
+  }
+
+  /* Textlink mit Pfeil */
+  .btn-text {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    color: var(--fg-strong);
+    font-size: var(--fs-meta);
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-decoration: underline;
+    text-decoration-color: var(--accent);
+    text-transform: uppercase;
+    text-underline-offset: 0.4em;
+  }
+
+  .btn-text .icon {
+    flex: none;
+    transition: transform var(--dur-2) var(--ease);
+  }
+
+  @media (hover: hover) {
+    .btn-text:hover {
+      text-decoration-color: currentColor;
+    }
+
+    .btn-text:hover .icon-shift {
+      transform: translateX(4px);
+    }
+  }
+
+  /* Runder Pfeil-Knopf (Zeilen in Listen, Menü) */
+  .orb {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 50%;
+    color: var(--fg-strong);
+    transition:
+      background-color var(--dur-2) var(--ease),
+      border-color var(--dur-2) var(--ease),
+      color var(--dur-2) var(--ease),
+      transform var(--dur-2) var(--ease);
+  }
+
+  /* ---------- Karten ---------- */
+
+  /* Karten sind immer dunkel, auch auf Space: darum setzen sie die Rollen zurück. */
+  .card {
+    --bg: var(--carbon);
+    --fg: var(--bone);
+    --fg-strong: var(--bone);
+    --fg-muted: var(--ash);
+    --border: var(--hairline);
+    --border-strong: var(--steel);
+    --surface: var(--carbon);
+    --surface-raised: var(--graphite);
+    --surface-deep: var(--pit);
+    border: 1px solid var(--border);
+    border-radius: var(--r-card);
+    background-color: var(--surface);
+    background-image: linear-gradient(165deg, rgb(var(--bone-rgb) / 0.045) 0%, transparent 45%);
+    color: var(--fg);
+  }
+
+  .card-flat {
+    background-color: transparent;
+    background-image: none;
+  }
+
+  .card-deep {
+    background-color: var(--surface-deep);
+    background-image: none;
+  }
+
+  .card-pad {
+    padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  }
+
+  /* Hover nur bei feinem Pointer: heller Rahmen, 2 px Anhebung */
+  @media (hover: hover) and (pointer: fine) {
+    .card-hover {
+      transition:
+        border-color var(--dur-2) var(--ease),
+        transform var(--dur-2) var(--ease);
+    }
+
+    .card-hover:hover {
+      border-color: rgb(var(--bone-rgb) / 0.4);
+      transform: translateY(-2px);
+    }
+  }
+
+  /* ---------- Tags ---------- */
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    min-height: 1.875rem;
+    padding: 0.25rem 0.75rem;
+    border: 1px solid rgb(var(--bone-rgb) / 0.3);
+    border-radius: var(--r-pill);
+    color: var(--fg);
+    font-size: var(--fs-micro);
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  /* Hebel und Warnungen */
+  .tag-amber {
+    border-color: color-mix(in srgb, var(--amber) 62%, transparent);
+    color: var(--amber);
+  }
+
+  /* Hervorhebung, z. B. «Neu» */
+  .tag-solid {
+    border-color: var(--acid);
+    background-color: var(--acid);
+    color: var(--ink);
+    font-weight: 700;
+    box-shadow: var(--glow-acid);
+  }
+
+  /* ---------- Formularfelder ---------- */
+
+  .field {
+    display: grid;
+    align-content: start;
+    gap: 0.5rem;
+  }
+
+  .label {
+    color: var(--fg-strong);
+    font-size: var(--fs-small);
+    font-weight: 600;
+    line-height: 1.4;
+  }
+
+  .label-hint {
+    color: var(--fg-muted);
+    font-weight: 400;
+  }
+
+  .input {
+    width: 100%;
+    min-height: 3.25rem;
+    padding: 0.8125rem 1rem;
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-input);
+    background-color: var(--surface-deep);
+    color: var(--fg-strong);
+    font: inherit;
+    letter-spacing: inherit;
+    line-height: 1.4;
+    transition: border-color var(--dur-1) var(--ease);
+  }
+
+  textarea.input {
+    min-height: 8rem;
+    resize: vertical;
+  }
+
+  .input::placeholder {
+    color: var(--fg-muted);
+    opacity: 1;
+  }
+
+  .input:hover {
+    border-color: var(--acid);
+  }
+
+  .input[aria-invalid='true'] {
+    border-color: var(--crit);
+    border-width: 2px;
+  }
+
+  .field-error {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.4375rem;
+    color: var(--fg-strong);
+    font-size: var(--fs-small);
+    line-height: 1.4;
+  }
+
+  .field-error .icon {
+    flex: none;
+    margin-top: 0.125rem;
+    color: var(--crit);
+  }
+
+  .check {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    gap: 0.75rem;
+    font-size: var(--fs-small);
+    line-height: 1.5;
+  }
+
+  .check input {
+    margin-top: 0.0625rem;
+  }
+
+  /* Eigene Checkbox: Rahmen 3:1, Haken per clip-path (keine Bilddatei nötig) */
+  .checkbox {
+    display: inline-grid;
+    flex: none;
+    place-content: center;
+    width: 1.375rem;
+    height: 1.375rem;
+    border: 1.5px solid var(--border-strong);
+    border-radius: var(--r-xs);
+    background-color: var(--surface-deep);
+    appearance: none;
+    transition:
+      background-color var(--dur-1) var(--ease),
+      border-color var(--dur-1) var(--ease);
+  }
+
+  .checkbox::before {
+    width: 0.8rem;
+    height: 0.8rem;
+    background-color: var(--ink);
+    clip-path: polygon(14% 52%, 5% 63%, 38% 92%, 96% 22%, 85% 12%, 37% 68%);
+    content: '';
+    transform: scale(0);
+    transition: transform var(--dur-1) var(--ease);
+  }
+
+  .checkbox:checked {
+    border-color: var(--acid);
+    background-color: var(--acid);
+  }
+
+  .checkbox:checked::before {
+    transform: scale(1);
+  }
+
+  .checkbox:disabled {
+    opacity: 0.45;
+  }
+
+  .checkbox[aria-invalid='true'] {
+    border-color: var(--crit);
+    border-width: 2px;
+  }
+
+  /* Honeypot: für Menschen unsichtbar, nicht per Tab erreichbar */
+  .hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+
+  /* ---------- Icons ---------- */
+
+  .icon {
+    display: inline-block;
+    width: 1.25em;
+    height: 1.25em;
+    vertical-align: -0.2em;
+  }
+
+  /* ---------- Kleinteile ---------- */
+
+  /* Leuchtpunkt: Status, aktive Schritte, Listenmarken */
+  .dot {
+    display: inline-block;
+    flex: none;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background-color: var(--acid);
+    box-shadow: 0 0 10px rgb(var(--acid-rgb) / 0.6);
+  }
+
+  .dot-off {
+    background-color: transparent;
+    box-shadow: inset 0 0 0 1px var(--border-strong);
+  }
+}

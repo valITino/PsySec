@@ -1,0 +1,65 @@
+---
+/**
+ * Button oder Link im Button-Look.
+ * Pille in Versalien, 52 px hoch. Primär: Acid mit dunkler Schrift. Sekundär: Glas-Outline.
+ * Mit `href` entsteht ein Link, sonst ein <button>.
+ */
+import type { IconName } from '../icons/index.ts';
+import Icon from './Icon.astro';
+
+interface Props {
+  variant?: 'primary' | 'secondary';
+  size?: 'md' | 'sm';
+  block?: boolean;
+  /** Icon hinter dem Text; `true` steht für den Pfeil nach rechts */
+  icon?: IconName | boolean;
+  class?: string;
+  href?: string;
+  target?: '_blank' | '_self';
+  rel?: string;
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
+  id?: string;
+  [key: `data-${string}`]: string | boolean | undefined;
+  [key: `aria-${string}`]: string | boolean | undefined;
+}
+
+const {
+  variant = 'primary',
+  size = 'md',
+  block = false,
+  icon = false,
+  class: className,
+  href,
+  target,
+  rel,
+  type = 'button',
+  disabled = false,
+  ...rest
+} = Astro.props;
+
+const classes = [
+  'btn',
+  `btn-${variant}`,
+  { 'btn-sm': size === 'sm', 'btn-block': block },
+  className,
+];
+const iconName: IconName | null = icon === true ? 'arrow-right' : icon || null;
+const shift = iconName === 'arrow-right';
+---
+
+{href != null ? (
+  <a class:list={classes} href={href} target={target} rel={rel} {...rest}>
+    <span>
+      <slot />
+    </span>
+    {iconName && <Icon name={iconName} size={18} class={shift ? 'icon-shift' : undefined} />}
+  </a>
+) : (
+  <button class:list={classes} type={type} disabled={disabled} {...rest}>
+    <span>
+      <slot />
+    </span>
+    {iconName && <Icon name={iconName} size={18} class={shift ? 'icon-shift' : undefined} />}
+  </button>
+)}

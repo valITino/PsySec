@@ -1,0 +1,18 @@
+node_modules
+dist
+dist-pages
+dist-turnstile
+.astro
+.wrangler
+coverage
+playwright-report
+test-results
+reports
+shots
+pnpm-lock.yaml
+# Der Auftrag bleibt wörtlich unverändert.
+docs/BRIEF.md
+# Generiert
+packages/ui/src/icons/data.ts
+apps/*/public
+**/worker-configuration.d.ts

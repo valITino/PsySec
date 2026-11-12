@@ -1,0 +1,266 @@
+---
+/**
+ * 0x09 Über: Foto-Platzhalter als Punktraster-Karte, daneben Überschrift und Terminal-Karte.
+ * Im Platzhalter hält die Eule die Stellung und schaut dem Zeiger nach (home.ts, owl-eyes.ts).
+ * Keine erfundenen Angaben.
+ */
+import OwlLive from '@psyber/ui/components/OwlLive.astro';
+import stickerUrl from '@psyber/ui/brand/sticker-blick.svg?url';
+import { about } from '../../config/site.ts';
+import SectionHead from '../SectionHead.astro';
+
+const lines = [
+  { command: 'whoami', output: about.name },
+  { command: 'cat rolle.txt', output: about.rolle },
+  { command: 'cat warum.txt', output: about.warum },
+];
+---
+
+<section data-lazy class="sheet" id="ueber" aria-labelledby="ueber-title">
+  <div class="wrap about">
+    <div class="portrait">
+      <figure class="portrait-frame">
+        <span class="portrait-corner portrait-corner-tl" aria-hidden="true"></span>
+        <span class="portrait-corner portrait-corner-tr" aria-hidden="true"></span>
+        <span class="portrait-corner portrait-corner-bl" aria-hidden="true"></span>
+        <span class="portrait-corner portrait-corner-br" aria-hidden="true"></span>
+        <OwlLive class="portrait-owl" />
+        <figcaption class="portrait-caption">
+          <span class="label-up">{about.foto}</span>
+          <span>Solange hält die Eule die Stellung.</span>
+        </figcaption>
+      </figure>
+      <img
+        class="sticker portrait-sticker"
+        src={stickerUrl}
+        width="432"
+        height="432"
+        alt="Sticker mit der PSYber-Eule: «Betrüger hassen diesen Blick.»"
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+
+    <div class="about-main">
+      <SectionHead
+        num="0x09"
+        kicker="whoami"
+        kickerRaw
+        title="Wer hinter PSYber steckt."
+        id="ueber-title"
+      />
+
+      <div class="terminal">
+        <div class="terminal-bar" aria-hidden="true">
+          <span class="terminal-dots">
+            <span></span>
+            <span></span>
+            <span></span>
+          </span>
+          <span class="mono terminal-title">psyber@layer8: ~</span>
+        </div>
+        <dl class="terminal-body mono">
+          {lines.map((line) => (
+            <div>
+              <dt>
+                <span class="prompt" aria-hidden="true">
+                  $
+                </span>
+                {line.command}
+              </dt>
+              <dd>{line.output}</dd>
+            </div>
+          ))}
+          <div aria-hidden="true">
+            <dt>
+              <span class="prompt">$</span>
+              <span class="terminal-cursor"></span>
+            </dt>
+          </div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .about {
+    display: grid;
+    gap: clamp(2rem, 5vw, 5rem);
+  }
+
+  .about-main {
+    display: grid;
+    align-content: center;
+    gap: clamp(2rem, 4vw, 3rem);
+  }
+
+  /* ---------- Foto-Platzhalter ---------- */
+
+  .portrait-frame {
+    position: relative;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: 1.5rem;
+    min-height: clamp(20rem, 60vw, 38rem);
+    height: 100%;
+    /* unten Platz für den Sticker, damit er die Bildunterschrift nicht verdeckt */
+    padding: 2rem 2rem calc(var(--sticker-size) * 0.6 + 0.75rem);
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-panel);
+    background-color: var(--carbon);
+    background-image:
+      radial-gradient(60% 50% at 50% 46%, rgb(var(--space-rgb) / 0.55), transparent 100%),
+      radial-gradient(rgb(var(--bone-rgb) / 0.14) 1px, transparent 1.5px);
+    background-size:
+      100% 100%,
+      14px 14px;
+  }
+
+  .portrait {
+    --sticker-size: clamp(6.5rem, 4rem + 9vw, 10.5rem);
+    position: relative;
+  }
+
+  .portrait-frame :global(.portrait-owl) {
+    width: min(58%, 15rem);
+  }
+
+  .portrait-caption {
+    display: grid;
+    justify-items: center;
+    gap: 0.375rem;
+    color: var(--ash);
+    font-size: var(--fs-small);
+    text-align: center;
+  }
+
+  .portrait-caption .label-up {
+    color: var(--bone);
+  }
+
+  /* Der Sticker klebt über der unteren Kante der Karte: gut die Hälfte drauf, der Rest hängt über */
+  .portrait-sticker {
+    --sticker-tilt: 11deg;
+    position: absolute;
+    right: calc(var(--sticker-size) * -0.1);
+    bottom: calc(var(--sticker-size) * -0.4);
+  }
+
+  .portrait-corner {
+    position: absolute;
+    width: 1.125rem;
+    height: 1.125rem;
+    border: 1px solid var(--ash);
+  }
+
+  .portrait-corner-tl {
+    top: 1.25rem;
+    left: 1.25rem;
+    border-right: 0;
+    border-bottom: 0;
+  }
+
+  .portrait-corner-tr {
+    top: 1.25rem;
+    right: 1.25rem;
+    border-bottom: 0;
+    border-left: 0;
+  }
+
+  .portrait-corner-bl {
+    bottom: 1.25rem;
+    left: 1.25rem;
+    border-top: 0;
+    border-right: 0;
+  }
+
+  .portrait-corner-br {
+    right: 1.25rem;
+    bottom: 1.25rem;
+    border-top: 0;
+    border-left: 0;
+  }
+
+  /* ---------- Terminal ---------- */
+
+  .terminal {
+    overflow: hidden;
+    border: 1px solid var(--hairline);
+    border-radius: var(--r-card);
+    background-color: var(--pit);
+  }
+
+  .terminal-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--hairline);
+    background-color: var(--carbon);
+  }
+
+  .terminal-dots {
+    display: flex;
+    gap: 0.375rem;
+  }
+
+  .terminal-dots span {
+    width: 0.625rem;
+    height: 0.625rem;
+    border-radius: 50%;
+    background-color: var(--hairline);
+  }
+
+  .terminal-title {
+    color: var(--ash);
+    font-size: var(--fs-micro);
+  }
+
+  .terminal-body {
+    display: grid;
+    gap: 1.25rem;
+    padding: clamp(1.25rem, 1rem + 1.5vw, 2rem);
+    font-size: var(--fs-small);
+    line-height: 1.6;
+  }
+
+  .terminal-body dt {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    color: var(--ash);
+  }
+
+  .prompt {
+    color: var(--acid);
+  }
+
+  .terminal-body dd {
+    margin-top: 0.25rem;
+    padding-left: 1.25rem;
+    color: var(--bone);
+    overflow-wrap: anywhere;
+  }
+
+  .terminal-cursor {
+    width: 0.6em;
+    height: 1.15em;
+    background-color: var(--acid);
+    animation: cursor-blink 1.1s steps(1) infinite;
+  }
+
+  @keyframes cursor-blink {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  @media (min-width: 56rem) {
+    .about {
+      grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+      align-items: stretch;
+    }
+  }
+</style>

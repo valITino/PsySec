@@ -1,0 +1,509 @@
+---
+/**
+ * 0x08 Pakete: Treppe aus vier Stufen (wächst einmal beim Erscheinen) und die vier Pakete.
+ * Preise erscheinen nur in der Phase `launch`; in `survey` stehen sie nicht einmal im Quelltext.
+ */
+import Button from '@psyber/ui/components/Button.astro';
+import Icon from '@psyber/ui/components/Icon.astro';
+import Tag from '@psyber/ui/components/Tag.astro';
+import { isLaunch, prices, surveyUrl, type PackageId } from '../../config/site.ts';
+import SectionHead from '../SectionHead.astro';
+
+interface Paket {
+  id: PackageId;
+  name: string;
+  claim: string;
+  kind: string;
+  points: string[];
+  audience: string;
+  badge?: string;
+}
+
+const pakete: Paket[] = [
+  {
+    id: 'ping',
+    name: 'Ping',
+    claim: 'Mal schauen, ob Layer 8 antwortet.',
+    kind: 'Einmal-Paket',
+    points: [
+      '90 Minuten Session bei Ihnen zu Hause, zugeschnitten auf Ihre Geräte und Fragen',
+      'Quick-Check: Router-Passwort, Updates, Zwei-Faktor-Login für E-Mail und Bank',
+      'Notfallkarte für den Kühlschrank',
+    ],
+    audience: 'Für Familien, die einen Einstieg suchen.',
+  },
+  {
+    id: 'patch',
+    name: 'Patch',
+    claim: 'Updates für Router und Köpfe.',
+    kind: 'Einmal-Paket',
+    points: [
+      'Alles aus Ping',
+      'Router absichern, Gästenetz für smarte Geräte, DNS-Filter',
+      'Kinderprofile direkt auf den Geräten, Passwort-Manager, Backup',
+      'Mappe mit allen Einstellungen',
+    ],
+    audience: 'Für Familien mit Kindern und vielen Geräten.',
+  },
+  {
+    id: 'shield',
+    name: 'Shield',
+    claim: 'Ein zweites Bauchgefühl, jederzeit erreichbar.',
+    kind: 'Abo',
+    points: [
+      '«Ist das echt?»-Check per WhatsApp',
+      'Fernwartung nach dem PSYber-Handshake',
+      'jährlicher Check-up-Besuch',
+      'Infos zu neuen Maschen',
+    ],
+    audience: 'Für Familien, die eine feste Ansprechperson wollen.',
+  },
+  {
+    id: 'sentinel',
+    name: 'Sentinel',
+    claim: 'Wir halten Wache, Sie schlafen ruhig.',
+    kind: 'Abo',
+    points: [
+      'Alles aus Shield',
+      'Frühwarnsystem für Computer und Router',
+      'Haushalt der Grosseltern inklusive',
+      'Reaktion innert vereinbarter Zeit',
+    ],
+    audience: 'Für Mehrgenerationen-Familien.',
+    badge: 'In Vorbereitung',
+  },
+];
+
+const extras = [
+  {
+    name: 'LAN-Party',
+    icon: 'party-popper',
+    text: 'Eine Familie lädt zwei bis vier befreundete Familien oder die Grosseltern ein. Die Session findet im Wohnzimmer statt, die Kosten werden geteilt, das Setup gibt es beim Gastgeber.',
+  },
+  {
+    name: 'Talk',
+    icon: 'presentation',
+    text: 'Vorträge für Schulen, Elternvereine, Gemeinden und Firmen. Auch als Benefit für Mitarbeitende.',
+  },
+] as const;
+---
+
+<section data-lazy class="sheet" id="pakete" aria-labelledby="pakete-title">
+  <div class="wrap">
+    <SectionHead
+      num="0x08"
+      kicker="Pakete"
+      title="Vier Pakete, ein Upgrade-Pfad."
+      id="pakete-title"
+      layout="split"
+      lead="Jedes Paket baut auf dem vorherigen auf. Einmal-Pakete für den Einstieg, Abos für Schutz, der nicht mit dem Hausbesuch endet."
+    />
+
+    <ol class="pakete" data-stairs>
+      {pakete.map((paket, index) => (
+        <li class:list={['paket', `paket-${index + 1}`]}>
+          <div class="stair">
+            <div class="stair-fill">
+              <h3 class="stair-label">
+                <span class="stair-brand brand">PSYber</span>
+                <span class="stair-name">{paket.name}</span>
+              </h3>
+            </div>
+          </div>
+
+          <div class="paket-body">
+            <p class="paket-tags">
+              <Tag>{paket.kind}</Tag>
+              {paket.badge && <Tag tone="amber">{paket.badge}</Tag>}
+            </p>
+            <p class="paket-claim">«{paket.claim}»</p>
+            <ul class="paket-points">
+              {paket.points.map((point) => (
+                <li>
+                  <i class="dot" aria-hidden="true" />
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+            <p class="paket-audience">{paket.audience}</p>
+            {isLaunch && (
+              <p class="paket-price">
+                <strong>{prices[paket.id].amount}</strong>
+                <span>{prices[paket.id].unit}</span>
+              </p>
+            )}
+          </div>
+        </li>
+      ))}
+    </ol>
+
+    <div class="paket-notes">
+      <p class="paket-hint">
+        <Icon name="info" size={20} />
+        <span>Shield und Sentinel starten mit einem Patch-Setup.</span>
+      </p>
+      <p class="paket-honest">
+        Das Frühwarnsystem deckt Computer und Router ab. Handys schützen wir über
+        Geräte-Einstellungen und den DNS-Filter.
+      </p>
+    </div>
+
+    {isLaunch ? (
+      <div class="stage paket-cta">
+        <p>Welches Paket passt zu Ihrer Familie? Das klären wir im Kennenlern-Gespräch.</p>
+        <Button href="#kontakt" icon>
+          Session anfragen
+        </Button>
+      </div>
+    ) : (
+      <div class="stage paket-cta">
+        <p>Preise folgen nach der Pilotphase. Founding Families erhalten einen Vorzugspreis.</p>
+        <Button href={surveyUrl()} icon>
+          Founding Family werden
+        </Button>
+      </div>
+    )}
+
+    <div class="extras">
+      {extras.map((extra) => (
+        <article class="card card-pad extra">
+          <span class="extra-icon" aria-hidden="true">
+            <Icon name={extra.icon} size={24} />
+          </span>
+          <h3 class="display h3">
+            <span class="brand">PSYber</span> {extra.name}
+          </h3>
+          <p>{extra.text}</p>
+        </article>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .pakete {
+    display: grid;
+    gap: 2rem;
+    margin-top: clamp(2.5rem, 6vw, 5rem);
+  }
+
+  .paket {
+    display: grid;
+    align-content: start;
+  }
+
+  /* ---------- Treppe ---------- */
+
+  /* Mobile: liegende Stufen, die von oben nach unten breiter werden */
+  .stair {
+    --grow: 62%;
+    display: flex;
+    min-height: 5.5rem;
+  }
+
+  .paket-2 .stair {
+    --grow: 74%;
+  }
+
+  .paket-3 .stair {
+    --grow: 87%;
+  }
+
+  .paket-4 .stair {
+    --grow: 100%;
+  }
+
+  .stair-fill {
+    display: flex;
+    align-items: flex-end;
+    width: var(--grow);
+    padding: 0.875rem 1.25rem;
+    border-radius: var(--r-card) var(--r-card) 0 0;
+    background-color: var(--step);
+    color: var(--step-fg);
+    transform-origin: left bottom;
+  }
+
+  .paket-1 {
+    --step: var(--step-1);
+    --step-fg: var(--ink);
+  }
+
+  .paket-2 {
+    --step: var(--step-2);
+    --step-fg: var(--ink);
+  }
+
+  .paket-3 {
+    --step: var(--step-3);
+    --step-fg: var(--bone);
+  }
+
+  .paket-4 {
+    --step: var(--step-4);
+    --step-fg: var(--bone);
+  }
+
+  .stair-label {
+    display: grid;
+    gap: 0.25rem;
+    color: inherit;
+    letter-spacing: 0;
+    line-height: 1;
+  }
+
+  .stair-brand {
+    font-size: var(--fs-meta);
+    font-weight: 800;
+    letter-spacing: -0.04em;
+  }
+
+  .stair-name {
+    font-size: clamp(2rem, 1.5rem + 1.8vw, 2.875rem);
+    font-weight: var(--fw-display);
+    letter-spacing: var(--ls-display);
+    text-transform: uppercase;
+  }
+
+  /* Wächst einmal: stairs.ts setzt data-animated und danach .is-in */
+  .pakete[data-animated] .stair-fill {
+    transition: transform var(--dur-4) var(--ease);
+  }
+
+  .pakete[data-animated] .stair-label {
+    transition: opacity var(--dur-3) var(--ease) var(--dur-3);
+  }
+
+  .pakete[data-animated]:not(.is-in) .stair-fill {
+    transform: scaleX(0);
+  }
+
+  .pakete[data-animated]:not(.is-in) .stair-label {
+    opacity: 0;
+  }
+
+  .pakete[data-animated] .paket-2 .stair-fill {
+    transition-delay: 80ms;
+  }
+
+  .pakete[data-animated] .paket-3 .stair-fill {
+    transition-delay: 160ms;
+  }
+
+  .pakete[data-animated] .paket-4 .stair-fill {
+    transition-delay: 240ms;
+  }
+
+  /* ---------- Paket ---------- */
+
+  .paket-body {
+    display: grid;
+    align-content: start;
+    gap: 1rem;
+    padding: 1.375rem 1.25rem 1.625rem;
+    border: 1px solid var(--hairline);
+    border-top: 2px solid var(--step);
+    border-radius: 0 var(--r-card) var(--r-card) var(--r-card);
+    background-color: var(--carbon);
+  }
+
+  .paket-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+  }
+
+  .paket-claim {
+    color: var(--bone);
+    font-size: var(--fs-h4);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.25;
+  }
+
+  .paket-points {
+    display: grid;
+    gap: 0.75rem;
+    padding-top: 1.125rem;
+    border-top: 1px solid var(--hairline);
+    font-size: var(--fs-small);
+    line-height: 1.5;
+  }
+
+  .paket-points li {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .paket-points :global(.dot) {
+    margin-top: 0.5em;
+  }
+
+  .paket-audience {
+    color: var(--ash);
+    font-size: var(--fs-small);
+    line-height: 1.5;
+  }
+
+  .paket-price {
+    display: grid;
+    gap: 0.25rem;
+    padding-top: 1.125rem;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .paket-price strong {
+    font-size: 1.625rem;
+    font-weight: var(--fw-display);
+    letter-spacing: var(--ls-heading);
+    line-height: 1.1;
+  }
+
+  .paket-price span {
+    color: var(--ash);
+    font-size: var(--fs-micro);
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+  }
+
+  /* ---------- Hinweise ---------- */
+
+  .paket-notes {
+    display: grid;
+    gap: 0.75rem;
+    margin-top: 2.25rem;
+  }
+
+  .paket-hint {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.625rem;
+    font-weight: 600;
+  }
+
+  .paket-hint :global(.icon) {
+    flex: none;
+    margin-top: 0.2em;
+    color: var(--acid);
+  }
+
+  .paket-honest {
+    max-width: 44em;
+    color: var(--ash);
+    font-size: var(--fs-small);
+    line-height: 1.5;
+  }
+
+  .paket-cta {
+    display: grid;
+    justify-items: start;
+    gap: 1.5rem;
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding: clamp(1.5rem, 0.8rem + 3vw, 3.5rem);
+  }
+
+  .paket-cta p {
+    max-width: 22em;
+    color: var(--bone);
+    font-size: var(--fs-h3);
+    font-weight: 600;
+    letter-spacing: -0.03em;
+    line-height: 1.12;
+    text-wrap: balance;
+  }
+
+  /* ---------- Extras ---------- */
+
+  .extras {
+    display: grid;
+    gap: 1.5rem;
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .extra {
+    display: grid;
+    align-content: start;
+    gap: 1.125rem;
+  }
+
+  .extra p {
+    max-width: 34em;
+    color: var(--ash);
+  }
+
+  .extra-icon {
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border: 1px solid var(--steel);
+    border-radius: 50%;
+    color: var(--acid);
+  }
+
+  @media (min-width: 40rem) {
+    .extras {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .paket-cta {
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 2rem;
+    }
+  }
+
+  @media (min-width: 40rem) and (max-width: 63.99rem) {
+    .pakete {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2rem 1.5rem;
+    }
+  }
+
+  /* Desktop: stehende Treppe, vier Stufen nebeneinander, unten bündig */
+  @media (min-width: 64rem) {
+    .pakete {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-rows: auto 1fr;
+      gap: 0 1rem;
+    }
+
+    .paket {
+      grid-row: 1 / span 2;
+      grid-template-rows: subgrid;
+    }
+
+    .stair {
+      --grow: 42%;
+      align-items: flex-end;
+      height: 15rem;
+    }
+
+    .paket-2 .stair {
+      --grow: 61%;
+    }
+
+    .paket-3 .stair {
+      --grow: 80%;
+    }
+
+    .paket-4 .stair {
+      --grow: 100%;
+    }
+
+    .stair-fill {
+      width: 100%;
+      height: var(--grow);
+      transform-origin: center bottom;
+    }
+
+    .pakete[data-animated]:not(.is-in) .stair-fill {
+      transform: scaleY(0);
+    }
+
+    .paket-body {
+      border-radius: 0 0 var(--r-card) var(--r-card);
+    }
+  }
+</style>

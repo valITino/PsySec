@@ -1,0 +1,428 @@
+---
+/**
+ * Hero: zwei Fragen als riesige Headline, rechts der Globus «Layer 8», oben rechts die Statuszeilen.
+ * Darunter, im selben Abschnitt, die Bühne mit dem Klick-Simulator.
+ * Die Headline blendet zeilenweise hinter einer Maske ein (reines CSS, Stagger 80 ms).
+ * Verhalten (Globus, Uhrzeit, Scroll-Verlauf): src/scripts/hero.ts
+ */
+import Button from '@psyber/ui/components/Button.astro';
+import Kicker from '@psyber/ui/components/Kicker.astro';
+import { primaryCta } from '../../config/site.ts';
+import ClickSimulator from './ClickSimulator.astro';
+
+const cta = primaryCta(true);
+---
+
+<section class="hero" aria-labelledby="hero-title" data-hero>
+  <div class="hero-track" data-hero-track>
+    <div class="hero-pin">
+      <div class="hero-sky" aria-hidden="true"></div>
+
+      <div class="hero-globe" aria-hidden="true">
+        <span class="hero-orb"></span>
+        <canvas class="hero-canvas" data-globe></canvas>
+      </div>
+
+      <div class="wrap hero-inner">
+        <ul class="hero-hud" aria-hidden="true">
+          <li>
+            <span class="hud-strong">
+              Schweiz <span data-swiss-time>--:--</span>
+            </span>
+            <span class="hud-rule"></span>
+            <span class="hud-key">
+              <i class="dot dot-off"></i>offen
+            </span>
+            <span class="hud-key">
+              <i class="dot"></i>gepatcht
+            </span>
+          </li>
+          <li>
+            <span class="hud-key hud-strong">
+              <i class="dot"></i>Layer 8 · Patch-Stand <span data-hero-patch>012 %</span>
+            </span>
+          </li>
+          <li class="hud-hint">
+            <span class="hud-drag">Ziehen zum Drehen</span>
+            <span class="hud-scroll">Scrollen zum Patchen</span>
+          </li>
+        </ul>
+
+        <div class="hero-head">
+          <Kicker>Cyber-Prävention für Familien</Kicker>
+          <h1 id="hero-title" class="display hero-title">
+            <span class="q q1">
+              <span class="mask">
+                <span class="mask-line">Ein Klick zu viel?</span>
+              </span>
+            </span>{' '}
+            <span class="q q2">
+              <span class="mask">
+                <span class="mask-line">Ein Anruf zu</span>
+              </span>{' '}
+              <span class="mask">
+                <span class="mask-line">glaubwürdig?</span>
+              </span>
+            </span>
+          </h1>
+        </div>
+
+        <div class="hero-foot">
+          <p class="lead hero-lead">
+            Betrüger hacken keine Router, sondern Menschen. PSYber zeigt Ihrer Familie, wie
+            Manipulation funktioniert, und sichert Ihr Heimnetz gleich mit ab.
+          </p>
+          <div class="hero-actions">
+            <Button href={cta.href} icon>
+              {cta.label}
+            </Button>
+            <Button href="#ablauf" variant="secondary" icon="arrow-down-right">
+              So funktioniert’s
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap hero-demo">
+    <ClickSimulator />
+  </div>
+</section>
+
+<style>
+  .hero {
+    --hero-p: 0;
+    position: relative;
+    padding-bottom: calc(var(--section-y) * 0.75 + var(--r-sheet));
+    background-color: var(--void);
+  }
+
+  .hero-track {
+    position: relative;
+  }
+
+  .hero-pin {
+    position: relative;
+    display: grid;
+    min-height: 100svh;
+    overflow: clip;
+  }
+
+  /* Angepinnt (hero.ts): Der Hero bleibt eine Dreiviertel-Bildschirmhöhe lang stehen. */
+  .hero[data-pinned] .hero-track {
+    height: 175svh;
+  }
+
+  .hero[data-pinned] .hero-pin {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+  }
+
+  /* ---------- Himmel: violetter Schein und ein paar Sterne ---------- */
+
+  .hero-sky {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to bottom, rgb(var(--void-rgb) / 0) 70%, var(--void) 100%),
+      radial-gradient(
+        64% 60% at 76% 44%,
+        rgb(var(--space-rgb) / 0.42) 0%,
+        rgb(var(--space-rgb) / 0) 70%
+      );
+  }
+
+  /*
+   * Sterne: ein einziger Punkt mit vielen Schatten. Das ist für den Browser viel billiger als
+   * gekachelte Verläufe über die ganze Fläche.
+   */
+  .hero-sky::before {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1.5px;
+    height: 1.5px;
+    border-radius: 50%;
+    box-shadow:
+      7vw 18svh rgb(var(--bone-rgb) / 0.6),
+      21vw 9svh rgb(var(--bone-rgb) / 0.4),
+      33vw 27svh rgb(var(--bone-rgb) / 0.5),
+      44vw 12svh rgb(var(--nebula-rgb) / 0.8),
+      58vw 6svh rgb(var(--bone-rgb) / 0.45),
+      67vw 21svh rgb(var(--bone-rgb) / 0.35),
+      88vw 11svh rgb(var(--bone-rgb) / 0.55),
+      95vw 34svh rgb(var(--bone-rgb) / 0.4),
+      12vw 44svh rgb(var(--bone-rgb) / 0.35),
+      27vw 58svh rgb(var(--nebula-rgb) / 0.7),
+      39vw 71svh rgb(var(--bone-rgb) / 0.45),
+      52vw 49svh rgb(var(--bone-rgb) / 0.3),
+      63vw 83svh rgb(var(--bone-rgb) / 0.5),
+      79vw 64svh rgb(var(--bone-rgb) / 0.35),
+      91vw 77svh rgb(var(--bone-rgb) / 0.45),
+      4vw 81svh rgb(var(--bone-rgb) / 0.4),
+      18vw 92svh rgb(var(--bone-rgb) / 0.3),
+      47vw 90svh rgb(var(--nebula-rgb) / 0.6),
+      72vw 39svh rgb(var(--bone-rgb) / 0.3),
+      84vw 52svh rgb(var(--bone-rgb) / 0.5);
+    content: '';
+  }
+
+  /* ---------- Globus ---------- */
+
+  /* Mobile: nur die Kuppe ragt hinter der Headline hervor */
+  .hero-globe {
+    position: absolute;
+    top: 12svh;
+    left: 50%;
+    width: 150vw;
+    aspect-ratio: 1;
+    transform: translateX(-50%);
+  }
+
+  /* Die Kugel läuft nach unten ins Schwarz aus (ein Verlauf statt einer Maske: viel billiger) */
+  .hero-globe::after {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgb(var(--void-rgb) / 0) 22%, var(--void) 50%);
+    content: '';
+    pointer-events: none;
+  }
+
+  /* Die Kugel: Radius 44 % der Fläche, passend zu RADIUS in globe.ts */
+  .hero-orb {
+    position: absolute;
+    inset: 6%;
+    border-radius: 50%;
+    background:
+      radial-gradient(
+        circle at 68% 20%,
+        rgb(var(--nebula-rgb) / 0.36) 0%,
+        rgb(var(--nebula-rgb) / 0) 48%
+      ),
+      radial-gradient(
+        circle at 50% 50%,
+        var(--orb-core) 0%,
+        var(--orb-mid) 56%,
+        var(--orb-edge) 100%
+      );
+    box-shadow:
+      0 0 0 1px rgb(var(--nebula-rgb) / 0.55),
+      0 0 90px 0 rgb(var(--nebula-rgb) / 0.32),
+      inset 0 0 70px rgb(var(--nebula-rgb) / 0.2),
+      inset -3rem -4rem 7rem rgb(var(--void-rgb) / 0.8);
+  }
+
+  .hero-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    cursor: grab;
+    touch-action: pan-y;
+  }
+
+  .hero-canvas:global(.is-dragging) {
+    cursor: grabbing;
+  }
+
+  /* ---------- Inhalt ---------- */
+
+  .hero-inner {
+    position: relative;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: clamp(1.5rem, 3.5svh, 2.75rem);
+    min-height: 100svh;
+    padding-block: calc(var(--header-h) + 1rem) 2.5rem;
+    /* Der Globus dahinter bleibt ziehbar; Links und Text unten nehmen Klicks wieder an. */
+    pointer-events: none;
+  }
+
+  .hero-hud {
+    display: none;
+  }
+
+  .hero-head {
+    display: grid;
+    align-self: end;
+    gap: clamp(1rem, 2.5svh, 1.5rem);
+  }
+
+  /* Etwas mehr Zeilenabstand als sonst: «glaubwürdig» steht direkt unter der Zeile davor */
+  .hero-title {
+    font-size: clamp(2rem, 10.6vw, 4.5rem);
+    line-height: 0.98;
+  }
+
+  .q {
+    display: block;
+  }
+
+  /* Die erste Frage tritt mit dem Scrollen zurück (bleibt aber über 3:1 lesbar). */
+  .q1 {
+    opacity: calc(1 - var(--hero-p) * 0.56);
+  }
+
+  /* Maske: Zeile fährt von unten herein; Luft für Umlaute */
+  .mask {
+    display: block;
+    overflow: hidden;
+    margin-block: -0.12em;
+    padding-block: 0.12em;
+  }
+
+  .mask-line {
+    display: block;
+    animation: hero-line var(--dur-4) var(--ease) both;
+  }
+
+  .q2 .mask:nth-child(1) .mask-line {
+    animation-delay: 80ms;
+  }
+
+  .q2 .mask:nth-child(2) .mask-line {
+    animation-delay: 160ms;
+  }
+
+  @keyframes hero-line {
+    from {
+      transform: translateY(118%);
+    }
+  }
+
+  .hero-foot {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .hero-lead {
+    max-width: 24em;
+    pointer-events: auto;
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    pointer-events: auto;
+  }
+
+  /* ---------- Bühne mit dem Klick-Simulator ---------- */
+
+  .hero-demo {
+    position: relative;
+    margin-top: clamp(1rem, 4vw, 3rem);
+  }
+
+  @media (min-width: 64rem) {
+    .hero-globe {
+      top: 50%;
+      right: max(var(--gutter) - 1.5rem, (100vw - var(--container)) / 2 - 1.5rem);
+      left: auto;
+      width: min(46vw, 80svh, 46rem);
+      transform: translateY(-52%) scale(calc(1 + var(--hero-p) * 0.07));
+    }
+
+    .hero-globe::after {
+      content: none;
+    }
+
+    .hero-inner {
+      grid-template-rows: auto 1fr auto;
+      padding-bottom: clamp(5.5rem, 11svh, 6.5rem);
+    }
+
+    /* Statuszeilen oben rechts */
+    .hero-hud {
+      display: grid;
+      justify-items: end;
+      gap: 0.625rem;
+      color: var(--ash);
+      font-size: var(--fs-micro);
+      font-weight: 600;
+      letter-spacing: var(--ls-label);
+      line-height: 1.4;
+      text-transform: uppercase;
+    }
+
+    .hero-hud li {
+      display: flex;
+      align-items: center;
+      gap: 1.125rem;
+    }
+
+    .hud-strong {
+      color: var(--bone);
+    }
+
+    .hud-rule {
+      width: 1px;
+      height: 1rem;
+      background-color: var(--steel);
+    }
+
+    .hud-key {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .hero-hud [data-swiss-time],
+    .hero-hud [data-hero-patch] {
+      font-family: var(--ff-mono);
+      font-weight: 500;
+      letter-spacing: 0.02em;
+    }
+
+    .hud-key [data-hero-patch] {
+      min-width: 3.4em;
+      color: var(--acid);
+      text-align: right;
+    }
+
+    .hero-head {
+      align-self: center;
+    }
+
+    .hero-title {
+      font-size: clamp(4rem, 0.2rem + 6.2vw, 6.25rem);
+    }
+
+    /* Die zweite Frage steht eingerückt auf einer Zeile */
+    .q2 {
+      display: flex;
+      gap: 0.2em;
+      padding-left: 0.4em;
+      white-space: nowrap;
+    }
+
+    .hero-foot {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      align-items: end;
+      gap: clamp(1.5rem, 4vw, 4rem);
+    }
+  }
+
+  @media (min-width: 64rem) and (hover: none) {
+    .hud-drag {
+      display: none;
+    }
+  }
+
+  /* Reduzierte Bewegung: Nichts hängt am Scrollen, der Globus zeigt den Endzustand (hero.ts). */
+  @media (prefers-reduced-motion: reduce) {
+    .hud-scroll {
+      display: none;
+    }
+  }
+
+  /* Ohne Skripte gibt es weder Globus-Punkte noch Verlauf: die Statuszeile dazu entfällt. */
+  @media (scripting: none) {
+    .hero-hud li:not(:first-child) {
+      display: none;
+    }
+  }
+</style>

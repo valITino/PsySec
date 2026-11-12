@@ -1,0 +1,30 @@
+---
+/**
+ * Layout für Unterseiten (Checkliste, Impressum, Datenschutz, 404): Header, schmaler Inhalt, Footer.
+ */
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import Base from './Base.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  path: string;
+  noindex?: boolean;
+  ogImage?: string;
+  /** Name der Seite im Pfad «Startseite › …» (strukturierte Daten) */
+  crumb?: string;
+}
+
+const props = Astro.props;
+---
+
+<Base {...props}>
+  <Header slot="header" />
+  <slot />
+  <Footer slot="footer" />
+</Base>
+
+<script>
+  import '../scripts/page.ts';
+</script>

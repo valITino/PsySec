@@ -1,0 +1,124 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  ASTRO_TELEMETRY_DISABLED: 1
+  WRANGLER_SEND_METRICS: false
+
+jobs:
+  check:
+    name: Lint, Typecheck, Tests, Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: pnpm über corepack aktivieren
+        run: corepack enable
+
+      - name: pnpm-Store ermitteln
+        id: pnpm
+        run: echo "store=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v6
+        with:
+          path: ${{ steps.pnpm.outputs.store }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-${{ runner.os }}-
+
+      - name: Abhängigkeiten installieren (gefrorenes Lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit-Tests
+        run: pnpm test
+
+      # Baut alle Apps und zusätzlich web und forms mit Turnstile-Testkey (für die E2E-Tests).
+      - name: Build aller Apps
+        run: pnpm build
+
+      - name: JS-Budgets
+        run: pnpm budgets
+
+      # Startet die drei Sites lokal in der Workers-Laufzeit und prüft Security-Header,
+      # Weiterleitungen und 404. Braucht kein Cloudflare-Konto.
+      - name: Header und Weiterleitungen
+        run: pnpm check:headers
+
+      - name: Build-Ergebnis für die E2E-Tests sichern
+        uses: actions/upload-artifact@v7
+        with:
+          name: dist
+          path: |
+            apps/*/dist
+            apps/*/dist-turnstile
+          retention-days: 1
+          include-hidden-files: true
+
+  e2e:
+    name: Playwright-Smoke
+    needs: check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: pnpm über corepack aktivieren
+        run: corepack enable
+
+      - name: pnpm-Store ermitteln
+        id: pnpm
+        run: echo "store=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/cache@v6
+        with:
+          path: ${{ steps.pnpm.outputs.store }}
+          key: pnpm-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+          restore-keys: pnpm-${{ runner.os }}-
+
+      - name: Abhängigkeiten installieren (gefrorenes Lockfile)
+        run: pnpm install --frozen-lockfile
+
+      - name: Build-Ergebnis laden
+        uses: actions/download-artifact@v8
+        with:
+          name: dist
+          path: apps
+
+      - name: Chromium für Playwright installieren
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: E2E-Smoke-Tests
+        run: pnpm e2e
+
+      - name: Report sichern
+        if: failure()
+        uses: actions/upload-artifact@v7
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7

@@ -1,0 +1,31 @@
+---
+import '../styles/global.css';
+import BaseHead from '@psyber/ui/components/BaseHead.astro';
+import { absoluteUrl, basePath } from '../lib/site.ts';
+
+interface Props {
+  title: string;
+  description: string;
+  path?: string;
+}
+
+const { title, description, path = '/gewinn' } = Astro.props;
+---
+
+<!doctype html>
+<html lang="de-CH">
+  <head>
+    <BaseHead
+      title={title}
+      description={description}
+      canonical={absoluteUrl(path)}
+      noindex
+      base={basePath}
+    />
+    <meta name="referrer" content="no-referrer" />
+    <slot name="head" />
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

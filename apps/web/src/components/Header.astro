@@ -1,0 +1,453 @@
+---
+/**
+ * Header in zwei Zuständen:
+ *   oben:     Logo links, Navigation in der Mitte, CTA rechts (Mobile: Logo und «Menü»)
+ *   gescrollt: schwebende Kapsel in der Mitte mit Eule, CTA und rundem Menü-Knopf
+ * Das Vollbild-Menü hält den Fokus, Esc schliesst, die Beschriftung wechselt auf «Schliessen».
+ * Verhalten: src/scripts/header.ts
+ */
+import Button from '@psyber/ui/components/Button.astro';
+import Icon from '@psyber/ui/components/Icon.astro';
+import Logo from '@psyber/ui/components/Logo.astro';
+import Owl from '@psyber/ui/components/Owl.astro';
+import { contact, href, isTodo, nav, primaryCta, sites } from '../config/site.ts';
+
+interface Props {
+  /** Auf der Startseite sind die Navigationspunkte Ankerlinks ohne Seitenwechsel. */
+  home?: boolean;
+}
+
+const { home = false } = Astro.props;
+const cta = primaryCta(home);
+const link = (hash: string) => (home ? hash : href(`/${hash}`));
+---
+
+<header class:list={['site-header', { 'has-note': sites.preview }]} data-header>
+  <div class="bar">
+    <Logo href={href('/')} class="bar-logo" />
+
+    <nav class="bar-nav" aria-label="Hauptnavigation">
+      <ul>
+        {nav.map((item) => (
+          <li>
+            <a href={link(item.hash)}>{item.label}</a>
+          </li>
+        ))}
+      </ul>
+    </nav>
+
+    <div class="bar-actions">
+      <Button href={cta.href} size="sm" icon class="bar-cta">
+        {cta.label}
+      </Button>
+      <button
+        type="button"
+        class="menu-toggle"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+        data-menu-toggle
+      >
+        <span class="menu-toggle-label" data-menu-label>
+          Menü
+        </span>
+        <span class="menu-bars" aria-hidden="true">
+          <span></span>
+          <span></span>
+        </span>
+      </button>
+    </div>
+  </div>
+
+  {/* data-lenis-prevent: Das Menü scrollt selbst, auch wenn die Seite dahinter gesperrt ist. */}
+  <div class="menu" id="mobile-menu" data-menu data-lenis-prevent hidden>
+    <div class="menu-owl" aria-hidden="true">
+      <Owl mood="skeptisch" />
+    </div>
+    <div class="wrap menu-inner">
+      <nav class="menu-nav" aria-label="Menü">
+        <ul class="menu-links">
+          {nav.map((item, index) => (
+            <li>
+              <a href={link(item.hash)} data-menu-link>
+                <span class="hexnum" aria-hidden="true">
+                  0x0{index + 1}
+                </span>
+                <span class="menu-link-label">{item.label}</span>
+                <span class="orb" aria-hidden="true">
+                  <Icon name="arrow-right" size={20} />
+                </span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </nav>
+
+      <div class="menu-foot">
+        <Button href={cta.href} block icon data-menu-link>
+          {cta.label}
+        </Button>
+        <dl class="menu-contact">
+          <div>
+            <dt class="label-up">E-Mail</dt>
+            <dd>
+              {isTodo(contact.email) ? (
+                contact.email
+              ) : (
+                <a class="link" href={`mailto:${contact.email}`}>
+                  {contact.email}
+                </a>
+              )}
+            </dd>
+          </div>
+          <div>
+            <dt class="label-up">Telefon</dt>
+            <dd>
+              {isTodo(contact.phone) ? (
+                contact.phone
+              ) : (
+                <a class="link" href={`tel:${contact.phone.replace(/\s+/g, '')}`}>
+                  {contact.phone}
+                </a>
+              )}
+            </dd>
+          </div>
+        </dl>
+        <p class="kicker menu-note">
+          <span aria-hidden="true">// </span>Menü für Menschen. Bots lesen bitte die robots.txt.
+        </p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<style>
+  /*
+   * Fest am Bildschirm, Höhe 0: Der Header belegt keinen Platz, die Leiste schwebt über dem
+   * Inhalt. Bewusst nicht «sticky»: Beim Fokus auf ein Element der Leiste würde der Browser die
+   * Seite sonst verschieben (er will es aus dem scroll-padding herausholen, was nicht geht).
+   */
+  .site-header {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    z-index: 50;
+    height: 0;
+  }
+
+  /* In der Vorschau steht oben ein schmaler Hinweis: Die Leiste rückt darunter. */
+  .site-header.has-note {
+    top: 1.75rem;
+  }
+
+  .bar {
+    position: absolute;
+    top: 1rem;
+    left: 50%;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    width: min(100% - 2 * var(--gutter), var(--container));
+    min-height: 3.5rem;
+    border: 1px solid transparent;
+    border-radius: var(--r-pill);
+    transform: translateX(-50%);
+    transition:
+      opacity var(--dur-1) var(--ease),
+      transform var(--dur-1) var(--ease);
+  }
+
+  /* Kurzes Abtauchen, während die Leiste ihre Form wechselt */
+  .site-header:global(.is-morphing) .bar {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-0.5rem);
+  }
+
+  /* ---------- Navigation (nur Desktop, nur oben) ---------- */
+
+  .bar-nav {
+    position: absolute;
+    left: 50%;
+    display: none;
+    transform: translateX(-50%);
+  }
+
+  .bar-nav ul {
+    display: flex;
+    align-items: center;
+    gap: clamp(0.125rem, 0.8vw, 0.75rem);
+  }
+
+  .bar-nav a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding-inline: 0.875rem;
+    border-radius: var(--r-pill);
+    color: var(--bone);
+    font-size: var(--fs-meta);
+    font-weight: 600;
+    letter-spacing: var(--ls-label);
+    text-decoration: none;
+    text-transform: uppercase;
+    transition: color var(--dur-1) var(--ease);
+  }
+
+  .bar-nav a:hover {
+    color: var(--acid);
+  }
+
+  /* ---------- Aktionen ---------- */
+
+  .bar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Oben und schmal: Der CTA steht im Menü, in der Kapsel erscheint er wieder. */
+  .bar-actions :global(.bar-cta) {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    padding-inline: 1.125rem 1rem;
+    border: 1px solid rgb(var(--bone-rgb) / 0.42);
+    border-radius: var(--r-pill);
+    background-color: rgb(var(--void-rgb) / 0.5);
+    color: var(--bone);
+    font-size: var(--fs-meta);
+    font-weight: 600;
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+    transition:
+      border-color var(--dur-2) var(--ease),
+      background-color var(--dur-2) var(--ease);
+  }
+
+  .menu-toggle:hover {
+    border-color: var(--acid);
+  }
+
+  .menu-bars {
+    position: relative;
+    display: block;
+    width: 1rem;
+    height: 0.625rem;
+  }
+
+  .menu-bars span {
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 1.5px;
+    border-radius: 2px;
+    background-color: currentColor;
+    transition: transform var(--dur-2) var(--ease);
+  }
+
+  .menu-bars span:first-child {
+    top: 1px;
+  }
+
+  .menu-bars span:last-child {
+    bottom: 1px;
+  }
+
+  .menu-toggle[aria-expanded='true'] .menu-bars span:first-child {
+    transform: translateY(3.25px) rotate(45deg);
+  }
+
+  .menu-toggle[aria-expanded='true'] .menu-bars span:last-child {
+    transform: translateY(-3.25px) rotate(-45deg);
+  }
+
+  /* ---------- Kapsel (gescrollt) ---------- */
+
+  .site-header:global(.is-scrolled) .bar {
+    top: 0.75rem;
+    gap: 0.375rem;
+    width: max-content;
+    max-width: calc(100% - 2 * var(--gutter));
+    min-height: 0;
+    padding: 0.375rem;
+    border-color: var(--hairline);
+    background-color: rgb(var(--carbon-rgb) / 0.78);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(16px) saturate(1.4);
+  }
+
+  .site-header:global(.is-scrolled) .bar-nav {
+    display: none;
+  }
+
+  /* In der Kapsel bleibt vom Logo nur die Eule: Das Bild wird rechts abgeschnitten. */
+  .site-header:global(.is-scrolled) :global(.bar-logo) {
+    --logo-h: 2.25rem;
+    justify-content: flex-start;
+    width: calc(var(--logo-h) * 0.815);
+    margin-inline: 0.375rem 0.25rem;
+    overflow: hidden;
+  }
+
+  .site-header:global(.is-scrolled) .bar-actions {
+    gap: 0.375rem;
+  }
+
+  .site-header:global(.is-scrolled) .bar-actions :global(.bar-cta) {
+    display: inline-flex;
+  }
+
+  .site-header:global(.is-scrolled) .menu-toggle {
+    width: 2.75rem;
+    padding: 0;
+    border-color: var(--steel);
+  }
+
+  /* In der Kapsel trägt der runde Knopf nur das Symbol; der Name bleibt für Screenreader. */
+  .site-header:global(.is-scrolled) .menu-toggle-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* ---------- Vollbild-Menü ---------- */
+
+  .menu {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background-color: var(--void);
+    background-image:
+      radial-gradient(60rem 40rem at 100% 0%, rgb(var(--nebula-rgb) / 0.3), transparent 70%),
+      radial-gradient(40rem 30rem at 0% 100%, rgb(var(--space-rgb) / 0.5), transparent 70%);
+  }
+
+  /* Die Eule schaut im Menü zu (nur wo Platz ist) */
+  .menu-owl {
+    display: none;
+    position: absolute;
+    pointer-events: none;
+  }
+
+  .menu-inner {
+    position: relative;
+    display: flex;
+    min-height: 100%;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 2.5rem;
+    padding-block: calc(var(--header-h) + 1rem) 2rem;
+  }
+
+  .menu-links {
+    display: grid;
+    border-top: 1px solid var(--border);
+  }
+
+  .menu-links a {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.5rem;
+    padding-block: clamp(0.625rem, 1.6svh, 1.25rem);
+    border-bottom: 1px solid var(--border);
+    text-decoration: none;
+  }
+
+  .menu-link-label {
+    color: var(--bone);
+    font-size: clamp(2rem, 1rem + 5.4vw, 5rem);
+    font-weight: var(--fw-display);
+    letter-spacing: var(--ls-display);
+    line-height: 1;
+    text-transform: uppercase;
+    transition: color var(--dur-2) var(--ease);
+  }
+
+  @media (hover: hover) {
+    .menu-links a:hover .menu-link-label {
+      color: var(--acid);
+    }
+
+    .menu-links a:hover :global(.orb) {
+      border-color: var(--acid);
+      background-color: var(--acid);
+      color: var(--ink);
+    }
+  }
+
+  .menu-foot {
+    display: grid;
+    gap: 1.5rem;
+  }
+
+  .menu-contact {
+    display: grid;
+    gap: 0.75rem;
+    font-size: var(--fs-small);
+  }
+
+  .menu-contact div {
+    display: grid;
+    grid-template-columns: 5.5rem 1fr;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .menu-note {
+    text-wrap: balance;
+  }
+
+  @media (min-width: 64rem) {
+    .bar-nav {
+      display: block;
+    }
+
+    .bar-actions :global(.bar-cta) {
+      display: inline-flex;
+    }
+
+    /* Oben ist die Navigation sichtbar: Den Menü-Knopf braucht es erst in der Kapsel. */
+    .site-header:not(:global(.is-scrolled), :global(.is-open)) .menu-toggle {
+      display: none;
+    }
+
+    .menu-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 8fr) minmax(0, 4fr);
+      align-items: end;
+      gap: clamp(2rem, 5vw, 5rem);
+    }
+
+    .menu-nav {
+      align-self: center;
+    }
+
+    .menu-owl {
+      top: 14%;
+      right: max(var(--gutter), (100vw - var(--container)) / 2);
+      display: block;
+      width: min(19vw, 30svh, 17rem);
+    }
+  }
+
+  @media print {
+    .site-header {
+      display: none;
+    }
+  }
+</style>

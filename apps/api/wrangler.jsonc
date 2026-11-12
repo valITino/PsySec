@@ -1,0 +1,62 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "psyber-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-11-01",
+
+  // Nur über die eigene Domain erreichbar (siehe docs/DEPLOY.md).
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [{ "pattern": "api.psyber.tech", "custom_domain": true }],
+
+  // Eigene Meldungen ja, automatische Request-Logs nein: so landen weder IP-Adressen
+  // noch Header in den Logs. Request-Bodies loggt der Code nie.
+  // Traces sind ausdrücklich aus: Sie halten zu jeder Anfrage Angaben wie URL und User-Agent
+  // fest. So bleibt es dabei, auch wenn der Sammelschalter «enabled» sie einmal mit einschaltet.
+  "observability": {
+    "enabled": true,
+    "logs": { "enabled": true, "invocation_logs": false },
+    "traces": { "enabled": false }
+  },
+
+  // D1 mit EU-Jurisdiktion: wrangler d1 create psyber --jurisdiction=eu
+  // Die ID aus der Ausgabe des Befehls hier eintragen (ist kein Geheimnis).
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "psyber",
+      "database_id": "00000000-0000-0000-0000-000000000000",
+      "migrations_dir": "migrations"
+    }
+  ],
+
+  // Rate Limits pro Anschluss: Formulare 5 pro Minute, Zähler 30 pro Minute.
+  // Dazu ein Gesamtbudget für die Zähler (600 pro Minute, unabhängig von der Adresse): Es
+  // schützt Statistik und Schreibkontingent der Datenbank vor einer Flut aus vielen Adressen.
+  "ratelimits": [
+    { "name": "RL_FORMS", "namespace_id": "1001", "simple": { "limit": 5, "period": 60 } },
+    { "name": "RL_EVENTS", "namespace_id": "1002", "simple": { "limit": 30, "period": 60 } },
+    { "name": "RL_EVENTS_ALL", "namespace_id": "1003", "simple": { "limit": 600, "period": 60 } }
+  ],
+
+  // Benachrichtigung bei Kontaktanfragen (Email Routing muss aktiv sein).
+  // Ohne weitere Angabe darf das Binding nur an verifizierte Zieladressen des Kontos senden;
+  // der Absender ist zusätzlich auf die eigene Adresse beschränkt.
+  "send_email": [{ "name": "NOTIFY", "allowed_sender_addresses": ["hallo@psyber.tech"] }],
+
+  // Täglich um 03:17 UTC: Kontaktanfragen löschen, die älter als 180 Tage sind.
+  "triggers": { "crons": ["17 3 * * *"] },
+
+  // Im Dashboard gesetzte Variablen bleiben bei einem Deploy erhalten.
+  "keep_vars": true,
+  "vars": {
+    "ENVIRONMENT": "production",
+    // Absender der Benachrichtigung: eine Adresse der eigenen Domain.
+    "NOTIFY_FROM": "hallo@psyber.tech"
+  }
+
+  // Geheimnisse (nie ins Repo): wrangler secret put TURNSTILE_SECRET
+  //                             wrangler secret put NOTIFY_TO
+  // Optional als Variable: ALLOWED_ORIGINS (zusätzliche Origins, kommagetrennt)
+  //                       HSTS_PRELOAD=true (erst nach stabilem Betrieb, siehe docs/DEPLOY.md)
+}

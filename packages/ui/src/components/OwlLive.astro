@@ -1,0 +1,45 @@
+---
+/**
+ * «Der Blick»: die Eule aus den Ebenen des Logo-Kits. Die Pupillen liegen unter dem Körper und
+ * lassen sich darum bewegen; Brauen und Lupe verdecken sie wie Lider.
+ * Die Bewegung kommt von `initOwlEyes` (`@psyber/ui/motion/owl-eyes`): Die Eule schaut dem Zeiger
+ * nach. Ohne Skript und bei reduzierter Bewegung schaut sie geradeaus wie im Logo.
+ * Immer Dekoration; was sie bedeutet, steht im Text daneben.
+ */
+import body from '../brand/owl-layer-body.svg?raw';
+import iris from '../brand/owl-layer-iris.svg?raw';
+import led from '../brand/owl-layer-led.svg?raw';
+import pupils from '../brand/owl-layer-pupils.svg?raw';
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+
+/** Nur die Formen einer Ebene, ohne die <svg>-Hülle und den Titel. */
+const shapes = (source: string) =>
+  source
+    .replace(/^[\s\S]*?<svg[^>]*>/, '')
+    .replace(/<\/svg>\s*$/, '')
+    .replace(/<title>[^<]*<\/title>/, '');
+---
+
+<svg
+  class:list={['owl', 'owl-live', className]}
+  viewBox="38 -30 459.2 562"
+  width="459"
+  height="562"
+  aria-hidden="true"
+  focusable="false"
+  data-owl
+>
+  {/* Grund hinter den Augen in der Konturfarbe des Kits: So bleibt am Rand der Iris nichts frei,
+       egal auf welcher Fläche die Eule steht. */}
+  <circle cx="172" cy="274" r="66" fill="#140a29"></circle>
+  <circle cx="346" cy="276" r="56" fill="#140a29"></circle>
+  <g set:html={shapes(iris)} />
+  <g class="owl-pupils" data-owl-pupils set:html={shapes(pupils)} />
+  <g set:html={shapes(body)} />
+  <g class="owl-led" set:html={shapes(led)} />
+</svg>

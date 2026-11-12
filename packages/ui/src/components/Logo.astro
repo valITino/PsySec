@@ -1,0 +1,33 @@
+---
+/**
+ * Logo aus dem Logo-Kit: die Eule mit Lupe und die Wortmarke «PSYber» als ein Bild
+ * (für dunkle Flächen). `variant="owl"` zeigt nur die Eule.
+ * Als Link trägt der Link den Namen; das Bild ist dann Dekoration.
+ */
+import logoUrl from '../brand/logo-dark.svg?url';
+import owlUrl from '../brand/owl.svg?url';
+
+interface Props {
+  href?: string;
+  variant?: 'full' | 'owl';
+  class?: string;
+  /** Zugänglicher Name des Links */
+  label?: string;
+}
+
+const { href, variant = 'full', class: className, label = 'PSYber, zur Startseite' } = Astro.props;
+const Tag = href ? 'a' : 'span';
+// Seitenverhältnisse aus den viewBox-Angaben der Dateien
+const size = variant === 'owl' ? { width: 36, height: 44 } : { width: 127, height: 44 };
+---
+
+<Tag class:list={['logo', className]} href={href} aria-label={href ? label : undefined}>
+  <img
+    class="logo-img"
+    src={variant === 'owl' ? owlUrl : logoUrl}
+    width={size.width}
+    height={size.height}
+    alt={href ? '' : 'PSYber'}
+    decoding="async"
+  />
+</Tag>

@@ -1,0 +1,58 @@
+/*
+ * Bindet die Tokens in Tailwind ein. Die Standardpalette wird entfernt,
+ * damit nur Markenfarben als Utilities existieren.
+ */
+
+@theme inline {
+  --color-*: initial;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+  --color-void: var(--void);
+  --color-carbon: var(--carbon);
+  --color-graphite: var(--graphite);
+  --color-pit: var(--pit);
+  --color-hairline: var(--hairline);
+  --color-steel: var(--steel);
+  --color-ash: var(--ash);
+  --color-bone: var(--bone);
+  --color-white: var(--white);
+  --color-space: var(--space);
+  --color-space-deep: var(--space-deep);
+  --color-nebula: var(--nebula);
+  --color-haze: var(--haze);
+  --color-acid: var(--acid);
+  --color-acid-hi: var(--acid-hi);
+  --color-ink: var(--ink);
+  --color-amber: var(--amber);
+  --color-ok: var(--ok);
+  --color-warn: var(--warn);
+  --color-crit: var(--crit);
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-fg-strong: var(--fg-strong);
+  --color-fg-muted: var(--fg-muted);
+  --color-accent: var(--accent);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-surface-deep: var(--surface-deep);
+
+  --font-sans: var(--ff-sans);
+  --font-mono: var(--ff-mono);
+
+  --text-micro: var(--fs-micro);
+  --text-meta: var(--fs-meta);
+  --text-small: var(--fs-small);
+  --text-body: var(--fs-body);
+  --text-lead: var(--fs-lead);
+
+  --radius-card: var(--r-card);
+  --radius-panel: var(--r-panel);
+  --radius-btn: var(--r-btn);
+  --radius-pill: var(--r-pill);
+
+  --ease-brand: var(--ease);
+
+  --container-page: var(--container);
+}

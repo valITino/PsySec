@@ -1,0 +1,87 @@
+---
+/**
+ * Gemeinsamer <head> der drei Websites: Meta, Canonical, Open Graph, Favicons, Schrift-Preload,
+ * Angaben für Suchmaschinen. Das CSP-Meta-Tag ergänzt Astro selbst (security.csp).
+ */
+import { monoLatinUrl, sansLatinUrl } from '../lib/font.ts';
+import { serializeJsonLd, type JsonLdNode } from '../lib/structured-data.ts';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Absolute, kanonische Adresse der Seite */
+  canonical: string;
+  /** Absolute Adresse des OG-Bilds (1200×630) */
+  ogImage?: string;
+  ogImageAlt?: string;
+  noindex?: boolean;
+  /** Basis-Pfad der Site ohne Slash am Ende, z. B. '' oder '/PsySec/forms' */
+  base?: string;
+  /** Strukturierte Daten (schema.org); nur auf Seiten, die in den Index dürfen */
+  jsonLd?: JsonLdNode | undefined;
+  /** Bestätigungscodes der Search Console bzw. der Bing Webmaster Tools (öffentlich, optional) */
+  verification?: { google?: string | undefined; bing?: string | undefined } | undefined;
+}
+
+const {
+  title,
+  description,
+  canonical,
+  ogImage,
+  ogImageAlt = 'PSYber: Cyber-Prävention für Familien',
+  noindex = false,
+  base = '',
+  jsonLd,
+  verification,
+} = Astro.props;
+
+/*
+ * Seiten im Index erlauben grosse Bildvorschauen und Textauszüge in voller Länge (Googles
+ * Standard wäre nur eine kleine Bildvorschau). Seiten mit «noindex» bekommen weder Canonical
+ * noch og:url: Beides zusammen wären widersprüchliche Signale.
+ */
+const robots = noindex
+  ? 'noindex, nofollow'
+  : 'index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1';
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>{title}</title>
+<meta name="description" content={description} />
+{!noindex && <link rel="canonical" href={canonical} />}
+<meta name="robots" content={robots} />
+{verification?.google && <meta name="google-site-verification" content={verification.google} />}
+{verification?.bing && <meta name="msvalidate.01" content={verification.bing} />}
+<meta name="theme-color" content="#08080b" />
+<meta name="color-scheme" content="dark" />
+<meta name="format-detection" content="telephone=no, date=no, address=no, email=no" />
+
+<link rel="preload" href={sansLatinUrl} as="font" type="font/woff2" crossorigin />
+<link rel="preload" href={monoLatinUrl} as="font" type="font/woff2" crossorigin />
+
+{/* PNG zusätzlich: Die Google-Suche nimmt für ihr Favicon keine SVG-Dateien. */}
+<link rel="icon" href={`${base}/favicon.ico`} sizes="32x32" />
+<link rel="icon" href={`${base}/favicon.svg`} type="image/svg+xml" />
+<link rel="icon" href={`${base}/icon-192.png`} type="image/png" sizes="192x192" />
+<link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} />
+<link rel="manifest" href={`${base}/site.webmanifest`} />
+
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="PSYber" />
+<meta property="og:locale" content="de_CH" />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+{!noindex && <meta property="og:url" content={canonical} />}
+{ogImage && (
+  <>
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={ogImageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+  </>
+)}
+
+{/* Daten, kein Programm: Der Browser führt diesen Block nicht aus, die CSP betrifft ihn nicht. */}
+{jsonLd && !noindex && <script type="application/ld+json" set:html={serializeJsonLd(jsonLd)} />}

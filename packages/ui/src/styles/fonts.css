@@ -1,0 +1,101 @@
+/*
+ * Schriften, selbst gehostet über Fontsource (beide SIL Open Font License):
+ *   Manrope (Variable Font, wght 200–800): Überschriften und Fliesstext
+ *   Geist Mono (Variable Font, wght 100–900): Labels, Code, Terminal
+ * Die beiden Latin-Dateien werden vorgeladen (siehe Head-Komponente), Latin Extended lädt der
+ * Browser bei Bedarf.
+ */
+
+@font-face {
+  font-family: 'Manrope Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url('../../node_modules/@fontsource-variable/manrope/files/manrope-latin-wght-normal.woff2')
+    format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Manrope Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 200 800;
+  src: url('../../node_modules/@fontsource-variable/manrope/files/manrope-latin-ext-wght-normal.woff2')
+    format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Geist Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../../node_modules/@fontsource-variable/geist-mono/files/geist-mono-latin-wght-normal.woff2')
+    format('woff2');
+  unicode-range:
+    U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329,
+    U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Geist Mono Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('../../node_modules/@fontsource-variable/geist-mono/files/geist-mono-latin-ext-wght-normal.woff2')
+    format('woff2');
+  unicode-range:
+    U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F,
+    U+A720-A7FF;
+}
+
+/*
+ * Fallback mit angepassten Metriken, damit beim Schriftwechsel nichts springt.
+ * Manrope: 2000 upm, Ascent 2132, Descent 600. Gemessen mit fontkit an deutschem Beispieltext,
+ * je nach Verwendung des Schnitts:
+ *   bis 549: Fliesstext, rund 2 % breiter als Arial
+ *   550–649: Titel in normaler Schreibweise (600), rund 1 % schmaler als Arial Bold
+ *   ab 650:  Versalien (Überschriften 650, Buttons 700), rund 6,5 % schmaler als Arial Bold
+ */
+@font-face {
+  font-family: 'Manrope Fallback';
+  font-weight: 200 549;
+  src:
+    local('Arial'), local('ArialMT'), local('Liberation Sans'), local('Helvetica Neue'),
+    local('Roboto');
+  size-adjust: 102%;
+  ascent-override: 104.5%;
+  descent-override: 29.4%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Manrope Fallback';
+  font-weight: 550 649;
+  src:
+    local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'),
+    local('Helvetica Neue Bold'), local('Roboto Bold');
+  size-adjust: 99%;
+  ascent-override: 107.7%;
+  descent-override: 30.3%;
+  line-gap-override: 0%;
+}
+
+@font-face {
+  font-family: 'Manrope Fallback';
+  font-weight: 650 800;
+  src:
+    local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold'),
+    local('Helvetica Neue Bold'), local('Roboto Bold');
+  size-adjust: 93.5%;
+  ascent-override: 114%;
+  descent-override: 32.1%;
+  line-gap-override: 0%;
+}

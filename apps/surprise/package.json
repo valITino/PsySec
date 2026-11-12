@@ -1,0 +1,27 @@
+{
+  "name": "@psyber/surprise",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "surprise.psyber.tech: Auflösung des Phishing-Tests",
+  "scripts": {
+    "dev": "astro dev --port 4323",
+    "build": "astro build",
+    "preview": "astro preview --port 4323",
+    "typecheck": "astro check",
+    "cf:dev": "wrangler dev --port 8803",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@psyber/ui": "workspace:*",
+    "astro": "^7.4.10"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.12",
+    "@psyber/config": "workspace:*",
+    "@tailwindcss/vite": "^4.3.5",
+    "tailwindcss": "^4.3.5",
+    "typescript": "^6.0.3",
+    "wrangler": "^4.160.0"
+  }
+}

@@ -1,0 +1,282 @@
+---
+/**
+ * Footer als grosse Bühne: Spalten, Mono-Zeilen und die Wortmarke in voller Breite mit Cursor.
+ * Kein Cookie-Banner, weil keine Cookies gesetzt werden.
+ */
+import Logo from '@psyber/ui/components/Logo.astro';
+import wordmarkUrl from '@psyber/ui/brand/wordmark.svg?url';
+import { contact, href, isTodo, meta, surveyUrl } from '../config/site.ts';
+
+interface Props {
+  home?: boolean;
+}
+
+const { home = false } = Astro.props;
+const anchor = (hash: string) => (home ? hash : href(`/${hash}`));
+
+const columns = [
+  {
+    title: 'Angebot',
+    links: [
+      { label: 'Lösungen', href: anchor('#angebot') },
+      { label: 'Pakete', href: anchor('#pakete') },
+      { label: 'Ablauf', href: anchor('#ablauf') },
+    ],
+  },
+  {
+    title: 'PSYber',
+    links: [
+      { label: 'Maschen', href: anchor('#maschen') },
+      { label: 'Über', href: anchor('#ueber') },
+      { label: 'Umfrage', href: surveyUrl() },
+      { label: 'Checkliste', href: href('/checkliste') },
+      { label: 'Kontakt', href: anchor('#kontakt') },
+    ],
+  },
+  {
+    title: 'Rechtliches',
+    links: [
+      { label: 'Impressum', href: href('/impressum') },
+      { label: 'Datenschutz', href: href('/datenschutz') },
+    ],
+  },
+];
+---
+
+{/* Zurückgestellt wird nur auf der Startseite: Nur dort legt home.ts die Teile später aus. */}
+<footer class="site-footer" data-lazy={home ? '' : undefined}>
+  <div class="wrap">
+    <div class="stage footer-stage">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <Logo href={href('/')} />
+          <p class="footer-claim">{meta.slogan}</p>
+        </div>
+
+        <nav class="footer-nav" aria-label="Footer">
+          {columns.map((column) => (
+            <div>
+              <h2 class="label-up footer-title">{column.title}</h2>
+              <ul>
+                {column.links.map((item) => (
+                  <li>
+                    <a href={item.href}>{item.label}</a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+          <div>
+            <h2 class="label-up footer-title">Kontakt</h2>
+            <ul>
+              <li>
+                {isTodo(contact.email) ? (
+                  <span>{contact.email}</span>
+                ) : (
+                  <a href={`mailto:${contact.email}`}>{contact.email}</a>
+                )}
+              </li>
+              <li>
+                {isTodo(contact.phone) ? (
+                  <span>{contact.phone}</span>
+                ) : (
+                  <a href={`tel:${contact.phone.replace(/\s+/g, '')}`}>{contact.phone}</a>
+                )}
+              </li>
+              <li>
+                <span>{contact.region}</span>
+              </li>
+            </ul>
+          </div>
+        </nav>
+      </div>
+
+      <div class="footer-bottom mono">
+        <ul class="footer-lines">
+          <li>Kein Cookie-Banner. Weil wir keine Cookies setzen.</li>
+          <li>0 Tracking-Pixel, 0 Deepfakes, genau ein Nerd.</li>
+          <li>
+            Sicherheitslücke gefunden?{' '}
+            <a class="link" href={href('/.well-known/security.txt')}>
+              /.well-known/security.txt
+            </a>
+          </li>
+          <li>© 2026 PSYber</li>
+        </ul>
+      </div>
+
+      <div class="footer-word" aria-hidden="true">
+        <p class="kicker footer-word-kicker">
+          <span aria-hidden="true">// </span>
+          {meta.claim}
+        </p>
+        <p class="footer-word-row">
+          <img
+            class="footer-word-img"
+            src={wordmarkUrl}
+            width="993"
+            height="215"
+            alt=""
+            loading="lazy"
+            decoding="async"
+          />
+          <span class="footer-cursor"></span>
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    padding-block: clamp(1.25rem, 3vw, 2.5rem) 1.5rem;
+    background-color: var(--void);
+  }
+
+  .footer-stage {
+    overflow: hidden;
+    padding: clamp(1.5rem, 0.6rem + 3.6vw, 4.5rem);
+    padding-bottom: 0;
+    background-image:
+      radial-gradient(46rem 30rem at 100% 0%, rgb(var(--nebula-rgb) / 0.2), transparent 70%),
+      radial-gradient(50rem 26rem at 30% 100%, rgb(var(--space-rgb) / 0.55), transparent 70%);
+  }
+
+  .footer-top {
+    display: grid;
+    gap: 3rem;
+  }
+
+  .footer-brand {
+    display: grid;
+    gap: 1rem;
+    align-content: start;
+  }
+
+  .footer-claim {
+    max-width: 9em;
+    color: var(--bone);
+    font-size: var(--fs-h3);
+    font-weight: var(--fw-display);
+    letter-spacing: var(--ls-heading);
+    line-height: 1;
+    text-transform: uppercase;
+  }
+
+  .footer-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2.5rem 1.5rem;
+  }
+
+  /* Schmal: Die Kontaktspalte bekommt die ganze Breite (lange Adressen) */
+  .footer-nav > div:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .footer-title {
+    margin-bottom: 1rem;
+  }
+
+  .footer-nav ul {
+    display: grid;
+    gap: 0.125rem;
+  }
+
+  /* 5vw: Auf den schmalsten Handys passt so auch «Datenschutz» in eine der zwei Spalten. */
+  .footer-nav a,
+  .footer-nav span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.5rem;
+    color: var(--bone);
+    font-size: min(var(--fs-h4), 5vw);
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+    transition: color var(--dur-2) var(--ease);
+  }
+
+  .footer-nav a:hover {
+    color: var(--acid);
+  }
+
+  .footer-bottom {
+    margin-top: clamp(3rem, 6vw, 5rem);
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--hairline);
+    color: var(--ash);
+    font-size: var(--fs-micro);
+    letter-spacing: 0.02em;
+  }
+
+  .footer-lines {
+    display: grid;
+    gap: 0.5rem;
+  }
+
+  .footer-lines .link {
+    color: var(--bone);
+  }
+
+  /* Wortmarke in voller Breite, dahinter ein Cursor, der auf Eingabe wartet */
+  .footer-word {
+    display: grid;
+    gap: clamp(0.75rem, 2vw, 1.5rem);
+    margin-block: clamp(2.5rem, 6vw, 5rem) clamp(1.5rem, 3.6vw, 4.5rem);
+  }
+
+  .footer-word-row {
+    display: flex;
+    align-items: stretch;
+    gap: 2.4%;
+  }
+
+  .footer-word-img {
+    flex: none;
+    width: 85%;
+    height: auto;
+  }
+
+  .footer-cursor {
+    flex: none;
+    aspect-ratio: 0.58;
+    background-color: var(--acid);
+    box-shadow: 0 0 2.5rem rgb(var(--acid-rgb) / 0.4);
+    animation: footer-cursor 1.2s steps(1) infinite;
+  }
+
+  @keyframes footer-cursor {
+    50% {
+      opacity: 0;
+    }
+  }
+
+  /* Vier Spalten erst, wenn jede breit genug für ihr längstes Wort ist */
+  @media (min-width: 48rem) {
+    .footer-nav {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.5fr);
+    }
+
+    .footer-nav > div:last-child {
+      grid-column: auto;
+    }
+  }
+
+  /*
+   * Marke links, Spalten rechts: erst ab hier, und mit etwas mehr Platz für die Spalten. Darunter
+   * wären sie so schmal, dass «Datenschutz» mitten im Wort umbräche.
+   */
+  @media (min-width: 72rem) {
+    .footer-top {
+      grid-template-columns: minmax(0, 3.5fr) minmax(0, 8.5fr);
+    }
+  }
+
+  @media print {
+    .site-footer {
+      display: none;
+    }
+  }
+</style>

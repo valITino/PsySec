@@ -1,0 +1,144 @@
+/*
+ * Basis-Styles: Schrift, Fliesstext, Überschriften, Fokus, reduzierte Bewegung.
+ */
+
+@layer base {
+  html {
+    background-color: var(--void);
+    color: var(--bone);
+    font-family: var(--ff-sans);
+    line-height: 1.55;
+    letter-spacing: var(--ls-body);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-synthesis: none;
+    scroll-padding-top: calc(var(--header-h) + 0.5rem);
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html,
+  body {
+    /* Sicherheitsnetz gegen horizontales Scrollen, ohne Sticky zu brechen */
+    overflow-x: clip;
+  }
+
+  body {
+    min-height: 100svh;
+    background-color: var(--bg);
+    color: var(--fg);
+    font-size: var(--fs-body);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    color: var(--fg-strong);
+    font-weight: var(--fw-display);
+    letter-spacing: var(--ls-heading);
+    line-height: 1.04;
+    text-wrap: balance;
+  }
+
+  p,
+  li {
+    text-wrap: pretty;
+  }
+
+  strong,
+  b {
+    font-weight: 700;
+    color: var(--fg-strong);
+  }
+
+  code,
+  kbd,
+  samp,
+  pre {
+    font-family: var(--ff-mono);
+    font-size: 0.9em;
+    letter-spacing: 0;
+  }
+
+  a {
+    color: inherit;
+    text-decoration-thickness: 0.07em;
+    text-underline-offset: 0.2em;
+  }
+
+  ::selection {
+    background-color: var(--acid);
+    color: var(--ink);
+  }
+
+  /* Fokus-Ring: 3 px Acid mit 3 px Abstand, bei Tastaturbedienung immer sichtbar */
+  :focus-visible {
+    outline: 3px solid var(--focus);
+    outline-offset: 3px;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  summary {
+    cursor: pointer;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  button,
+  [role='button'],
+  label[for],
+  select {
+    cursor: pointer;
+  }
+
+  :disabled,
+  [aria-disabled='true'] {
+    cursor: not-allowed;
+  }
+
+  input[type='checkbox'],
+  input[type='radio'] {
+    accent-color: var(--acid);
+  }
+}
+
+/*
+ * Reduzierte Bewegung: alles sofort im Endzustand, keine Loops, kein sanftes Scrollen.
+ * Übergänge sind ganz aus (0s, nicht die verbreiteten 0.01ms): Auch ein winziger Übergang hält
+ * für ein bis zwei Bilder die alten Werte fest. Ändern sich dabei Schriftgrössen oder Abstände,
+ * steht das Layout kurz falsch, und ein Sprung zu einer Marke landet daneben.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0s !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Vom Menschen pausierte Bewegung (Schalter unten rechts bzw. am Ticker) */
+html[data-motion='off'] *,
+html[data-motion='off'] ::before,
+html[data-motion='off'] ::after {
+  animation-play-state: paused !important;
+}
+
+@media print {
+  html,
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+}

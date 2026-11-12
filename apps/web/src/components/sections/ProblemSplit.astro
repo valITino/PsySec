@@ -1,0 +1,289 @@
+---
+/**
+ * 0x01 Problem-Split: zwei Einfallstore, darunter das Zahlenband.
+ * Violetter Bogen direkt nach dem Hero. Die Linie zwischen Überschrift und Spalten zeigt die
+ * acht Schichten: Layer 8 (der Mensch) links, darunter die sieben technischen.
+ * Zahlen nur aus Abschnitt 5.17 des Auftrags, jeweils mit Quellenlink.
+ */
+import Icon from '@psyber/ui/components/Icon.astro';
+import Tag from '@psyber/ui/components/Tag.astro';
+import { sources } from '../../config/site.ts';
+import SectionHead from '../SectionHead.astro';
+
+const cards = [
+  {
+    layer: 'Layer 8 · Mensch',
+    icon: 'brain',
+    title: 'Sie werden manipuliert.',
+    text: 'Ein Anruf der «Polizei», eine Deepfake-Werbung, eine Online-Liebe, die plötzlich Geld braucht. Solche Angriffe zielen auf Gefühle, nicht auf Technik.',
+    tags: ['Online-Anlagebetrug', 'Phishing', 'Romance Scam', 'Cybermobbing', 'OpSec'],
+  },
+  {
+    layer: 'Layer 1–7 · Technik',
+    icon: 'router',
+    title: 'Ihr Netz steht offen.',
+    text: 'Standard-Passwort am Router, Kindergeräte ohne Schutz, kein Backup, und niemand weiss, welche Geräte eigentlich im WLAN hängen. Lücken, die im Alltag niemand bemerkt.',
+    tags: ['Heimnetz', 'Netzwerkverkehr', 'Kinderschutz', 'Passwörter', 'Backup'],
+  },
+] as const;
+
+const stats = [
+  {
+    display: '15,9 %',
+    to: 15.9,
+    decimals: 1,
+    suffix: ' %',
+    text: 'der Befragten wurden innert 12 Monaten Opfer von Betrug. 2022 waren es 8,4 %.',
+    source: sources.crimeSurvey,
+  },
+  {
+    display: '4,8×',
+    to: 4.8,
+    decimals: 1,
+    suffix: '×',
+    text: 'so viele Meldungen zu Werbung für Online-Anlagebetrug wie ein Jahr zuvor (1. Halbjahr 2025).',
+    source: { ...sources.bacsHalbjahr, label: 'BACS' },
+  },
+  {
+    display: '26 %',
+    to: 26,
+    decimals: 0,
+    suffix: ' %',
+    text: 'der Meldungen ans BACS betrafen 2025 Anrufe im Namen falscher Behörden.',
+    source: sources.bacsJahr,
+  },
+];
+---
+
+<section class="sheet sheet-space on-space problem" aria-labelledby="problem-title">
+  <div class="wrap">
+    <SectionHead
+      num="0x01"
+      kicker="Wo Familien angreifbar sind"
+      title="Zwei Einfallstore. Derselbe Schaden."
+      id="problem-title"
+      size="xl"
+    />
+
+    <div class="osi" aria-hidden="true">
+      <div class="osi-human">
+        <span class="osi-dot"></span>
+        <span class="osi-pill">Layer 8</span>
+      </div>
+      <ol class="osi-tech">
+        {[7, 6, 5, 4, 3, 2, 1].map((layer) => (
+          <li>{layer}</li>
+        ))}
+      </ol>
+    </div>
+
+    <div class="split">
+      {cards.map((card) => (
+        <article class="split-col">
+          <p class="label-up split-layer">
+            <Icon name={card.icon} size={16} />
+            {card.layer}
+          </p>
+          <h3 class="display split-title">{card.title}</h3>
+          <p class="split-text">{card.text}</p>
+          <ul class="split-tags" aria-label="Themen">
+            {card.tags.map((tag) => (
+              <Tag as="li">{tag}</Tag>
+            ))}
+          </ul>
+        </article>
+      ))}
+    </div>
+
+    <ul class="stats">
+      {stats.map((stat) => (
+        <li class="stat">
+          <p class="stat-body">
+            <span class="num stat-num">
+              <span class="sr-only">{stat.display}</span>
+              <span
+                aria-hidden="true"
+                data-count={stat.to}
+                data-decimals={stat.decimals}
+                data-suffix={stat.suffix}
+              >
+                {stat.display}
+              </span>
+            </span>
+            <span class="stat-text">{stat.text}</span>
+          </p>
+          <p class="kicker stat-source">
+            <span aria-hidden="true">// </span>Quelle:{' '}
+            <a class="link" href={stat.source.url} target="_blank" rel="noopener">
+              {stat.source.label}
+              <span class="sr-only"> (externer Link)</span>
+            </a>
+          </p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</section>
+
+<style>
+  /* ---------- Die acht Schichten als Linie ---------- */
+
+  .osi {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 9fr);
+    margin-top: clamp(2.5rem, 6vw, 5rem);
+    border-top: 1px solid var(--border-strong);
+    color: var(--fg-muted);
+    font-family: var(--ff-mono);
+    font-size: var(--fs-micro);
+    font-weight: 500;
+    letter-spacing: var(--ls-label);
+    text-transform: uppercase;
+  }
+
+  .osi-human {
+    position: relative;
+    height: 3.5rem;
+  }
+
+  .osi-dot {
+    position: absolute;
+    top: -0.5625rem;
+    left: 0;
+    width: 1.0625rem;
+    height: 1.0625rem;
+    border-radius: 50%;
+    background-color: var(--acid);
+    box-shadow: 0 0 18px rgb(var(--acid-rgb) / 0.7);
+  }
+
+  .osi-pill {
+    position: absolute;
+    top: 0.875rem;
+    left: 0;
+    padding: 0.125rem 0.625rem;
+    border: 1px solid var(--bone);
+    border-radius: var(--r-pill);
+    color: var(--bone);
+    white-space: nowrap;
+  }
+
+  .osi-tech {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+
+  .osi-tech li {
+    position: relative;
+    padding-top: 1.125rem;
+    text-align: right;
+  }
+
+  /* Marke auf der Linie */
+  .osi-tech li::before {
+    position: absolute;
+    top: 0;
+    right: 0.25em;
+    width: 1px;
+    height: 0.75rem;
+    background-color: var(--border-strong);
+    content: '';
+  }
+
+  /* ---------- Zwei Spalten ---------- */
+
+  .split {
+    display: grid;
+    gap: clamp(3rem, 8vw, 4rem);
+    margin-top: clamp(2rem, 4vw, 3.5rem);
+  }
+
+  .split-col {
+    display: grid;
+    align-content: start;
+    gap: 1.25rem;
+  }
+
+  .split-layer {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .split-title {
+    font-size: clamp(2rem, 1rem + 4vw, 4.25rem);
+    letter-spacing: var(--ls-display);
+    max-width: 9em;
+  }
+
+  .split-text {
+    max-width: 30em;
+    color: var(--fg-muted);
+    font-size: var(--fs-lead);
+    letter-spacing: -0.015em;
+    line-height: 1.36;
+  }
+
+  .split-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  /* ---------- Zahlenband ---------- */
+
+  .stats {
+    display: grid;
+    gap: 2.5rem;
+    margin-top: clamp(4rem, 9vw, 8rem);
+    padding-top: clamp(2rem, 4vw, 3rem);
+    border-top: 1px solid var(--border);
+  }
+
+  .stat {
+    display: grid;
+    align-content: start;
+    gap: 1.25rem;
+  }
+
+  .stat-body {
+    display: grid;
+    gap: 1.25rem;
+  }
+
+  .stat-num {
+    display: block;
+    white-space: nowrap;
+  }
+
+  .stat-text {
+    max-width: 22em;
+  }
+
+  .stat-source .link {
+    color: var(--fg-strong);
+  }
+
+  @media (min-width: 48rem) {
+    .split {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: clamp(2rem, 5vw, 5rem);
+    }
+
+    .osi {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      column-gap: clamp(2rem, 5vw, 5rem);
+    }
+
+    .stats {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: clamp(1.5rem, 4vw, 4rem);
+    }
+
+    .stat + .stat {
+      padding-left: clamp(1.5rem, 4vw, 4rem);
+      border-left: 1px solid var(--border);
+    }
+  }
+</style>

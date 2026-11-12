@@ -1,0 +1,963 @@
+/*
+ * Umfrage-Funnel: ruhig, schnell, auf dem Handy perfekt.
+ * Alle Klassen beginnen mit .sv-, damit nichts mit den gemeinsamen Bausteinen kollidiert.
+ */
+
+.sv {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100svh;
+}
+
+/* Deko: die Eule in einer leuchtenden Kugel, rechts angeschnitten */
+.sv-deco {
+  --sv-deco-size: 110vw;
+  position: fixed;
+  top: -22vw;
+  right: -38vw;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  width: var(--sv-deco-size);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle at 34% 24%,
+      rgb(var(--nebula-rgb) / 0.3) 0%,
+      rgb(var(--nebula-rgb) / 0) 46%
+    ),
+    radial-gradient(circle at 50% 50%, var(--orb-core) 0%, var(--orb-mid) 56%, var(--orb-edge) 100%);
+  box-shadow:
+    0 0 0 1px rgb(var(--nebula-rgb) / 0.45),
+    0 0 90px 0 rgb(var(--nebula-rgb) / 0.26),
+    inset 0 0 70px rgb(var(--nebula-rgb) / 0.18);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.sv-deco .owl {
+  width: 40%;
+  opacity: 0.55;
+  transition: opacity var(--dur-3) var(--ease);
+}
+
+/*
+ * Während der Fragen und danach tritt die Kugel zurück. Die Eule macht dem Inhalt Platz: Auf
+ * schmalen Bildschirmen verschwindet sie, auf breiten rückt sie neben die Fragenspalte.
+ */
+.sv-deco:has(~ * [data-screen='question']),
+.sv-deco:has(~ * [data-screen='done']) {
+  opacity: 0.22;
+}
+
+.sv-deco:has(~ * [data-screen='question']) .owl,
+.sv-deco:has(~ * [data-screen='done']) .owl {
+  opacity: 0;
+}
+
+@media (min-width: 64rem) {
+  .sv-deco {
+    --sv-deco-size: min(52vw, 46rem);
+    top: 50%;
+    right: -9vw;
+    opacity: 1;
+    transform: translateY(-50%);
+    transition:
+      right var(--dur-4) var(--ease),
+      opacity var(--dur-3) var(--ease);
+  }
+
+  .sv-deco .owl {
+    opacity: 1;
+  }
+
+  /*
+   * Die Fragenspalte ist 48rem breit und zentriert. Die Kugel steht so, dass die Eule (40 % der
+   * Kugel, in ihrer Mitte) 1.5rem rechts neben der Spalte beginnt.
+   */
+  .sv-deco:has(~ * [data-screen='question']),
+  .sv-deco:has(~ * [data-screen='done']) {
+    right: calc(50vw - 25.5rem - 0.7 * var(--sv-deco-size));
+  }
+
+  .sv-deco:has(~ * [data-screen='question']) .owl,
+  .sv-deco:has(~ * [data-screen='done']) .owl {
+    opacity: 1;
+  }
+}
+
+/* ---------- Kopf: Logo und Fortschritt ---------- */
+
+.sv-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: rgb(var(--void-rgb) / 0.82);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+}
+
+.sv-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: min(100% - 2 * var(--gutter), var(--container));
+  height: 4.5rem;
+  margin-inline: auto;
+}
+
+.sv-progress-text {
+  color: var(--bone);
+  font-size: var(--fs-micro);
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  letter-spacing: var(--ls-label);
+}
+
+.sv-progress {
+  display: block;
+  width: 100%;
+  height: 2px;
+  border: 0;
+  background-color: var(--hairline);
+  appearance: none;
+}
+
+.sv-progress::-webkit-progress-bar {
+  background-color: var(--hairline);
+}
+
+.sv-progress::-webkit-progress-value {
+  background-color: var(--acid);
+  transition: inline-size var(--dur-2) var(--ease);
+}
+
+.sv-progress::-moz-progress-bar {
+  background-color: var(--acid);
+}
+
+/* Die allgemeine Regel für reduzierte Bewegung erreicht dieses Pseudo-Element nicht. */
+@media (prefers-reduced-motion: reduce) {
+  .sv-progress::-webkit-progress-value {
+    transition: none;
+  }
+}
+
+/* ---------- Inhalt ---------- */
+
+.sv-main {
+  display: grid;
+  width: min(100% - 2 * var(--gutter), 48rem);
+  margin-inline: auto;
+  padding-block: clamp(1.5rem, 5vw, 3.5rem) 1rem;
+}
+
+.sv[data-screen='start'] .sv-main {
+  width: min(100% - 2 * var(--gutter), var(--container));
+  align-content: center;
+  padding-bottom: clamp(2rem, 8vw, 5rem);
+}
+
+.sv-h1 {
+  font-size: clamp(2.375rem, 1rem + 6.2vw, 6rem);
+}
+
+/* ---------- Start ---------- */
+
+.sv-start {
+  display: grid;
+  justify-items: start;
+  gap: 1.5rem;
+  max-width: 52rem;
+}
+
+/*
+ * Niedrige Fenster (Laptop mit 1366×768, Browser mit vielen Leisten): Die Überschrift richtet
+ * sich nach der Höhe, damit «Los geht’s» ohne Scrollen im Bild steht.
+ */
+@media (min-width: 64rem) and (max-height: 50rem) {
+  .sv[data-screen='start'] .sv-main {
+    padding-block: 1.75rem 1.5rem;
+  }
+
+  .sv[data-screen='start'] .sv-h1 {
+    font-size: clamp(2.75rem, 9.5svh, 6rem);
+  }
+
+  .sv-start {
+    gap: 1.125rem;
+  }
+}
+
+/* Handy im Querformat: dasselbe, noch kompakter */
+@media (max-height: 30rem) and (orientation: landscape) {
+  .sv[data-screen='start'] .sv-main {
+    padding-block: 1rem;
+  }
+
+  .sv[data-screen='start'] .sv-h1 {
+    font-size: clamp(1.75rem, 11svh, 3rem);
+  }
+
+  .sv-start {
+    gap: 0.875rem;
+  }
+
+  .sv-start-actions {
+    margin-top: 0;
+  }
+}
+
+.sv-start-text {
+  max-width: 28em;
+  color: var(--ash);
+}
+
+.sv-start-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.sv-start-button {
+  min-width: 12rem;
+  min-height: 3.75rem;
+  font-size: var(--fs-small);
+}
+
+.sv-enter {
+  display: none;
+  align-items: center;
+  gap: 0.375rem;
+  color: var(--ash);
+  font-size: var(--fs-micro);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.sv-enter .icon {
+  width: 0.875rem;
+  height: 0.875rem;
+}
+
+/* Der Tastatur-Hinweis ergibt nur mit echter Tastatur Sinn */
+@media (hover: hover) and (pointer: fine) {
+  .sv-enter {
+    display: inline-flex;
+  }
+}
+
+/* So funktioniert die Umfrage: ein Satz, damit das Weiterspringen niemanden überrascht */
+.sv-howto {
+  max-width: 40em;
+  color: var(--ash);
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
+
+.sv-howto-keys {
+  display: none;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sv-howto-keys {
+    display: inline;
+  }
+}
+
+/*
+ * Lädt das Skript der Umfrage nicht (Funkloch, blockierter Abruf), bleibt «Los geht’s» ohne
+ * Wirkung. Nach sechs Sekunden ohne Lebenszeichen erscheint darum ein Hinweis. Sobald die
+ * Umfrage bedienbar ist (data-ready), gibt es ihn nicht mehr. Er schwebt am unteren Rand und
+ * nimmt im Layout keinen Platz ein: So verschiebt sich nichts, wenn er wegfällt.
+ */
+.sv-stuck {
+  position: fixed;
+  right: var(--gutter);
+  bottom: max(1rem, env(safe-area-inset-bottom));
+  left: var(--gutter);
+  z-index: 20;
+  display: none;
+  max-width: 40em;
+  margin-inline: auto;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--amber);
+  border-radius: var(--r-input);
+  background-color: var(--carbon);
+  color: var(--bone);
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
+
+.sv:not([data-ready]) .sv-stuck {
+  display: block;
+  /* !important: Auch bei reduzierter Bewegung soll der Hinweis erst nach der Wartezeit kommen. */
+  animation: sv-stuck 1ms linear 6s both !important;
+}
+
+@keyframes sv-stuck {
+  from {
+    visibility: hidden;
+  }
+}
+
+.sv-privacy {
+  max-width: 40em;
+  color: var(--ash);
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
+
+.sv-privacy .link {
+  color: var(--bone);
+}
+
+/* ---------- Frage ---------- */
+
+.sv-stage {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 100%;
+}
+
+.sv-question {
+  display: grid;
+  flex: 1 0 auto;
+  align-content: start;
+  gap: 1rem;
+}
+
+/*
+ * Oben klebt der Kopf, unten die Leiste mit «Zurück» und «Weiter». Wer mit Tab oder den
+ * Pfeiltasten zu einer Antwort springt, soll sie nicht dahinter suchen müssen: Der Browser hält
+ * beim Hinscrollen diesen Abstand ein. (Bewusst an den Feldern und nicht als scroll-padding der
+ * Seite: Sonst würde jeder Fokus auf die klebenden Buttons die Seite verschieben.)
+ */
+.sv-question :is(input, textarea) {
+  scroll-margin-block: 6rem 9rem;
+}
+
+/* Frage und Titel bekommen den Fokus nur vom Skript (tabindex -1): kein Rahmen nötig. */
+.sv-question:focus,
+.sv-title:focus,
+.sv-h1:focus {
+  outline: none;
+}
+
+.sv-step {
+  color: var(--ash);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+}
+
+.sv-title {
+  color: var(--bone);
+  font-size: clamp(1.625rem, 1.1rem + 2.6vw, 2.75rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+}
+
+.sv-desc {
+  color: var(--ash);
+}
+
+.sv-keys {
+  display: none;
+  color: var(--ash);
+  font-size: var(--fs-micro);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sv-keys {
+    display: block;
+  }
+}
+
+/* Übergang 250 ms: Slide und Fade */
+.sv-enter-forward {
+  animation: sv-in-forward var(--dur-2) var(--ease) both;
+}
+
+.sv-enter-back {
+  animation: sv-in-back var(--dur-2) var(--ease) both;
+}
+
+@keyframes sv-in-forward {
+  from {
+    opacity: 0;
+    transform: translateY(1.25rem);
+  }
+}
+
+@keyframes sv-in-back {
+  from {
+    opacity: 0;
+    transform: translateY(-1.25rem);
+  }
+}
+
+/* ---------- Optionen (Einfach- und Mehrfachauswahl) ---------- */
+
+.sv-options {
+  display: grid;
+  gap: 0.625rem;
+  margin-top: 0.5rem;
+}
+
+.sv-option {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.875rem;
+  min-height: 3.75rem;
+  padding: 0.625rem 1rem;
+  border: 1px solid var(--steel);
+  border-radius: var(--r-input);
+  background-color: rgb(var(--carbon-rgb) / 0.86);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-1) var(--ease),
+    background-color var(--dur-1) var(--ease);
+}
+
+.sv-option input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.sv-key {
+  display: grid;
+  place-items: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  border: 1px solid var(--steel);
+  border-radius: var(--r-xs);
+  color: var(--ash);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-micro);
+  font-weight: 500;
+}
+
+.sv-option-label {
+  color: var(--bone);
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.sv-option-check {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border: 1px solid var(--steel);
+  border-radius: 50%;
+  color: transparent;
+  transition:
+    background-color var(--dur-1) var(--ease),
+    border-color var(--dur-1) var(--ease),
+    color var(--dur-1) var(--ease);
+}
+
+.sv-option-box {
+  border-radius: var(--r-xs);
+}
+
+.sv-option:has(input:checked) {
+  border-color: var(--acid);
+  background-color: rgb(var(--acid-rgb) / 0.09);
+}
+
+.sv-option:has(input:checked) .sv-key {
+  border-color: var(--acid);
+  background-color: var(--acid);
+  color: var(--ink);
+}
+
+.sv-option:has(input:checked) .sv-option-check {
+  border-color: var(--acid);
+  background-color: var(--acid);
+  color: var(--ink);
+}
+
+.sv-option:has(input:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+.sv-option.is-muted .sv-option-label {
+  color: var(--ash);
+}
+
+@media (hover: hover) {
+  .sv-option:hover {
+    border-color: var(--acid);
+  }
+}
+
+/* ---------- Skala: fünf grosse Kacheln ---------- */
+
+.sv-scale-wrap {
+  display: grid;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.sv-scale {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.sv-tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 4.25rem;
+  border: 1px solid var(--steel);
+  border-radius: var(--r-input);
+  background-color: rgb(var(--carbon-rgb) / 0.86);
+  cursor: pointer;
+  transition:
+    border-color var(--dur-1) var(--ease),
+    background-color var(--dur-1) var(--ease);
+}
+
+.sv-tile input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.sv-tile-num {
+  color: var(--bone);
+  font-size: 1.625rem;
+  font-weight: var(--fw-display);
+  letter-spacing: var(--ls-heading);
+  line-height: 1;
+}
+
+.sv-tile:has(input:checked) {
+  border-color: var(--acid);
+  background-color: var(--acid);
+  box-shadow: var(--glow-acid);
+}
+
+.sv-tile:has(input:checked) .sv-tile-num {
+  color: var(--ink);
+}
+
+.sv-tile:has(input:focus-visible) {
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
+}
+
+@media (hover: hover) {
+  .sv-tile:hover {
+    border-color: var(--acid);
+  }
+}
+
+.sv-scale-labels {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  color: var(--ash);
+  font-size: var(--fs-micro);
+}
+
+/* ---------- Matrix (Frage 6): Zeilen mit je fünf Kacheln ---------- */
+
+.sv-matrix {
+  display: grid;
+  gap: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.sv-row {
+  display: grid;
+  gap: 0.625rem;
+  padding: 0.875rem;
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-card);
+  background-color: rgb(var(--carbon-rgb) / 0.7);
+  transition: border-color var(--dur-1) var(--ease);
+}
+
+.sv-row-label {
+  color: var(--bone);
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.sv-row .sv-tile {
+  min-height: 3rem;
+  border-radius: 12px;
+}
+
+.sv-row .sv-tile-num {
+  font-size: 1.1875rem;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  /* Zeile, auf die die Zifferntasten wirken */
+  .sv-row.is-active {
+    border-color: var(--steel);
+  }
+}
+
+@media (min-width: 44rem) {
+  .sv-row {
+    grid-template-columns: minmax(0, 1fr) 17.5rem;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.625rem 0.625rem 0.625rem 1.125rem;
+  }
+}
+
+/* ---------- Beträge (Frage 11) ---------- */
+
+.sv-vw {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.sv-vw .label {
+  font-size: var(--fs-body);
+  font-weight: 500;
+}
+
+.sv-money {
+  position: relative;
+  width: min(100%, 14rem);
+}
+
+.sv-money-prefix {
+  position: absolute;
+  top: 50%;
+  left: 1rem;
+  color: var(--ash);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-micro);
+  letter-spacing: var(--ls-label);
+  pointer-events: none;
+  transform: translateY(-50%);
+}
+
+.sv-money .input {
+  padding-left: 3.5rem;
+  font-size: 1.125rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* ---------- Freitext und Warteliste ---------- */
+
+.sv-textarea {
+  min-height: 9rem;
+}
+
+.sv-count-chars {
+  color: var(--ash);
+  font-size: var(--fs-micro);
+  text-align: right;
+}
+
+.sv-waitlist {
+  display: grid;
+  gap: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.sv-waitlist .check.is-disabled {
+  color: var(--ash);
+}
+
+.sv-note {
+  color: var(--ash);
+  font-size: var(--fs-small);
+  line-height: 1.5;
+}
+
+/* ---------- Hinweise und Navigation ---------- */
+
+/*
+ * Die Leiste klebt am unteren Bildrand, auf allen Breiten mit Grund: Ist eine Frage höher als
+ * der Bildschirm, laufen die Antworten sauber darunter durch. Hinweise stehen in der Leiste
+ * direkt über den Buttons und sind so nie ausser Sicht.
+ */
+.sv-foot {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  padding-block: 0.875rem calc(0.875rem + env(safe-area-inset-bottom));
+}
+
+/* Der Grund reicht über die ganze Bildschirmbreite, der Inhalt bleibt in der Spalte. */
+.sv-foot::before {
+  position: absolute;
+  inset-block: 0;
+  left: 50%;
+  z-index: -1;
+  width: 100vw;
+  border-top: 1px solid var(--hairline);
+  background-color: rgb(var(--void-rgb) / 0.9);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  content: '';
+  transform: translateX(-50%);
+}
+
+/* Leer nimmt der Bereich keinen Platz ein; als Live-Region bleibt er trotzdem im Dokument. */
+.sv-messages {
+  display: grid;
+}
+
+.sv-messages > * {
+  margin-bottom: 0.75rem;
+}
+
+.sv-send-error {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  padding: 0.875rem 1rem;
+  border: 1.5px solid var(--crit);
+  border-radius: var(--r-input);
+  background-color: color-mix(in srgb, var(--crit) 12%, transparent);
+  color: var(--bone);
+  line-height: 1.45;
+}
+
+.sv-send-error .icon {
+  flex: none;
+  margin-top: 0.15em;
+  color: var(--crit);
+}
+
+/* «Zurück» und «Weiter» bleiben immer sichtbar */
+.sv-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.sv-next {
+  flex: 1;
+}
+
+.sv-turnstile:empty {
+  display: none;
+}
+
+/*
+ * Sehr schmale Handys: «Zurück» zeigt nur den Pfeil, damit «Überspringen» ganz Platz hat.
+ * Der Text bleibt für Screenreader erhalten.
+ */
+@media (max-width: 23.99rem) {
+  .sv-back {
+    flex: none;
+    width: 3.25rem;
+    padding-inline: 0;
+  }
+
+  .sv-back span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+@media (min-width: 44rem) {
+  .sv-next {
+    flex: none;
+    min-width: 11rem;
+  }
+}
+
+/* ---------- Danke ---------- */
+
+.sv-done {
+  display: grid;
+  gap: clamp(2rem, 5vw, 3rem);
+  padding-bottom: 2rem;
+}
+
+.sv-done .sv-h1 {
+  font-size: clamp(2.125rem, 1.1rem + 4.4vw, 4.25rem);
+  outline-offset: 6px;
+}
+
+.sv-block {
+  display: grid;
+  gap: 1rem;
+}
+
+/* Titel der Blöcke als Label */
+.sv-block-title {
+  color: var(--ash);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  letter-spacing: var(--ls-label);
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+.sv-tips {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.sv-tip {
+  display: grid;
+  gap: 0.375rem;
+  padding: 1.125rem 1.25rem;
+  border: 1px solid var(--hairline);
+  border-left: 2px solid var(--acid);
+  border-radius: var(--r-input);
+  background-color: var(--carbon);
+}
+
+.sv-tip p:last-child {
+  color: var(--ash);
+}
+
+.sv-tip-title {
+  color: var(--bone);
+  font-size: var(--fs-h4);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.sv-downloads {
+  display: grid;
+  gap: 0.75rem;
+}
+
+/* Beide Links sind bewusst gleich gestaltet */
+.sv-download {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1rem;
+  min-height: 4.5rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--steel);
+  border-radius: var(--r-card);
+  background-color: var(--carbon);
+  color: var(--bone);
+  font-weight: 600;
+  line-height: 1.35;
+  text-decoration: none;
+  transition:
+    border-color var(--dur-2) var(--ease),
+    transform var(--dur-2) var(--ease);
+}
+
+.sv-download .icon {
+  color: var(--acid);
+  transition: transform var(--dur-2) var(--ease);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .sv-download:hover {
+    border-color: var(--acid);
+    transform: translateY(-2px);
+  }
+
+  .sv-download:hover .icon-shift {
+    transform: translateX(4px);
+  }
+}
+
+.sv-share {
+  justify-items: start;
+  padding-top: 2rem;
+  border-top: 1px solid var(--hairline);
+}
+
+.sv-share-feedback {
+  min-height: 1.5em;
+  color: var(--ash);
+  font-size: var(--fs-small);
+  overflow-wrap: anywhere;
+}
+
+/* ---------- Fuss ---------- */
+
+.sv-footer {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 1rem var(--gutter) 1.25rem;
+  font-size: var(--fs-micro);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+}
+
+.sv-footer a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  color: var(--ash);
+  text-decoration: none;
+  transition: color var(--dur-2) var(--ease);
+}
+
+.sv-footer a:hover {
+  color: var(--acid);
+}
+
+.sv[data-screen='question'] .sv-footer {
+  padding-block: 0 0.5rem;
+}
+
+/* ---------- Vorschau und kein JavaScript ---------- */
+
+.sv-preview {
+  position: relative;
+  z-index: 11;
+  padding: 0.4rem var(--gutter);
+  background-color: var(--amber);
+  color: var(--ink);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-micro);
+  font-weight: 600;
+  text-align: center;
+}
+
+.sv-noscript {
+  position: relative;
+  z-index: 11;
+  margin: 1rem auto 0;
+  width: min(100% - 2 * var(--gutter), 44rem);
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--amber);
+  border-radius: var(--r-input);
+  background-color: var(--carbon);
+}
