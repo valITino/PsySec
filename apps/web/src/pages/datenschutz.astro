@@ -6,7 +6,7 @@ import Page from '../layouts/Page.astro';
 
 <Page
   title="Datenschutzerklärung – PSYber"
-  description="Welche Daten PSYber bearbeitet, wozu, wo sie liegen und wann sie gelöscht werden. Kurz gesagt: so wenig wie möglich, keine Cookies, kein Tracking."
+  description="Welche Daten PSYber bearbeitet, wozu, wo sie liegen und wann sie gelöscht werden. Kurz gesagt: so wenig wie möglich, keine Cookies, keine Profile."
   path="/datenschutz"
   crumb="Datenschutzerklärung"
 >
@@ -19,7 +19,10 @@ import Page from '../layouts/Page.astro';
 
     <h2>Das Wichtigste in Kürze</h2>
     <ul>
-      <li>Wir setzen keine Cookies und nutzen kein Tracking.</li>
+      <li>
+        Wir setzen keine Cookies und verfolgen niemanden. Wir zählen nur anonyme Tagessummen, zum
+        Beispiel wie oft eine Seite aufgerufen wurde.
+      </li>
       <li>
         Schriften und Skripte laden wir von unseren eigenen Adressen. Einzige Ausnahme ist der
         Spam-Schutz der Formulare (siehe unten).
@@ -81,10 +84,38 @@ import Page from '../layouts/Page.astro';
 
     <h3>Anonyme Zähler</h3>
     <p>
-      Wir zählen, wie oft die Umfrage gestartet und abgeschlossen wurde und wie oft die beiden Links
-      am Ende der Umfrage geöffnet wurden. Gespeichert werden nur Tagessummen, beim Test-Link
-      zusätzlich nach der Selbsteinschätzung (1 bis 5) aufgeteilt. Es gibt keine Zuordnung zu
-      Personen und keine IP-Adressen.
+      Wir möchten wissen, ob unsere Seiten gefunden werden, ohne jemanden zu beobachten. Darum
+      zählen wir selbst, über unsere eigene Adresse und ohne Dienste Dritter. Gespeichert werden nur
+      Summen pro Tag:
+    </p>
+    <ul>
+      <li>wie oft eine Seite aufgerufen wurde;</li>
+      <li>
+        auf welchem Weg jemand zu uns kam: über einen gekennzeichneten Link (zum Beispiel «Flyer»),
+        eine Suchmaschine, ein soziales Netzwerk, eine andere Website oder direkt. Die Adresse der
+        Seite, von der Sie kommen, verlässt Ihren Browser dabei nicht; übermittelt wird nur diese
+        Art;
+      </li>
+      <li>wie oft die wichtigsten Knöpfe angeklickt wurden;</li>
+      <li>
+        wie oft die Umfrage gestartet und abgeschlossen wurde und bis zu welcher Frage sie
+        ausgefüllt wurde (nicht, was geantwortet wurde);
+      </li>
+      <li>
+        wie oft die beiden Links am Ende der Umfrage geöffnet wurden, beim Test-Link zusätzlich nach
+        der Selbsteinschätzung (1 bis 5) aufgeteilt;
+      </li>
+      <li>wie viele Kontaktanfragen eingegangen sind.</li>
+    </ul>
+    <p>
+      Dabei gibt es keine Cookies, keine Kennung und keine Zuordnung zu Personen, und wir speichern
+      keine IP-Adressen. Wir können weder erkennen, ob jemand wiederkommt, noch, welche Seiten
+      dieselbe Person angesehen hat. Den Typ Ihres Browsers lesen wir nur, um automatische Abrufe
+      auszusortieren; gespeichert wird er nicht.
+    </p>
+    <p>
+      Seitenaufrufe, Herkunft und Klicks zählen wir gar nicht, wenn Ihr Browser «Global Privacy
+      Control» oder «Do Not Track» sendet.
     </p>
 
     <h3>Zwischenspeicher im Browser</h3>
@@ -109,8 +140,8 @@ import Page from '../layouts/Page.astro';
     <p>
       Nach der Umfrage zeigen wir zwei Links. Einer davon ist eine Sensibilisierungsübung, wie sie
       in Sicherheitsschulungen üblich ist: Er führt auf unsere eigene Seite surprise.psyber.tech,
-      die den Test sofort auflöst. Dort wird nichts abgefragt und nichts gespeichert ausser dem
-      anonymen Zähler oben.
+      die den Test sofort auflöst. Dort wird nichts abgefragt und nichts gespeichert ausser den
+      anonymen Zählern oben.
     </p>
 
     <h2>Spam-Schutz mit Turnstile</h2>
@@ -153,10 +184,11 @@ import Page from '../layouts/Page.astro';
       den Eidgenössischen Datenschutz- und Öffentlichkeitsbeauftragten (EDÖB) zu wenden.
     </p>
 
-    <h2>Keine Cookies, kein Tracking</h2>
+    <h2>Keine Cookies, keine Profile</h2>
     <p>
-      Wir setzen keine Cookies, verwenden keine Analyse-Werkzeuge und binden keine Inhalte von
-      sozialen Netzwerken ein. Darum sehen Sie bei uns auch keinen Cookie-Banner.
+      Wir setzen keine Cookies, verwenden keine Analyse-Dienste Dritter und binden keine Inhalte von
+      sozialen Netzwerken ein. Was wir selbst zählen, steht oben unter «Anonyme Zähler». Darum sehen
+      Sie bei uns auch keinen Cookie-Banner.
     </p>
 
     <h2>Änderungen</h2>

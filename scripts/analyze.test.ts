@@ -7,6 +7,7 @@ import {
   crossing,
   parseExport,
   priceBands,
+  reachSummary,
   scale,
   vanWestendorp,
   type ExportData,
@@ -20,6 +21,7 @@ import {
   fmtDay,
   fmtInt,
   fmtPct,
+  niceCeil,
   renderReport,
 } from './analyze/report.ts';
 
@@ -79,6 +81,7 @@ describe('parseExport', () => {
     expect(data.responses).toHaveLength(1);
     expect(data.counters[0]).toEqual({
       event: 'bait_click',
+      dim: '',
       s_bucket: 4,
       day: '2026-12-01',
       count: 2,
@@ -264,6 +267,132 @@ describe('Zähler', () => {
     expect(summary.bySelfAssessment[1]).toEqual({ s: 2, completed: 4, clicks: 3, rate: 0.75 });
     expect(summary.bySelfAssessment[4]?.rate).toBeCloseTo(1 / 6);
     expect(summary.bySelfAssessment[0]).toEqual({ s: 1, completed: 0, clicks: 0, rate: null });
+  });
+});
+
+describe('Reichweite', () => {
+  const counter = (event: string, dim: string, day: string, count: number) => ({
+    event,
+    dim,
+    s_bucket: 0,
+    day,
+    count,
+  });
+
+  it('liest die zweite Dimension aus dem Export und kommt mit alten Exporten zurecht', () => {
+    const data = parseExport({
+      exportedDay: '2026-12-21',
+      responses: [],
+      counters: [
+        { event: 'page_view', dim: 'home', s_bucket: 0, day: '2026-12-01', count: 3 },
+        { event: 'survey_started', s_bucket: 0, day: '2026-12-01', count: 1 },
+      ],
+      waitlist: {},
+    });
+    expect(data.counters.map((row) => row.dim)).toEqual(['home', '']);
+  });
+
+  it('summiert Aufrufe je Seite, Einstiege je Herkunft und je Seite, Klicks je Knopf', () => {
+    const reach = reachSummary([
+      counter('page_view', 'home', '2026-12-01', 10),
+      counter('page_view', 'home', '2026-12-02', 5),
+      counter('page_view', 'umfrage', '2026-12-02', 8),
+      counter('visit', 'home:suche', '2026-12-01', 4),
+      counter('visit', 'umfrage:flyer', '2026-12-02', 6),
+      counter('visit', 'umfrage:suche', '2026-12-02', 1),
+      counter('cta_click', 'hero_cta', '2026-12-02', 7),
+      counter('cta_click', 'neu_und_unbekannt', '2026-12-02', 2),
+      counter('contact_sent', '', '2026-12-02', 3),
+      // Zähler der Umfrage gehören nicht zur Reichweite.
+      counter('survey_started', '', '2026-12-02', 9),
+    ]);
+    expect(reach).toMatchObject({ views: 23, visits: 11, clicks: 9, contacts: 3 });
+    expect(reach.pages).toEqual([
+      { key: 'home', label: 'Startseite', count: 15 },
+      { key: 'umfrage', label: 'Umfrage', count: 8 },
+    ]);
+    expect(reach.sources).toEqual([
+      { key: 'flyer', label: 'Flyer', count: 6 },
+      { key: 'suche', label: 'Suchmaschine', count: 5 },
+    ]);
+    expect(reach.landings).toEqual([
+      { key: 'umfrage', label: 'Umfrage', count: 7 },
+      { key: 'home', label: 'Startseite', count: 4 },
+    ]);
+    // Ein Schlüssel ohne Namen erscheint unter seinem Schlüssel, statt zu verschwinden.
+    expect(reach.targets).toEqual([
+      { key: 'hero_cta', label: 'Einstieg: Hauptknopf', count: 7 },
+      { key: 'neu_und_unbekannt', label: 'neu_und_unbekannt', count: 2 },
+    ]);
+  });
+
+  it('füllt Tage ohne Aufruf mit null, damit der Verlauf ehrlich bleibt', () => {
+    const reach = reachSummary([
+      counter('page_view', 'home', '2026-12-30', 4),
+      counter('visit', 'home:direkt', '2026-12-30', 2),
+      counter('page_view', 'home', '2027-01-02', 1),
+    ]);
+    expect(reach.days).toEqual([
+      { day: '2026-12-30', views: 4, visits: 2 },
+      { day: '2026-12-31', views: 0, visits: 0 },
+      { day: '2027-01-01', views: 0, visits: 0 },
+      { day: '2027-01-02', views: 1, visits: 0 },
+    ]);
+  });
+
+  it('zeigt jede Frage der Umfrage in ihrer Reihenfolge, mit dem Anteil an Frage 1', () => {
+    const reach = reachSummary([
+      counter('survey_step', 'q1', '2026-12-01', 40),
+      counter('survey_step', 'q2', '2026-12-01', 30),
+      counter('survey_step', 'q2', '2026-12-02', 6),
+      counter('survey_step', 'q16', '2026-12-02', 10),
+    ]);
+    expect(reach.steps).toHaveLength(16);
+    expect(reach.steps[0]).toEqual({ key: 'q1', label: 'Frage 1', count: 40, share: 1 });
+    expect(reach.steps[1]).toEqual({ key: 'q2', label: 'Frage 2', count: 36, share: 0.9 });
+    expect(reach.steps[2]).toEqual({ key: 'q3', label: 'Frage 3', count: 0, share: 0 });
+    expect(reach.steps[15]?.share).toBe(0.25);
+  });
+
+  it('bleibt ohne Zähler leer, ohne zu stolpern', () => {
+    const reach = reachSummary([]);
+    expect(reach).toMatchObject({ views: 0, visits: 0, clicks: 0, contacts: 0, days: [] });
+    expect(reach.steps.every((entry) => entry.count === 0 && entry.share === null)).toBe(true);
+  });
+
+  it('wählt runde Obergrenzen für die Achse', () => {
+    expect([0, 1, 2, 3, 7, 12, 48, 137, 900].map(niceCeil)).toEqual([
+      1, 1, 2, 5, 10, 20, 50, 200, 1000,
+    ]);
+  });
+
+  it('zeigt im Bericht Verlauf, Listen und zu jedem Diagramm eine Tabelle', () => {
+    const html = renderReport(analyze(demoExport()), new Date('2026-12-21T10:00:00Z'));
+    expect(html).toContain('Reichweite der Websites');
+    for (const title of [
+      'Seitenaufrufe je Tag',
+      'Seitenaufrufe je Seite',
+      'Einstiege nach Herkunft',
+      'Einstiege je Seite',
+      'Klicks auf die Haupt-Knöpfe',
+      'Umfrage: bis zu welcher Frage',
+    ]) {
+      expect(html).toContain(`<h3>${title}</h3>`);
+    }
+    // Der Verlauf ist beschriftet und hat je Tag eine Trefferfläche mit Tooltip.
+    expect(html).toMatch(
+      /<svg viewBox="0 0 720 240" role="img" aria-label="Seitenaufrufe je Tag vom/,
+    );
+    expect((html.match(/class="hit"[^>]*data-tip="\d{2}\.\d{2}\.\d{4}: /g) ?? []).length).toBe(21);
+    // Die Einschränkung der Zählung steht dabei.
+    expect(html).toContain('Die Zahlen sind darum eine Untergrenze.');
+  });
+
+  it('sagt es, solange noch nichts gezählt ist', () => {
+    const html = renderReport(analyze(exportOf([])), new Date('2026-12-21T10:00:00Z'));
+    expect(html).toContain('Reichweite der Websites');
+    expect(html).toContain('Noch nichts gezählt.');
+    expect(html).not.toContain('Seitenaufrufe je Seite');
   });
 });
 

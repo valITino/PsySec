@@ -4,19 +4,20 @@ Neue Session? Zuerst `CLAUDE.md` lesen, dann diese Datei. Der Auftrag steht in `
 
 ## Stand je Phase
 
-| Phase | Inhalt                                          | Stand                     |
-| ----- | ----------------------------------------------- | ------------------------- |
-| 0     | Fundament, Tooling, `packages/ui`, Styleguide   | fertig                    |
-| 1     | psyber.tech (One-Pager und Unterseiten)         | fertig                    |
-| 2     | API (Cloudflare Worker)                         | fertig                    |
-| 3     | forms.psyber.tech (Umfrage)                     | fertig                    |
-| 4     | surprise.psyber.tech («Erwischt!»)              | fertig                    |
-| 5     | Härtung, E2E, DEPLOY.md                         | fertig                    |
-| 6     | Extras (Auswertung, Easter Eggs)                | fertig                    |
-| R     | Redesign (neuer Look, Logo-Kit, Slogan)         | fertig                    |
-| G     | Gesamt-Review (alles prüfen, vereinheitlichen)  | fertig                    |
-| S     | Sichtbarkeit in Suchmaschinen (SEO, robots.txt) | fertig                    |
-| T     | Tracking und Analysen                           | offen: Entscheidung nötig |
+| Phase | Inhalt                                          | Stand                 |
+| ----- | ----------------------------------------------- | --------------------- |
+| 0     | Fundament, Tooling, `packages/ui`, Styleguide   | fertig                |
+| 1     | psyber.tech (One-Pager und Unterseiten)         | fertig                |
+| 2     | API (Cloudflare Worker)                         | fertig                |
+| 3     | forms.psyber.tech (Umfrage)                     | fertig                |
+| 4     | surprise.psyber.tech («Erwischt!»)              | fertig                |
+| 5     | Härtung, E2E, DEPLOY.md                         | fertig                |
+| 6     | Extras (Auswertung, Easter Eggs)                | fertig                |
+| R     | Redesign (neuer Look, Logo-Kit, Slogan)         | fertig                |
+| G     | Gesamt-Review (alles prüfen, vereinheitlichen)  | fertig                |
+| S     | Sichtbarkeit in Suchmaschinen (SEO, robots.txt) | fertig                |
+| T     | Zählung der Reichweite (anonyme Tagessummen)    | fertig                |
+| I     | Inhalte in «Über» (Name, Rolle, CAS, Porträt)   | Motivation fehlt noch |
 
 ## Phase 0: Fundament (fertig)
 
@@ -147,6 +148,22 @@ Grundlage: die aktuellen Dokumente von Google Search Central, OpenAI, Anthropic 
 - **Stand der Prüfkette:** 141 Unit-Tests, 278 E2E-Tests (46 übersprungen), 230 Header-Prüfungen, Lighthouse mobil 100 in allen Kategorien auf psyber.tech, der Checkliste und der Umfrage (surprise SEO 66, weil die Seite `noindex` trägt).
 
 **Offen (nächster Meilenstein): Tracking.** Noch nicht begonnen. Es berührt die Regeln «kein Tracking, keine Cookies» aus dem Auftrag, die Datenschutzerklärung, den Cookie-Hinweis und die CSP; vor dem Einbau braucht es Ihre Entscheidung für eine Variante.
+
+## Inhalte in «Über» (Motivation fehlt noch)
+
+Aus dem Lebenslauf des Inhabers, soweit freigegeben (Entscheidungen 162 und 163): Name, die neutrale Rolle «Cybersecurity-Spezialist», das abgeschlossene CAS und vorübergehend das Bild aus dem Lebenslauf als freigestelltes Porträt. Arbeitgeber und private Kontaktdaten stehen bewusst nicht da. Offen: die Motivation (`warum.txt`), ein grösseres Foto, Kontaktdaten und die Adresse fürs Impressum (`docs/TODO.md`).
+
+## Zählung der Reichweite (fertig)
+
+Variante A, vom Inhaber gewählt: eigene anonyme Tagessummen statt eines Analysedienstes (Entscheidungen 164 bis 170).
+
+- **Was:** Seitenaufrufe je Seite, Einstiege je Herkunft, Klicks auf die Haupt-Knöpfe, die erreichte Frage der Umfrage, Zahl der Kontaktanfragen.
+- **Wie:** `packages/ui/src/lib/track.ts` meldet sich über Attribute am `<html>`-Element an; Knöpfe tragen `data-track`. Die API nimmt nur Werte aus festen Listen an (`packages/survey/src/questions.ts`) und speichert Tagessummen in `counters` (neue Spalte `dim`, Migration 0002).
+- **Was nicht:** keine Cookies, kein Speicher im Browser, keine Kennung, keine IP-Adressen, kein Dritter. Mit «Global Privacy Control» oder «Do Not Track», in ferngesteuerten Browsern und in der Vorschau wird nichts gezählt.
+- **Auswertung:** `pnpm analyze` zeigt am Schluss den Abschnitt «Reichweite der Websites».
+- **Texte:** Datenschutzerklärung nachgeführt (Abschnitt «Anonyme Zähler»).
+- **Tests:** `e2e/tracking.spec.ts` (Einstieg, Herkunft, Klicks, Umfrage, Signale, keine Cookies), dazu Unit-Tests für Schema, API, Herkunft und Bericht.
+- **Stand der Prüfkette:** 162 Unit-Tests, 312 E2E-Tests (46 übersprungen), 230 Header-Prüfungen, Lighthouse mobil 100 in allen Kategorien auf psyber.tech, der Checkliste und der Umfrage (surprise SEO 66, weil die Seite `noindex` trägt), JS gzip web 64,1 KB, forms 36,2 KB, surprise 1,7 KB.
 
 ## Abschluss
 

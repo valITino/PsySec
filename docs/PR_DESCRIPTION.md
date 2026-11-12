@@ -1,5 +1,7 @@
 # PSYber Web-Plattform: psyber.tech, forms.psyber.tech, surprise.psyber.tech und API
 
+> Beschreibung des ersten Pull Requests, Stand beim Merge am 12. November 2026. Was danach kam (Inhalte in «Über», Zählung der Reichweite), steht in [`PROGRESS.md`](PROGRESS.md); die Bilder unten zeigen den jeweils aktuellen Stand.
+
 Komplette Umsetzung des Auftrags (`docs/BRIEF.md`) in sieben Phasen, danach das Redesign: neuer Look nach der Referenz eezyinn.de (selbst gebaut), Logo-Kit mit der Eule, Slogan «Betrüger hassen diesen Blick.». Deployt wurde nichts, im Repo liegen keine Secrets.
 
 ## Was drin ist
@@ -41,7 +43,7 @@ Komplette Umsetzung des Auftrags (`docs/BRIEF.md`) in sieben Phasen, danach das 
 | --------------------------------------------------------- | ------------------------------------------------- | ----------------------------------------------- |
 | ![Klick-Simulator](screenshots/web-simulator-desktop.jpg) | ![Drehbuch](screenshots/web-drehbuch-desktop.jpg) | ![Maschen](screenshots/web-maschen-desktop.jpg) |
 
-| 0x08 Pakete (Phase `survey`, ohne Preise)     | 0x09 Über (Platzhalter mit Eule)           | Footer                                        |
+| 0x08 Pakete (Phase `survey`, ohne Preise)     | 0x09 Über                                  | Footer                                        |
 | --------------------------------------------- | ------------------------------------------ | --------------------------------------------- |
 | ![Pakete](screenshots/web-pakete-desktop.jpg) | ![Über](screenshots/web-ueber-desktop.jpg) | ![Footer](screenshots/web-footer-desktop.jpg) |
 

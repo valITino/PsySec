@@ -181,6 +181,8 @@ export function demoExport(seed = 20261111, n = 184): ExportData {
     });
   }
 
+  counters.push(...demoReach(n));
+
   return {
     exportedDay: '2026-12-21',
     responses,
@@ -188,4 +190,71 @@ export function demoExport(seed = 20261111, n = 184): ExportData {
     waitlist: { total: 31, founding: 9 },
     demo: true,
   };
+}
+
+/**
+ * Erfundene Reichweite über drei Wochen: unter der Woche mehr als am Wochenende, ein Ausschlag
+ * nach einem Vortrag, in der Umfrage springen von Frage zu Frage einige ab.
+ */
+function demoReach(n: number): CounterRow[] {
+  const rows: CounterRow[] = [];
+  const add = (event: string, dim: string, day: string, count: number) => {
+    if (count > 0) rows.push({ event, dim, s_bucket: 0, day, count });
+  };
+  const pages: [string, number][] = [
+    ['home', 0.46],
+    ['umfrage', 0.31],
+    ['checkliste', 0.12],
+    ['erwischt', 0.06],
+    ['datenschutz', 0.03],
+    ['impressum', 0.015],
+    ['notfound', 0.005],
+  ];
+  const sources: [string, string, number][] = [
+    ['home', 'suche', 0.17],
+    ['home', 'direkt', 0.14],
+    ['umfrage', 'website', 0.16],
+    ['umfrage', 'whatsapp', 0.12],
+    ['umfrage', 'flyer', 0.1],
+    ['umfrage', 'instagram', 0.09],
+    ['home', 'social', 0.07],
+    ['umfrage', 'vortrag', 0.06],
+    ['umfrage', 'empfehlung', 0.05],
+    ['home', 'verweis', 0.03],
+    ['checkliste', 'suche', 0.01],
+  ];
+  for (let index = 0; index < 21; index++) {
+    const date = new Date(Date.UTC(2026, 11, 1 + index));
+    const day = date.toISOString().slice(0, 10);
+    const weekend = date.getUTCDay() === 0 || date.getUTCDay() === 6;
+    const wave = 60 + 22 * Math.sin(index / 2.4) + index * 2.5;
+    const views = Math.round((weekend ? 0.62 : 1) * wave * (index === 9 ? 2.1 : 1));
+    for (const [page, share] of pages) add('page_view', page, day, Math.round(views * share));
+    const visits = Math.round(views * 0.44);
+    for (const [page, source, share] of sources) {
+      add('visit', `${page}:${source}`, day, Math.round(visits * share));
+    }
+  }
+  const clicks: [string, number][] = [
+    ['hero_cta', 148],
+    ['schritt_cta', 96],
+    ['hero_mehr', 74],
+    ['header_cta', 61],
+    ['pakete_cta', 43],
+    ['checkliste_drucken', 38],
+    ['menu_cta', 27],
+    ['erwischt_code', 19],
+    ['footer_umfrage', 12],
+    ['erwischt_kontakt', 6],
+  ];
+  for (const [target, count] of clicks) add('cta_click', target, '2026-12-21', count);
+  // Von Frage zu Frage bleiben etwas weniger; Frage 5 und 9 sehen nur manche (Sprunglogik).
+  let reached = Math.round(n * 1.55);
+  for (let question = 1; question <= 16; question++) {
+    const seen = question === 5 || question === 9 ? Math.round(reached * 0.6) : reached;
+    add('survey_step', `q${question}`, '2026-12-21', seen);
+    reached = Math.max(n, Math.round(reached * (question < 4 ? 0.93 : 0.975)));
+  }
+  add('contact_sent', '', '2026-12-21', 7);
+  return rows;
 }

@@ -11,7 +11,8 @@ apps/web          psyber.tech            Astro, One-Pager + /checkliste /impress
 apps/forms        forms.psyber.tech      Astro + Preact-Island, Umfrage-Funnel
 apps/surprise     surprise.psyber.tech   Astro, Auflösung des Phishing-Tests («Erwischt!»), keine Eingabefelder
 apps/api          api.psyber.tech        Cloudflare Worker (Hono, D1, Turnstile, Rate Limiting, send_email, Cron)
-packages/ui       Tokens, Schrift, Logo-Kit (Eule, Wortmarke, Sticker), Buttons, Karten, Motion-Helfer
+packages/ui       Tokens, Schrift, Logo-Kit (Eule, Wortmarke, Sticker), Buttons, Karten, Motion-Helfer,
+                  anonyme Zählung (lib/track.ts)
 packages/survey   Fragen als Daten, Zod-Schemas, Sprunglogik, Tipps (von Client und API genutzt)
 packages/config   tsconfig-/ESLint-Basis, CSP- und Header-Helfer
 scripts/          OG-Bilder/Favicons, Budget-, Header- und Lighthouse-Prüfung, GitHub-Pages-Build,
@@ -66,12 +67,13 @@ Nach jeder Änderung: `pnpm lint && pnpm typecheck && pnpm test && pnpm build`, 
 - Nichts ragt über den Bildrand, kein Wort bricht mitten im Wort um, und angepinnte oder klebende Flächen passen auch in niedrige Fenster (1366×650, 1280×740). Die Tests messen das (`cutOff`, `brokenWords` in `e2e/helpers.ts`).
 - Satzzeichen direkt hinter einem Link oder `<mark>`: auf eine Zeile schreiben und `{/* prettier-ignore */}` davor setzen, sonst entsteht ein sichtbares Leerzeichen.
 - Formulare tragen immer `method="post"`; Overlays mit eigenem Scrollen tragen `data-lenis-prevent`.
+- Zählung: Neue Haupt-Knöpfe tragen `data-track` mit einem Schlüssel aus `CTAS`, neue Seiten einen aus `PAGES` (`packages/survey/src/questions.ts`). Geprüft in `e2e/tracking.spec.ts`.
 - Suchmaschinen: Eine Seite mit `noindex` nie zusätzlich in der robots.txt sperren. Strukturierte Daten nur mit Angaben, die stimmen und in der Konfiguration stehen. Nachgestellte Betrugsnachrichten tragen `data-nosnippet`. Geprüft in `e2e/seo.spec.ts`.
 
 ## Nicht tun
 
 - Kein WordPress oder anderes CMS, keine Page-Builder, kein jQuery, kein Bootstrap, kein UI-Kit.
-- Kein Tracking, keine Cookies, keine externen Fonts oder CDNs (Ausnahme: Turnstile auf Formularseiten).
+- Kein Tracking von Personen, keine Cookies, keine Analysedienste Dritter, keine externen Fonts oder CDNs (Ausnahme: Turnstile auf Formularseiten). Erlaubt ist nur die eigene Zählung anonymer Tagessummen (`packages/ui/src/lib/track.ts`, Entscheidungen 164 bis 168): Werte aus festen Listen, nie freier Text, kein Speicher im Browser.
 - Keine erfundenen Inhalte: keine Kundenstimmen, Logos, Zahlen, Zertifikate, Auszeichnungen, Lebensläufe. Zahlen nur aus Abschnitt 5.17, immer mit Quellenlink.
 - Keine echten Marken in Betrugsbeispielen.
 - Keine Eingabefelder auf surprise.psyber.tech.

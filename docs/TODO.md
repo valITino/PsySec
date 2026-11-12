@@ -6,7 +6,7 @@ Sichtbare Platzhalter auf den Websites haben das Format `[TODO: …]`. Zentrale 
 
 - [ ] Look ansehen: Die Vorschau liegt unter `https://valitino.github.io/PsySec/` (Umfrage: `/forms/`, «Erwischt!»: `/surprise/gewinn`); lokal mit `pnpm dev:web`
 - [ ] Region im Kontakt und im Footer lautet jetzt «Schweiz» (Entscheidung 123). Falls Sie vorerst nur einen Teil der Schweiz abdecken, hier genauer werden: `apps/web/src/config/site.ts`
-- [ ] Logo-Kit Runde 6 ist eingebaut. Die Eule im Foto-Platzhalter von «Über» schaut dem Zeiger nach (Entscheidung 121): gefällt das, oder soll sie stillhalten?
+- [x] Die Eule im Foto-Platzhalter von «Über» (Entscheidung 121): entfällt, dort steht jetzt Ihr Porträt (Entscheidung 163)
 - [ ] Sticker-Sprüche und ergänzte Texte gegenlesen (Liste in Entscheidung 112)
 
 ## Nach dem Gesamt-Review: Ihre Rückmeldung
@@ -29,19 +29,26 @@ Die Technik ist vorbereitet (Entscheidungen 150 bis 159). Das Folgende geht nur 
 - [ ] Ratgeber-Texte je Masche (je rund 300 bis 800 Wörter aus Ihrer Erfahrung). Das ist der grösste Hebel für Sichtbarkeit: Heute steht fast alles auf einer Seite, und die Fallakten sind für eigene Seiten zu kurz.
 - [ ] Titel und Beschreibung der Startseite gegenlesen (Entscheidung 155)
 
-## Tracking und Analysen: Entscheidung nötig
+## Zählung der Reichweite: Ihre Rückmeldung
 
-Noch nicht eingebaut. Der Auftrag verbietet Tracking und Cookies; die Website sagt das an mehreren Stellen ausdrücklich («Kein Cookie-Banner. Weil wir keine Cookies setzen.», Datenschutzerklärung, `humans.txt`). Bevor etwas eingebaut wird, braucht es Ihre Wahl einer Variante (ohne Cookies und ohne Einwilligung möglich, oder klassisch mit Banner).
+Eingebaut ist die von Ihnen gewählte Variante: eigene anonyme Tagessummen ohne Cookies (Entscheidungen 164 bis 170). Was gezählt wird und wie Sie Links kennzeichnen, steht in `docs/DEPLOY.md`, Abschnitt «Reichweite».
+
+- [ ] Abschnitt «Anonyme Zähler» der Datenschutzerklärung gegenlesen und bei der rechtlichen Prüfung mitgeben
+- [ ] Wer «Global Privacy Control» oder «Do Not Track» eingeschaltet hat, wird nicht gezählt (Entscheidung 167). Einverstanden? Sonst lässt es sich in `packages/ui/src/lib/track.ts` mit einer Zeile ändern.
+- [ ] Links, die Sie verteilen, mit `?quelle=` kennzeichnen (Flyer, Instagram usw.)
+- [ ] Im eigenen Browser eines der beiden Signale einschalten, damit Ihre eigenen Besuche nicht mitzählen
 
 ## Inhalte
 
-- [ ] Name (Terminal-Karte «Über», Impressum, Datenschutz)
-- [ ] Rolle, z. B. «Cybersecurity-Spezialist» (Terminal-Karte)
-- [ ] Motivation, 2–3 Sätze (Terminal-Karte `warum.txt`)
-- [ ] Foto (Sektion «Über»; kein Stockfoto)
-- [ ] E-Mail-Adresse für Kontakt (Header-Menü, Kontakt, Footer, Fehlermeldung des Formulars, Gruss in der Konsole)
-- [ ] Telefon/WhatsApp-Nummer (Header-Menü, Kontakt, Footer)
-- [ ] Angaben fürs Impressum: Firma bzw. Name, Rechtsform, Adresse, UID (falls vorhanden)
+- [x] Name (Terminal-Karte «Über», Impressum, Datenschutz)
+- [x] Rolle: «Cybersecurity-Spezialist», bewusst neutral gehalten (Ihre Wahl, Entscheidung 162). Schärfen lässt sie sich jederzeit in `apps/web/src/config/site.ts` (`about.rolle`).
+- [ ] Ausbildung: Titel und Schule des CAS bestätigen («CAS Digital Forensics & Cybercrime Investigation Fundamentals, Berner Fachhochschule»). Soll die Note stehen bleiben?
+- [ ] Motivation, 2–3 Sätze (Terminal-Karte `warum.txt`): Warum gibt es PSYber?
+- [ ] Foto: vorübergehend steht das Bild aus dem Lebenslauf da (579 px breit, auf grossen Bildschirmen etwas weich). Bitte ein grösseres liefern, mindestens 1200 px breit; freigestellt wird es hier.
+- [ ] E-Mail-Adresse für Kontakt (Header-Menü, Kontakt, Footer, Fehlermeldung des Formulars, Gruss in der Konsole): bewusst noch leer, bis es eine Geschäftsadresse gibt (Ihre Wahl)
+- [ ] Telefon/WhatsApp-Nummer (Header-Menü, Kontakt, Footer): ebenso
+- [ ] Angaben fürs Impressum: Der Name steht; es fehlen Adresse, Rechtsform und UID (falls vorhanden)
+- [ ] Profile auf anderen Plattformen (zum Beispiel LinkedIn): Sollen sie verlinkt werden?
 - [ ] Finale Preise der vier Pakete (aktuell die Spannen aus dem Auftrag, nur bei `PUBLIC_SITE_PHASE=launch` sichtbar)
 
 ## Rechtliches

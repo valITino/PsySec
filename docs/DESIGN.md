@@ -142,3 +142,12 @@ Was ein Crawler bekommt, steht im gemeinsamen Seitenkopf (`packages/ui/src/compo
 - **Strukturierte Daten** (JSON-LD) entstehen aus der Konfiguration, nie von Hand im Markup. Nur Angaben, die stimmen: keine Bewertungen, keine Preise, keine Adresse, solange sie nicht eingetragen ist.
 - **Nachgestellte Betrugsnachrichten** tragen `data-nosnippet` (an `span` oder `div`): Sie sollen nie als Textauszug unter einem PSYber-Treffer stehen.
 - **Inhalte stehen im HTML**, nicht erst nach JavaScript: Jede Seite ist ohne Skript vollständig lesbar.
+
+## 9. Zählung der Reichweite
+
+Gezählt wird anonym und nur als Tagessumme (`packages/ui/src/lib/track.ts`, Entscheidungen 164 bis 168). Für neue Seiten und Knöpfe gilt:
+
+- **Neue Seite, deren Aufrufe zählen sollen:** Schlüssel in `PAGES` (`packages/survey/src/questions.ts`), im Layout der App zuordnen (`COUNTED`), Name für den Bericht in `scripts/analyze/compute.ts`.
+- **Neuer Haupt-Knopf:** `data-track` mit einem Schlüssel aus `CTAS`, benannt nach dem Platz auf der Seite, nicht nach dem Ziel (das Ziel wechselt mit der Phase).
+- **Nie freier Text:** keine Adressen, keine Eingaben, keine Parameter aus der URL. Was nicht in einer der Listen steht, lehnt die API ab.
+- **Kein Speicher im Browser** für die Zählung: keine Cookies, kein `localStorage`, keine Kennung. `e2e/tracking.spec.ts` prüft das.
