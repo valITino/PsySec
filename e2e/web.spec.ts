@@ -307,10 +307,38 @@ test.describe('psyber.tech', () => {
     await context.close();
   });
 
+  test('«Über»: Porträt, Name, Rolle und Ausbildung stehen da', async ({ page }) => {
+    await page.goto(`${WEB}/#ueber`);
+    await ready(page);
+    const section = page.locator('#ueber');
+    const photo = section.getByRole('img', { name: 'Porträt von Valentino Totaro' });
+    await photo.scrollIntoViewIfNeeded();
+    await expect(photo).toBeVisible();
+    // Wirklich geladen, und nie grösser gezeigt, als die Datei hergibt (sonst wird es unscharf).
+    await expect
+      .poll(() => photo.evaluate((img: HTMLImageElement) => (img.complete ? img.naturalWidth : 0)))
+      .toBe(579);
+    const shown = await photo.evaluate((img) => img.getBoundingClientRect().width);
+    expect(shown).toBeLessThanOrEqual(579);
+    // Die Bildunterschrift steht über dem Kopf, nicht auf dem Gesicht.
+    const caption = (await section.locator('figcaption').boundingBox())!;
+    const image = (await photo.boundingBox())!;
+    expect(caption.y + caption.height).toBeLessThanOrEqual(image.y + 1);
+    await expect(section.locator('figcaption')).toContainText('Valentino Totaro');
+
+    const terminal = section.locator('.terminal-body');
+    await expect(terminal).toContainText('Valentino Totaro');
+    await expect(terminal).toContainText('Cybersecurity-Spezialist');
+    await expect(terminal).toContainText('CAS Digital Forensics & Cybercrime Investigation');
+    await expect(terminal).toContainText('Note 6');
+    // Die Platzhalter für Name, Rolle und Foto sind weg.
+    await expect(section).not.toContainText(/TODO: (Name|Foto|z\. B\.)/);
+  });
+
   for (const reducedMotion of ['no-preference', 'reduce'] as const) {
     const mode = reducedMotion === 'reduce' ? 'reduzierte Bewegung' : 'mit Bewegung';
 
-    test(`«Über»: Die Eule schaut dem Zeiger nach (${mode})`, async ({
+    test(`Styleguide: Die Eule schaut dem Zeiger nach (${mode})`, async ({
       browser,
       isMobile,
     }, testInfo) => {
@@ -318,15 +346,15 @@ test.describe('psyber.tech', () => {
       const context = await browser.newContext({ ...testInfo.project.use, reducedMotion });
       const page = await context.newPage();
       const errors = collectErrors(page);
-      await page.goto(`${WEB}/#ueber`);
-      await expect(page.locator('html[data-scroll="ready"]')).toBeAttached({ timeout: 15_000 });
-      const owl = page.locator('#ueber [data-owl]');
+      await page.goto(`${WEB}/styleguide`);
+      const owl = page.locator('[data-owl]');
+      await owl.scrollIntoViewIfNeeded();
       await expect(owl).toBeVisible();
       const box = (await owl.boundingBox())!;
       /** Verschiebung der Pupillen nach rechts in Einheiten der Zeichnung */
       const shift = () =>
         page.evaluate(() => {
-          const pupils = document.querySelector<SVGGElement>('#ueber [data-owl-pupils]')!;
+          const pupils = document.querySelector<SVGGElement>('[data-owl-pupils]')!;
           return Number(/translate\(([-\d.]+)px/.exec(pupils.style.transform)?.[1] ?? 0);
         });
       const lookFrom = async (x: number) => {

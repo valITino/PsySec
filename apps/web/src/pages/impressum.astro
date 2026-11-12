@@ -1,6 +1,6 @@
 ---
 import Legal from '../components/Legal.astro';
-import { contact } from '../config/site.ts';
+import { about, contact } from '../config/site.ts';
 import Page from '../layouts/Page.astro';
 ---
 
@@ -16,7 +16,8 @@ import Page from '../layouts/Page.astro';
       <div>
         <dt>Name oder Firma</dt>
         <dd>
-          <span class="todo">[TODO: Name bzw. Firma und Rechtsform]</span>
+          {about.name}
+          <span class="todo">[TODO: Firma und Rechtsform, sobald vorhanden]</span>
         </dd>
       </div>
       <div>

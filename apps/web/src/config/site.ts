@@ -63,12 +63,18 @@ export const contact = {
 
 export const isTodo = (value: string) => value.startsWith('[TODO');
 
-/** Sektion «Über»: Angaben folgen (siehe docs/TODO.md). Nichts erfinden. */
+/**
+ * Sektion «Über». Nur Angaben, die stimmen und freigegeben sind (siehe docs/TODO.md):
+ * keine Arbeitgeber, keine privaten Kontaktdaten. Nichts erfinden.
+ */
 export const about = {
-  name: '[TODO: Name]',
-  rolle: '[TODO: z. B. Cybersecurity-Spezialist]',
+  name: 'Valentino Totaro',
+  rolle: 'Cybersecurity-Spezialist',
+  ausbildung:
+    'CAS Digital Forensics & Cybercrime Investigation Fundamentals, Berner Fachhochschule (Note 6)',
   warum: '[TODO: 2–3 Sätze Motivation]',
-  foto: '[TODO: Foto]',
+  /** Vorübergehend das Bild aus dem Lebenslauf: `src/assets/portrait.avif` und `.webp` */
+  foto: { alt: 'Porträt von Valentino Totaro', width: 579, height: 614 },
 } as const;
 
 // ---------------------------------------------------------------- Preise (nur bei `launch` anzeigen)

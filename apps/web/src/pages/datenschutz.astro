@@ -1,6 +1,6 @@
 ---
 import Legal from '../components/Legal.astro';
-import { contact } from '../config/site.ts';
+import { about, contact } from '../config/site.ts';
 import Page from '../layouts/Page.astro';
 ---
 
@@ -35,7 +35,8 @@ import Page from '../layouts/Page.astro';
       <div>
         <dt>Name und Adresse</dt>
         <dd>
-          <span class="todo">[TODO: Name bzw. Firma, Strasse, PLZ, Ort]</span>
+          {about.name}
+          <span class="todo">[TODO: Strasse, PLZ, Ort]</span>
         </dd>
       </div>
       <div>

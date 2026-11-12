@@ -1,17 +1,19 @@
 ---
 /**
- * 0x09 Über: Foto-Platzhalter als Punktraster-Karte, daneben Überschrift und Terminal-Karte.
- * Im Platzhalter hält die Eule die Stellung und schaut dem Zeiger nach (home.ts, owl-eyes.ts).
+ * 0x09 Über: Porträt in der Punktraster-Karte, daneben Überschrift und Terminal-Karte.
+ * Das Foto ist freigestellt (durchsichtiger Grund) und steht auf der unteren Kante der Karte.
  * Keine erfundenen Angaben.
  */
-import OwlLive from '@psyber/ui/components/OwlLive.astro';
 import stickerUrl from '@psyber/ui/brand/sticker-blick.svg?url';
+import portraitAvif from '../../assets/portrait.avif?url';
+import portraitWebp from '../../assets/portrait.webp?url';
 import { about } from '../../config/site.ts';
 import SectionHead from '../SectionHead.astro';
 
 const lines = [
   { command: 'whoami', output: about.name },
   { command: 'cat rolle.txt', output: about.rolle },
+  { command: 'cat ausbildung.txt', output: about.ausbildung },
   { command: 'cat warum.txt', output: about.warum },
 ];
 ---
@@ -24,10 +26,21 @@ const lines = [
         <span class="portrait-corner portrait-corner-tr" aria-hidden="true"></span>
         <span class="portrait-corner portrait-corner-bl" aria-hidden="true"></span>
         <span class="portrait-corner portrait-corner-br" aria-hidden="true"></span>
-        <OwlLive class="portrait-owl" />
+        <picture>
+          <source type="image/avif" srcset={portraitAvif} />
+          <img
+            class="portrait-photo"
+            src={portraitWebp}
+            width={about.foto.width}
+            height={about.foto.height}
+            alt={about.foto.alt}
+            loading="lazy"
+            decoding="async"
+          />
+        </picture>
         <figcaption class="portrait-caption">
-          <span class="label-up">{about.foto}</span>
-          <span>Solange hält die Eule die Stellung.</span>
+          <span class="label-up">{about.name}</span>
+          <span>{about.rolle}</span>
         </figcaption>
       </figure>
       <img
@@ -95,18 +108,19 @@ const lines = [
     gap: clamp(2rem, 4vw, 3rem);
   }
 
-  /* ---------- Foto-Platzhalter ---------- */
+  /* ---------- Porträt ---------- */
 
   .portrait-frame {
     position: relative;
     display: grid;
-    align-content: center;
+    align-content: end;
     justify-items: center;
-    gap: 1.5rem;
+    /* Die Figur steht auf der unteren Kante und folgt dort der Rundung der Karte. */
+    overflow: hidden;
     min-height: clamp(20rem, 60vw, 38rem);
     height: 100%;
-    /* unten Platz für den Sticker, damit er die Bildunterschrift nicht verdeckt */
-    padding: 2rem 2rem calc(var(--sticker-size) * 0.6 + 0.75rem);
+    /* oben Platz für die Bildunterschrift, damit sie nie über dem Gesicht liegt */
+    padding-top: 5.5rem;
     border: 1px solid var(--hairline);
     border-radius: var(--r-panel);
     background-color: var(--carbon);
@@ -123,17 +137,26 @@ const lines = [
     position: relative;
   }
 
-  .portrait-frame :global(.portrait-owl) {
-    width: min(58%, 15rem);
+  /* Das Bild selbst ist das Rasterelement: So steht es mittig und misst sich an der Karte. */
+  .portrait-frame picture {
+    display: contents;
+  }
+
+  /* Nie grösser als die Datei hergibt (579 px breit): Darüber würde das Bild unscharf. */
+  .portrait-photo {
+    width: min(94%, 36rem);
+    height: auto;
   }
 
   .portrait-caption {
+    position: absolute;
+    top: 2rem;
+    left: 2.25rem;
     display: grid;
-    justify-items: center;
-    gap: 0.375rem;
+    justify-items: start;
+    gap: 0.25rem;
     color: var(--ash);
     font-size: var(--fs-small);
-    text-align: center;
   }
 
   .portrait-caption .label-up {
@@ -148,8 +171,10 @@ const lines = [
     bottom: calc(var(--sticker-size) * -0.4);
   }
 
+  /* Die Ecken liegen wie ein Sucher über dem Bild. */
   .portrait-corner {
     position: absolute;
+    z-index: 1;
     width: 1.125rem;
     height: 1.125rem;
     border: 1px solid var(--ash);
