@@ -58,6 +58,56 @@ test.describe('surprise.psyber.tech', () => {
     expect(errors).toEqual([]);
   });
 
+  test('Übergang in Echtzeit: Am Ende steht nichts auf halbem Weg', async ({ page }) => {
+    await page.goto(URL);
+    await ready(page);
+    /*
+     * Nichts anhalten, nichts vorspulen: Läuft eine gestufte Animation von selbst aus, kann ihr
+     * letzter Schritt durch Rundung ausbleiben (Fortschritt 0,999…). Beim Vorspulen passiert das
+     * nicht. So fehlten in der Spur einmal die Auslassungspunkte der zweiten und dritten Zeile.
+     */
+    await expect(page.locator('[data-teaser]')).toBeHidden({ timeout: 8000 });
+    // Warten, bis auch Einrasten und Marker durch sind (was endlos läuft, zählt nicht).
+    await expect
+      .poll(
+        () =>
+          page.evaluate(
+            () =>
+              document
+                .getAnimations()
+                .filter(
+                  (animation) =>
+                    animation.playState === 'running' &&
+                    Number.isFinite(Number(animation.effect?.getComputedTiming().endTime)),
+                ).length,
+          ),
+        { timeout: 8000 },
+      )
+      .toBe(0);
+
+    const end = await page.evaluate(() => {
+      /** Anteil, der rechts noch abgeschnitten ist: 0 heisst, die Zeile steht ganz da. */
+      const cutRight = (element: Element) => {
+        const clip = getComputedStyle(element).clipPath;
+        if (clip === 'none') return 0;
+        const parts = /^inset\(([^)]*)\)$/.exec(clip)?.[1]?.split(' ') ?? [];
+        return Number.parseFloat(parts[1] ?? parts[0] ?? 'NaN');
+      };
+      const title = document.querySelector('.sp-title')!;
+      const text = getComputedStyle(document.querySelector('.sp-title-text')!);
+      return {
+        typed: [...document.querySelectorAll('.trace-cmd')].map(cutRight),
+        scanlines: getComputedStyle(document.querySelector('[data-glitch]')!).opacity,
+        ghosts: ['::before', '::after'].map((pseudo) => getComputedStyle(title, pseudo).opacity),
+        title: { clip: text.clipPath, transform: text.transform },
+      };
+    });
+    expect(end.typed).toEqual([0, 0, 0]);
+    expect(end.scanlines).toBe('0');
+    expect(end.ghosts).toEqual(['0', '0']);
+    expect(end.title).toEqual({ clip: 'none', transform: 'none' });
+  });
+
   test('Übergang in vier Takten: Teaser, Störung, Spur, Schnitt; per Taste überspringbar', async ({
     page,
   }) => {

@@ -427,6 +427,8 @@ test.describe('psyber.tech', () => {
         getComputedStyle(element, '::after').opacity,
       ]),
     ).toEqual(['0', '0']);
+    // Der getippte Befehl steht ganz da: Nach dem Tippen schneidet nichts mehr ab.
+    await expect(page.locator('.notfound-cmd')).toHaveCSS('clip-path', 'none');
   });
 
   for (const reducedMotion of ['no-preference', 'reduce'] as const) {

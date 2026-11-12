@@ -173,8 +173,9 @@ Wunsch des Inhabers nach der ersten Vorschau: «Erwischt!» länger und kräftig
 - **«Erwischt!»:** Übergang in vier Takten, 2,8 s bis zum Schnitt: Teaser, Störung (der Text zerfällt bis zu «ERWISCHT» in Hex), Spur (drei Zeilen wie aus einem Terminal), Einrasten mit Farbversatz. Überspringbar, ohne Blitzgewitter, bei reduzierter Bewegung sofort die Auflösung.
 - **Kleine Auftritte:** Kicker tippen sich ein, der Sucher stellt das Porträt scharf, 404-Glitch, Sticker reagieren auf den Zeiger, Seitenwechsel blenden über, Cookie-Hinweis wächst aus dem Knopf, Nummern der Checkliste und Danke-Screen gestaffelt, Häkchen federt.
 - **Gefunden dabei:** Der Build schreibt Zeiten im CSS um («2800ms» wird «2.8s»); das Überspringen las den Wert falsch und hätte nichts übersprungen. Ein Test hat es gezeigt, das Skript liest jetzt beide Schreibweisen. Und: Der Test des Terminals tippte den Konami-Code unter Last, bevor die Seite zuhörte (die Easter Eggs starten in einem ruhigen Moment nach dem Laden). Er wartet jetzt auf den Gruss in der Konsole, das Zeichen, dass sie bereit sind.
+- **Nach dem Merge gefunden und behoben:** In der Spur fehlten im echten Ablauf die Auslassungspunkte der zweiten und dritten Zeile (der letzte Schritt einer gestuften Animation blieb durch Rundung aus). Vier Animationen enden jetzt im Grundzustand; ein Test prüft den Übergang in Echtzeit (Entscheidung 175).
 - **Angaben:** Rechtsform, vorläufige Adresszeile und E-Mail eingetragen (Entscheidungen 171 und 172).
-- **Stand der Prüfkette:** 162 Unit-Tests, 321 E2E-Tests (47 übersprungen), 230 Header-Prüfungen, Lighthouse mobil 100, JS gzip web 64,1 KB, forms 36,2 KB, surprise 1,8 KB.
+- **Stand der Prüfkette:** 162 Unit-Tests, 323 E2E-Tests (47 übersprungen), 230 Header-Prüfungen, Lighthouse mobil 100, JS gzip web 64,1 KB, forms 36,2 KB, surprise 1,8 KB.
 
 ## Abschluss
 

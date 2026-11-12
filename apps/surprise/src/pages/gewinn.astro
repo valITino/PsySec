@@ -263,14 +263,15 @@ const signals = [
     pointer-events: none;
   }
 
+  /* Nur rückwärts gefüllt: Danach gilt der Grundzustand (unsichtbar), siehe Teaser.astro. */
   .sp-title::before {
     color: var(--crit);
-    animation: sp-ghost-a var(--sp-snap) steps(1, end) var(--sp-cut) both;
+    animation: sp-ghost-a var(--sp-snap) steps(1, end) var(--sp-cut) backwards;
   }
 
   .sp-title::after {
     color: var(--acid);
-    animation: sp-ghost-b var(--sp-snap) steps(1, end) var(--sp-cut) both;
+    animation: sp-ghost-b var(--sp-snap) steps(1, end) var(--sp-cut) backwards;
   }
 
   /*

@@ -199,9 +199,13 @@ import Icon from '@psyber/ui/components/Icon.astro';
     --at: calc(var(--sp-trace-at) + var(--sp-trace) * 0.54);
   }
 
-  /* Die Frage tippt sich, die Antwort springt danach hinein. */
+  /*
+   * Die Frage tippt sich, die Antwort springt danach hinein. Nur rückwärts gefüllt: Nach dem
+   * Tippen gilt wieder der Grundzustand, die ganze Zeile. Vorwärts gehalten bliebe der letzte
+   * Schritt hängen, siehe «Gestufte Animationen» bei den Keyframes.
+   */
   .trace-cmd {
-    animation: sp-type calc(var(--sp-trace) * 0.17) steps(18, end) var(--at) both;
+    animation: sp-type calc(var(--sp-trace) * 0.17) steps(18, end) var(--at) backwards;
   }
 
   .trace-out {
@@ -243,7 +247,8 @@ import Icon from '@psyber/ui/components/Icon.astro';
     );
     opacity: 0;
     pointer-events: none;
-    animation: sp-scan var(--sp-noise) steps(1, end) var(--sp-hold) both;
+    /* Nur rückwärts gefüllt: Danach gilt der Grundzustand (unsichtbar), siehe Keyframes. */
+    animation: sp-scan var(--sp-noise) steps(1, end) var(--sp-hold) backwards;
   }
 
   .glitch::before,
@@ -304,6 +309,16 @@ import Icon from '@psyber/ui/components/Icon.astro';
   }
 
   /* ---------- Keyframes ---------- */
+
+  /*
+   * Gestufte Animationen und ihr Ende: Läuft eine Animation von selbst aus, rechnet der Browser
+   * den Fortschritt aus Verzögerung und Dauer und landet dabei manchmal knapp unter 1
+   * (0,999…, Rundung). Mit steps() heisst das: Der letzte Schritt kommt nie. Darum gilt hier:
+   * Entweder endet eine Animation im Grundzustand und wird nur rückwärts gefüllt (sp-type,
+   * sp-scan, die Farbkanäle der Überschrift), oder ihre letzten beiden Keyframes sind gleich
+   * (sp-off, sp-tear, sp-alarm, sp-stutter, die Streifen). Beim Vorspulen fällt der Fehler nicht
+   * auf; der Test «in Echtzeit» in e2e/surprise.spec.ts lässt die Seite darum wirklich laufen.
+   */
 
   /* Beide Keyframes gleich: ab hier ist das Element weg (ohne Rundungsfehler am Ende). */
   @keyframes sp-off {
